@@ -1,27 +1,37 @@
-import { useState } from 'react';
 import { Search, SlidersHorizontal, Clock, MapPin, ChevronRight } from 'lucide-react';
 import { CHURCH_EVENTS } from '../../data/mockData';
 import { ChurchEvent, EventCategory, Screen } from '../../types';
 import SafeImage from '../SafeImage';
+import { normalizeSearch } from '../../utils/search';
 
 interface EventsScreenProps {
   onNavigate: (screen: Screen) => void;
   onSelectEvent: (event: ChurchEvent) => void;
+  selectedCategory: EventCategory;
+  onSelectCategory: (category: EventCategory) => void;
+  searchQuery: string;
+  onSearchQueryChange: (query: string) => void;
   isDesktopLayout?: boolean;
 }
 
 const CATEGORIES: EventCategory[] = ['Todos', 'Cultos', 'Congressos', 'Vigílias', 'Reuniões'];
 
-export default function EventsScreen({ onNavigate, onSelectEvent, isDesktopLayout = false }: EventsScreenProps) {
-  const [selectedCategory, setSelectedCategory] = useState<EventCategory>('Todos');
-  const [searchQuery, setSearchQuery] = useState('');
+export default function EventsScreen({
+  onNavigate,
+  onSelectEvent,
+  selectedCategory,
+  onSelectCategory,
+  searchQuery,
+  onSearchQueryChange,
+}: EventsScreenProps) {
 
+  const normalizedQuery = normalizeSearch(searchQuery);
   const filteredEvents = CHURCH_EVENTS.filter((event) => {
     const matchesCategory =
       selectedCategory === 'Todos' || event.category === selectedCategory;
     const matchesSearch =
-      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.location.toLowerCase().includes(searchQuery.toLowerCase());
+      normalizeSearch(event.title).includes(normalizedQuery) ||
+      normalizeSearch(event.location).includes(normalizedQuery);
     return matchesCategory && matchesSearch;
   });
 
@@ -37,15 +47,20 @@ export default function EventsScreen({ onNavigate, onSelectEvent, isDesktopLayou
                 <Search className="w-4 h-4 text-slate-400 shrink-0" />
                 <input
                   type="text"
+                  aria-label="Pesquisar eventos"
                   placeholder="Pesquisar eventos..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => onSearchQueryChange(e.target.value)}
                   className="w-full bg-transparent text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none"
                 />
                 <button
                   className="text-slate-500 hover:text-slate-700 p-0.5 cursor-pointer"
-                  aria-label="Filtros"
-                  onClick={() => setSelectedCategory('Todos')}
+                  aria-label="Limpar filtros"
+                  title="Limpar filtros"
+                  onClick={() => {
+                    onSelectCategory('Todos');
+                    onSearchQueryChange('');
+                  }}
                 >
                   <SlidersHorizontal className="w-4 h-4 stroke-[2]" />
                 </button>
@@ -66,7 +81,7 @@ export default function EventsScreen({ onNavigate, onSelectEvent, isDesktopLayou
               return (
                 <button
                   key={category}
-                  onClick={() => setSelectedCategory(category)}
+                  onClick={() => onSelectCategory(category)}
                   className={`px-4 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                     isActive
                       ? 'bg-[#0066cc] text-white shadow-xs'
@@ -88,13 +103,14 @@ export default function EventsScreen({ onNavigate, onSelectEvent, isDesktopLayou
             </div>
           ) : (
             filteredEvents.map((event) => (
-              <div
+              <button
                 key={event.id}
+                type="button"
                 onClick={() => {
                   onSelectEvent(event);
                   onNavigate('event-detail');
                 }}
-                className="bg-white rounded-2xl p-3.5 sm:p-4 shadow-xs border border-[#E2E8F0] flex items-center gap-3.5 cursor-pointer hover:border-[#0066cc]/60 hover:shadow-md active:scale-[0.99] transition-all group"
+                className="w-full text-left bg-white rounded-2xl p-3.5 sm:p-4 shadow-xs border border-[#E2E8F0] flex items-center gap-3.5 cursor-pointer hover:border-[#0066cc]/60 hover:shadow-md active:scale-[0.99] transition-all group"
               >
                 {/* Left Thumbnail with SafeImage */}
                 <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 bg-slate-100 relative shadow-2xs">
@@ -162,7 +178,7 @@ export default function EventsScreen({ onNavigate, onSelectEvent, isDesktopLayou
                     </div>
                   </div>
                 </div>
-              </div>
+              </button>
             ))
           )}
         </div>

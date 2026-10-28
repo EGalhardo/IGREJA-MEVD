@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { X, Check, Church, Phone, Mail, User, Shield, HelpCircle, Bell, Play, BookOpen, AlertTriangle, MapPin, Heart } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { X, Church, Phone, Mail, User, Shield, Play, AlertTriangle, MapPin, Heart } from 'lucide-react';
 import { UserProfile } from '../types';
 import SafeImage from './SafeImage';
 import { sanitizeText, sanitizeEmail, sanitizePhone, sanitizeCivilStatus } from '../utils/sanitize';
@@ -27,7 +27,10 @@ export default function Modals({
   const [phone, setPhone] = useState(user.phone);
   const [address, setAddress] = useState(user.address || 'Rua do Sanatório, Morro Bento, Luanda');
   const [email, setEmail] = useState(user.email);
-  const [notifications, setNotifications] = useState(user.notificationsActive);
+  const notifications = user.notificationsActive;
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   // Form error states
   const [errors, setErrors] = useState<{
@@ -48,6 +51,20 @@ export default function Modals({
       setErrors({});
     }
   }, [user, activeModal]);
+
+  useEffect(() => {
+    if (!activeModal) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    closeButtonRef.current?.focus({ preventScroll: true });
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onCloseRef.current();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
+    };
+  }, [activeModal]);
 
   if (!activeModal) return null;
 
@@ -97,19 +114,22 @@ export default function Modals({
       email: emailResult.value,
     });
 
-    onShowToast('Dados do perfil actualizados com sucesso!');
+    onShowToast('Dados do perfil actualizados nesta sessão.');
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
         className="w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl border border-[#E2E8F0] max-h-[90vh] overflow-y-auto flex flex-col p-5"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
-          <h2 className="text-base font-bold text-slate-900">
+          <h2 id="modal-title" className="text-base font-bold text-slate-900">
             {activeModal === 'meus-dados' && 'Os meus dados'}
             {activeModal === 'minha-igreja' && 'Igreja'}
             {activeModal === 'actividades' && 'As minhas actividades'}
@@ -122,7 +142,9 @@ export default function Modals({
           </h2>
 
           <button
+            ref={closeButtonRef}
             onClick={onClose}
+            aria-label="Fechar"
             className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
@@ -133,7 +155,7 @@ export default function Modals({
         <div className="py-4 space-y-4">
           {/* 1. Os meus dados: Nome, Estado civil, contacto(Whatsapp), Morada e Email */}
           {activeModal === 'meus-dados' && (
-            <div className="space-y-3.5">
+            <form noValidate className="space-y-3.5" onSubmit={(event) => { event.preventDefault(); handleSaveProfile(); }}>
               <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-[#E2E8F0]">
                 <SafeImage
                   src={user.avatar}
@@ -150,7 +172,7 @@ export default function Modals({
 
               {/* 1. Nome */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                <label htmlFor="profile-name" className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                   Nome
                 </label>
                 <div
@@ -161,6 +183,9 @@ export default function Modals({
                   <User className="w-4 h-4 text-[#0066cc] shrink-0" />
                   <input
                     type="text"
+                    id="profile-name"
+                    aria-invalid={Boolean(errors.name)}
+                    aria-describedby={errors.name ? "profile-name-error" : undefined}
                     value={name}
                     maxLength={60}
                     onChange={(e) => {
@@ -171,17 +196,18 @@ export default function Modals({
                     className="w-full bg-transparent focus:outline-none text-slate-800 font-medium"
                   />
                 </div>
-                {errors.name && <p className="text-[10px] text-red-500 mt-1 font-medium">{errors.name}</p>}
+                {errors.name && <p id="profile-name-error" role="alert" className="text-[10px] text-red-500 mt-1 font-medium">{errors.name}</p>}
               </div>
 
               {/* 2. Estado civil */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                <label htmlFor="profile-civil-status" className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                   Estado civil
                 </label>
                 <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-slate-50 border border-[#E2E8F0] focus-within:border-blue-500 focus-within:bg-white rounded-xl text-xs transition-colors">
                   <Heart className="w-4 h-4 text-[#0066cc] shrink-0" />
                   <select
+                    id="profile-civil-status"
                     value={civilStatus}
                     onChange={(e) => setCivilStatus(e.target.value)}
                     className="w-full bg-transparent focus:outline-none text-slate-800 font-medium cursor-pointer"
@@ -196,7 +222,7 @@ export default function Modals({
 
               {/* 3. contacto(Whatsapp) */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                <label htmlFor="profile-phone" className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                   contacto(Whatsapp)
                 </label>
                 <div
@@ -207,6 +233,9 @@ export default function Modals({
                   <Phone className="w-4 h-4 text-[#0066cc] shrink-0" />
                   <input
                     type="tel"
+                    id="profile-phone"
+                    aria-invalid={Boolean(errors.phone)}
+                    aria-describedby={errors.phone ? "profile-phone-error" : undefined}
                     value={phone}
                     maxLength={25}
                     onChange={(e) => {
@@ -217,12 +246,12 @@ export default function Modals({
                     className="w-full bg-transparent focus:outline-none text-slate-800 font-medium"
                   />
                 </div>
-                {errors.phone && <p className="text-[10px] text-red-500 mt-1 font-medium">{errors.phone}</p>}
+                {errors.phone && <p id="profile-phone-error" role="alert" className="text-[10px] text-red-500 mt-1 font-medium">{errors.phone}</p>}
               </div>
 
               {/* 4. Morada */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                <label htmlFor="profile-address" className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                   Morada
                 </label>
                 <div
@@ -233,6 +262,9 @@ export default function Modals({
                   <MapPin className="w-4 h-4 text-[#0066cc] shrink-0" />
                   <input
                     type="text"
+                    id="profile-address"
+                    aria-invalid={Boolean(errors.address)}
+                    aria-describedby={errors.address ? "profile-address-error" : undefined}
                     value={address}
                     maxLength={120}
                     onChange={(e) => {
@@ -243,12 +275,12 @@ export default function Modals({
                     className="w-full bg-transparent focus:outline-none text-slate-800 font-medium"
                   />
                 </div>
-                {errors.address && <p className="text-[10px] text-red-500 mt-1 font-medium">{errors.address}</p>}
+                {errors.address && <p id="profile-address-error" role="alert" className="text-[10px] text-red-500 mt-1 font-medium">{errors.address}</p>}
               </div>
 
               {/* 5. Email */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                <label htmlFor="profile-email" className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                   Email
                 </label>
                 <div
@@ -259,6 +291,9 @@ export default function Modals({
                   <Mail className="w-4 h-4 text-[#0066cc] shrink-0" />
                   <input
                     type="email"
+                    id="profile-email"
+                    aria-invalid={Boolean(errors.email)}
+                    aria-describedby={errors.email ? "profile-email-error" : undefined}
                     value={email}
                     maxLength={80}
                     onChange={(e) => {
@@ -269,16 +304,16 @@ export default function Modals({
                     className="w-full bg-transparent focus:outline-none text-slate-800 font-medium"
                   />
                 </div>
-                {errors.email && <p className="text-[10px] text-red-500 mt-1 font-medium">{errors.email}</p>}
+                {errors.email && <p id="profile-email-error" role="alert" className="text-[10px] text-red-500 mt-1 font-medium">{errors.email}</p>}
               </div>
 
               <button
-                onClick={handleSaveProfile}
+                type="submit"
                 className="w-full py-3 bg-[#0066cc] hover:bg-blue-700 text-white rounded-xl font-semibold text-xs transition-colors shadow-xs cursor-pointer mt-2"
               >
                 Salvar Alterações
               </button>
-            </div>
+            </form>
           )}
 
           {/* 2. Igreja */}
@@ -314,7 +349,7 @@ export default function Modals({
           {activeModal === 'actividades' && (
             <div className="space-y-3">
               <div>
-                <h4 className="text-xs font-bold text-slate-900 mb-2">Eventos Inscritos (3)</h4>
+                <h4 className="text-xs font-bold text-slate-900 mb-2">Exemplos de eventos (3)</h4>
                 <div className="space-y-2">
                   <div className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between">
                     <div>
@@ -372,10 +407,12 @@ export default function Modals({
                 </div>
                 <button
                   onClick={() => {
-                    setNotifications(!notifications);
                     onUpdateUser({ notificationsActive: !notifications });
-                    onShowToast(!notifications ? 'Notificações activadas!' : 'Notificações desactivadas.');
+                    onShowToast(!notifications ? 'Preferência de notificações activada nesta sessão.' : 'Preferência de notificações desactivada nesta sessão.');
                   }}
+                  role="switch"
+                  aria-label="Alertas de Eventos e Cultos"
+                  aria-checked={notifications}
                   className={`w-11 h-6 rounded-full transition-colors relative p-0.5 ${
                     notifications ? 'bg-[#0066cc]' : 'bg-slate-300'
                   }`}
@@ -389,7 +426,7 @@ export default function Modals({
               </div>
 
               <div className="p-3 bg-blue-50 text-blue-900 rounded-2xl text-[11px] leading-relaxed">
-                Todas as notificações importantes da sua igreja serão enviadas para o seu telemóvel e email.
+                Esta opção é demonstrativa e a alteração dura apenas nesta sessão. O envio automático de alertas não está configurado.
               </div>
             </div>
           )}
@@ -402,12 +439,12 @@ export default function Modals({
                 <div>
                   <h4 className="font-bold text-slate-900 text-xs">Protecção de Dados Pessoais</h4>
                   <p className="text-[11px] text-slate-500 mt-1">
-                    Os seus dados e informações de membro estão protegidos com encriptação de ponta a ponta e apenas visíveis para a secretaria da igreja.
+                    Os dados de perfil são demonstrativos e as alterações ficam apenas nesta sessão. Esta versão não implementa autenticação nem encriptação de ponta a ponta.
                   </p>
                 </div>
               </div>
               <p className="text-[11px] leading-relaxed">
-                Pode solicitar a qualquer momento a actualização ou exportação do seu registo ministerial junto do conselho pastoral.
+                Evite introduzir dados sensíveis nesta versão de demonstração.
               </p>
             </div>
           )}
@@ -434,9 +471,10 @@ export default function Modals({
           {/* 7. Sermões */}
           {activeModal === 'sermoes' && (
             <div className="space-y-2.5 text-xs">
-              <div
-                onClick={() => onShowToast('A reproduzir áudio do sermão: "Vencendo Gigantes pela Fé"')}
-                className="p-3 bg-slate-50 hover:bg-blue-50/50 rounded-xl border border-slate-100 flex items-center gap-3 cursor-pointer transition-colors group"
+              <button
+                type="button"
+                onClick={() => onShowToast('Áudio do sermão indisponível nesta versão.')}
+                className="w-full text-left p-3 bg-slate-50 hover:bg-blue-50/50 rounded-xl border border-slate-100 flex items-center gap-3 cursor-pointer transition-colors group"
               >
                 <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center pl-0.5 shrink-0 group-hover:scale-105 transition-transform">
                   <Play className="w-4 h-4 fill-current" />
@@ -447,10 +485,11 @@ export default function Modals({
                   </h4>
                   <p className="text-[10px] text-slate-500">Pr. Feliz Paulo • 42 min</p>
                 </div>
-              </div>
-              <div
-                onClick={() => onShowToast('A reproduzir áudio do sermão: "O Poder da Oração em Unidade"')}
-                className="p-3 bg-slate-50 hover:bg-blue-50/50 rounded-xl border border-slate-100 flex items-center gap-3 cursor-pointer transition-colors group"
+              </button>
+              <button
+                type="button"
+                onClick={() => onShowToast('Áudio do sermão indisponível nesta versão.')}
+                className="w-full text-left p-3 bg-slate-50 hover:bg-blue-50/50 rounded-xl border border-slate-100 flex items-center gap-3 cursor-pointer transition-colors group"
               >
                 <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center pl-0.5 shrink-0 group-hover:scale-105 transition-transform">
                   <Play className="w-4 h-4 fill-current" />
@@ -461,7 +500,7 @@ export default function Modals({
                   </h4>
                   <p className="text-[10px] text-slate-500">Pra. Manuela Paulo • 38 min</p>
                 </div>
-              </div>
+              </button>
             </div>
           )}
 

@@ -6,6 +6,8 @@ import { shareOrCopy } from '../../utils/shareUtils';
 
 interface EventDetailScreenProps {
   event: ChurchEvent;
+  isRegistered: boolean;
+  onToggleRegistration: (eventId: string) => void;
   onNavigate: (screen: Screen) => void;
   onBack: () => void;
   onShowToast: (message: string) => void;
@@ -14,20 +16,20 @@ interface EventDetailScreenProps {
 
 export default function EventDetailScreen({
   event,
+  isRegistered,
+  onToggleRegistration,
   onBack,
   onShowToast,
-  isDesktopLayout = false,
 }: EventDetailScreenProps) {
-  const [isRegistered, setIsRegistered] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
 
   const handleRegister = () => {
-    setIsRegistered((prev) => !prev);
-    if (!isRegistered) {
-      onShowToast('Inscrição confirmada com sucesso!');
-    } else {
-      onShowToast('Inscrição cancelada.');
-    }
+    onToggleRegistration(event.id);
+    onShowToast(
+      isRegistered
+        ? 'Marcação removida nesta sessão.'
+        : 'Presença marcada nesta sessão. Esta é uma simulação.'
+    );
   };
 
   const handleShare = async () => {
@@ -36,18 +38,20 @@ export default function EventDetailScreen({
 
     const shareDescription = `Participe do ${event.title}!\nData: ${event.dateDay} de ${event.dateMonth} • ${event.time}\nLocal: ${event.location}\nIGREJA MEVD - Juntos na fé.`;
 
-    await shareOrCopy(
-      {
-        title: `${event.title} • IGREJA MEVD`,
-        text: shareDescription,
-        url: typeof window !== 'undefined' ? window.location.href : '',
-      },
-      (msg) => {
-        onShowToast(msg);
-      }
-    );
-
-    setIsSharing(false);
+    try {
+      const eventUrl = new URL(window.location.href);
+      eventUrl.searchParams.set('evento', event.id);
+      await shareOrCopy(
+        {
+          title: `${event.title} • IGREJA MEVD`,
+          text: shareDescription,
+          url: eventUrl.toString(),
+        },
+        (msg) => onShowToast(msg)
+      );
+    } finally {
+      setIsSharing(false);
+    }
   };
 
   return (
@@ -152,6 +156,7 @@ export default function EventDetailScreen({
                 <div className="flex flex-col sm:flex-row gap-3">
                   <button
                     onClick={handleRegister}
+                    aria-pressed={isRegistered}
                     className={`flex-1 py-4 px-6 rounded-2xl font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2.5 shadow-sm transition-all active:scale-[0.98] cursor-pointer ${
                       isRegistered
                         ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
@@ -161,7 +166,7 @@ export default function EventDetailScreen({
                     {isRegistered ? (
                       <>
                         <Check className="w-5 h-5 stroke-[2.5]" />
-                        <span>Presença Confirmada • Dentro do Evento</span>
+                        <span>Presença marcada nesta sessão</span>
                       </>
                     ) : (
                       <>
@@ -173,13 +178,17 @@ export default function EventDetailScreen({
 
                   <button
                     onClick={handleShare}
-                    className="py-4 px-5 rounded-2xl font-bold text-xs sm:text-sm text-slate-700 bg-slate-100 hover:bg-slate-200 border border-[#E2E8F0] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
+                    disabled={isSharing}
+                    className="py-4 px-5 rounded-2xl font-bold text-xs sm:text-sm text-slate-700 bg-slate-100 hover:bg-slate-200 border border-[#E2E8F0] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98] disabled:opacity-50"
                     title="Partilhar evento com amigos"
                   >
                     <Share2 className="w-4 h-4 text-[#0066cc]" />
                     <span>Partilhar</span>
                   </button>
                 </div>
+                <p className="text-[11px] text-slate-500">
+                  A marcação é apenas uma simulação nesta sessão e não é enviada à igreja.
+                </p>
               </div>
 
               {/* Right Column (or Bottom): Description & 3 Highlights */}
@@ -200,29 +209,21 @@ export default function EventDetailScreen({
                     Destaques do programa
                   </p>
                   <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
-                    {/* Pillar 1: Palestrantes convidados */}
-                    <div className="bg-white border border-[#E2E8F0] rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center min-h-[96px] sm:min-h-[110px] shadow-2xs">
-                      <Mic className="w-5 h-5 sm:w-6 sm:h-6 text-[#0066cc] stroke-[2.2] mb-1.5" />
-                      <span className="text-[10px] sm:text-xs font-bold text-slate-800 leading-tight">
-                        Palestrantes convidados
-                      </span>
-                    </div>
-
-                    {/* Pillar 2: Louvor e adoração */}
-                    <div className="bg-white border border-[#E2E8F0] rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center min-h-[96px] sm:min-h-[110px] shadow-2xs">
-                      <Music className="w-5 h-5 sm:w-6 sm:h-6 text-[#0066cc] stroke-[2.2] mb-1.5" />
-                      <span className="text-[10px] sm:text-xs font-bold text-slate-800 leading-tight">
-                        Louvor e adoração
-                      </span>
-                    </div>
-
-                    {/* Pillar 3: Networking e muito mais */}
-                    <div className="bg-white border border-[#E2E8F0] rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center min-h-[96px] sm:min-h-[110px] shadow-2xs">
-                      <Users className="w-5 h-5 sm:w-6 sm:h-6 text-[#0066cc] stroke-[2.2] mb-1.5" />
-                      <span className="text-[10px] sm:text-xs font-bold text-slate-800 leading-tight">
-                        Networking e muito mais
-                      </span>
-                    </div>
+                    {(event.highlights ?? [
+                      { icon: 'mic' as const, title: 'Palestrantes convidados' },
+                      { icon: 'music' as const, title: 'Louvor e adoração' },
+                      { icon: 'users' as const, title: 'Networking e muito mais' },
+                    ]).map((highlight, index) => {
+                      const Icon = { mic: Mic, music: Music, users: Users }[highlight.icon];
+                      return (
+                        <div key={`${highlight.icon}-${index}`} className="bg-white border border-[#E2E8F0] rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center min-h-[96px] sm:min-h-[110px] shadow-2xs">
+                          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-[#0066cc] stroke-[2.2] mb-1.5" />
+                          <span className="text-[10px] sm:text-xs font-bold text-slate-800 leading-tight">
+                            {highlight.title}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

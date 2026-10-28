@@ -5,19 +5,15 @@ import {
   Bookmark,
   Volume2,
   VolumeX,
-  Share2,
   Sparkles,
   ChevronRight,
   ChevronLeft,
   ArrowLeft,
   Copy,
   Check,
-  Type,
   ExternalLink,
   ChevronDown,
   ArrowUp,
-  SlidersHorizontal,
-  Compass,
   Tag,
 } from 'lucide-react';
 import { Screen } from '../../types';
@@ -28,7 +24,8 @@ import {
   TOPICAL_SEARCH_VERSES,
   BibleVerse,
 } from '../../data/bibleData';
-import { copyToClipboard, shareOrCopy } from '../../utils/shareUtils';
+import { copyToClipboard } from '../../utils/shareUtils';
+import { normalizeSearch } from '../../utils/search';
 
 interface BibleScreenProps {
   onNavigate: (screen: Screen) => void;
@@ -76,7 +73,7 @@ const DAILY_VERSES = [
 
 type ReaderFontSize = 'sm' | 'base' | 'lg' | 'xl';
 
-export default function BibleScreen({ onNavigate, isDesktopLayout = false, onShowToast }: BibleScreenProps) {
+export default function BibleScreen({ onShowToast }: BibleScreenProps) {
   // Navigation inside the Bible page
   const [selectedBook, setSelectedBook] = useState<BibleBook | null>(null);
   const [selectedChapter, setSelectedChapter] = useState<number | null>(null);
@@ -98,13 +95,15 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
 
   // Reader state
   const [fontSize, setFontSize] = useState<ReaderFontSize>('base');
-  const [bibleVersion, setBibleVersion] = useState<'ARA' | 'NVI'>('ARA');
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [bookmarkedVerses, setBookmarkedVerses] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('mevd_bible_bookmarks');
-      return saved ? JSON.parse(saved) : ['Salmos 23:1', 'Filipenses 4:13'];
+      const parsed: unknown = saved ? JSON.parse(saved) : null;
+      return Array.isArray(parsed)
+        ? parsed.filter((item): item is string => typeof item === 'string')
+        : ['Salmos 23:1', 'Filipenses 4:13'];
     } catch {
       return ['Salmos 23:1', 'Filipenses 4:13'];
     }
@@ -117,23 +116,28 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
 
   useEffect(() => {
     return () => {
+      speechRef.current = null;
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
     };
   }, []);
 
-  // Monitor scroll for back-to-top button
   useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 300) {
-        setShowScrollTop(true);
-      } else {
-        setShowScrollTop(false);
-      }
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    try {
+      localStorage.setItem('mevd_bible_bookmarks', JSON.stringify(bookmarkedVerses));
+    } catch {
+      // Os favoritos continuam disponíveis durante a sessão, mesmo sem armazenamento.
+    }
+  }, [bookmarkedVerses]);
+
+  // O conteúdo rola dentro do próprio leitor, não na janela.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const handleScroll = () => setShowScrollTop(container.scrollTop > 300);
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    return () => container.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Filtered books
@@ -145,10 +149,10 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
       if (activeCategory !== 'todos' && book.category !== activeCategory) return false;
 
       if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase().trim();
-        const matchesName = book.name.toLowerCase().includes(query);
-        const matchesAbbr = book.abbr.toLowerCase().includes(query);
-        const matchesCat = book.category.toLowerCase().includes(query);
+        const query = normalizeSearch(searchQuery);
+        const matchesName = normalizeSearch(book.name).includes(query);
+        const matchesAbbr = normalizeSearch(book.abbr).includes(query);
+        const matchesCat = normalizeSearch(book.category).includes(query);
         return matchesName || matchesAbbr || matchesCat;
       }
 
@@ -159,12 +163,12 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
   // Topic search results
   const topicalResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
-    const query = searchQuery.toLowerCase().trim();
+    const query = normalizeSearch(searchQuery);
     return TOPICAL_SEARCH_VERSES.filter(
       (item) =>
-        item.topic.toLowerCase().includes(query) ||
-        item.text.toLowerCase().includes(query) ||
-        item.ref.toLowerCase().includes(query)
+        normalizeSearch(item.topic).includes(query) ||
+        normalizeSearch(item.text).includes(query) ||
+        normalizeSearch(item.ref).includes(query)
     );
   }, [searchQuery]);
 
@@ -179,12 +183,14 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
     return Array.from(cats);
   }, [selectedTestament]);
 
+  const resetScroll = () => containerRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+
   // Handle open a book to select chapter
   const handleSelectBook = (book: BibleBook) => {
     setSelectedBook(book);
     setViewMode('chapters');
     setShowBookPickerModal(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    resetScroll();
   };
 
   // Handle open specific chapter
@@ -198,7 +204,7 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
       setShowBookPickerModal(false);
       setChapterFilterQuery('');
       stopAudio();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      resetScroll();
     }
   };
 
@@ -207,12 +213,7 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
     setViewMode('books');
     setSelectedChapter(null);
     stopAudio();
-  };
-
-  // Return to chapter selection
-  const handleBackToChapters = () => {
-    setViewMode('chapters');
-    stopAudio();
+    resetScroll();
   };
 
   // Next / Prev Chapter navigation calculation
@@ -272,19 +273,11 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
 
   // Bookmark toggle
   const toggleBookmark = (verseRef: string) => {
-    setBookmarkedVerses((prev) => {
-      const exists = prev.includes(verseRef);
-      const updated = exists ? prev.filter((r) => r !== verseRef) : [...prev, verseRef];
-      try {
-        localStorage.setItem('mevd_bible_bookmarks', JSON.stringify(updated));
-      } catch {
-        // Ignore local storage error
-      }
-      if (onShowToast) {
-        onShowToast(exists ? 'Versículo removido dos favoritos.' : 'Versículo guardado nos favoritos!');
-      }
-      return updated;
-    });
+    const exists = bookmarkedVerses.includes(verseRef);
+    setBookmarkedVerses((prev) =>
+      prev.includes(verseRef) ? prev.filter((r) => r !== verseRef) : [...prev, verseRef]
+    );
+    onShowToast?.(exists ? 'Versículo removido dos favoritos.' : 'Versículo guardado nos favoritos!');
   };
 
   // Safe clipboard copy
@@ -297,12 +290,13 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
       }
       setTimeout(() => setCopiedNotification(null), 2500);
     } else if (onShowToast) {
-      onShowToast(`Texto selecionado: ${text.slice(0, 40)}...`);
+      onShowToast('Não foi possível copiar o texto neste navegador.');
     }
   };
 
   // Audio Speech Synthesis Player
   const stopAudio = () => {
+    speechRef.current = null;
     try {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -332,13 +326,14 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
       utterance.lang = 'pt-BR';
       utterance.rate = 0.95;
 
-      utterance.onend = () => {
-        setIsPlayingAudio(false);
+      const finishAudio = () => {
+        if (speechRef.current === utterance) {
+          speechRef.current = null;
+          setIsPlayingAudio(false);
+        }
       };
-
-      utterance.onerror = () => {
-        setIsPlayingAudio(false);
-      };
+      utterance.onend = finishAudio;
+      utterance.onerror = finishAudio;
 
       speechRef.current = utterance;
       setIsPlayingAudio(true);
@@ -360,25 +355,22 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
   // Filtered verses inside chapter if searching
   const displayedVerses = useMemo(() => {
     if (!chapterFilterQuery.trim()) return currentVerses;
-    const query = chapterFilterQuery.toLowerCase().trim();
+    const query = normalizeSearch(chapterFilterQuery);
     return currentVerses.filter(
-      (v) => v.text.toLowerCase().includes(query) || String(v.number) === query
+      (v) => normalizeSearch(v.text).includes(query) || String(v.number) === query
     );
   }, [currentVerses, chapterFilterQuery]);
 
   // Current chapter text string for audio and copy
   const fullChapterText = useMemo(() => {
     if (!selectedBook || selectedChapter === null) return '';
-    return `${selectedBook.name}, Capítulo ${selectedChapter}. ${currentVerses
+    return `Excertos de ${selectedBook.name}, capítulo ${selectedChapter}. ${currentVerses
       .map((v) => `${v.number}. ${v.text}`)
       .join(' ')}`;
   }, [selectedBook, selectedChapter, currentVerses]);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (containerRef.current) {
-      containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -412,8 +404,8 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
                       className={`p-2 rounded-full backdrop-blur-md transition-colors cursor-pointer ${
                         isPlayingAudio ? 'bg-white text-amber-900 shadow-md' : 'bg-white/20 text-white hover:bg-white/30'
                       }`}
-                      title={isPlayingAudio ? 'Pausar áudio' : 'Ouvir leitura em áudio'}
-                      aria-label="Ouvir leitura em áudio"
+                      title={isPlayingAudio ? 'Parar áudio' : 'Ouvir leitura em áudio'}
+                      aria-label={isPlayingAudio ? 'Parar áudio' : 'Ouvir leitura em áudio'}
                     >
                       {isPlayingAudio ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                     </button>
@@ -463,7 +455,7 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
                     }}
                     className="inline-flex items-center gap-1.5 font-bold text-white hover:text-amber-200 underline transition-colors cursor-pointer"
                   >
-                    <span>Ler capítulo completo ({activeVerse.ref.split(':')[0]})</span>
+                    <span>Ler trechos do capítulo ({activeVerse.ref.split(':')[0]})</span>
                     <ExternalLink className="w-3.5 h-3.5" />
                   </button>
 
@@ -490,7 +482,7 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
                     <span>Bíblia Sagrada • Antigo e Novo Testamento</span>
                   </h2>
                   <p className="text-xs text-slate-500 mt-1">
-                    Consulte os 66 livros canónicos, navegue com facilidade entre capítulos e aprofunde o estudo da Palavra.
+                    Navegue pelos 66 livros canónicos. O texto disponível contém apenas os trechos incluídos na aplicação.
                   </p>
                 </div>
 
@@ -543,6 +535,7 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="text"
+                  aria-label="Pesquisar livros ou temas bíblicos"
                   placeholder="Pesquisar livro (ex: Salmos, Mateus, Gn, João) ou tema (ex: fé, amor, paz)..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -594,13 +587,14 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {topicalResults.map((item, idx) => (
-                      <div
+                      <button
                         key={idx}
+                        type="button"
                         onClick={() => {
                           const book = ALL_BIBLE_BOOKS.find((b) => b.id === item.bookId);
                           if (book) handleSelectChapter(item.chapter, book);
                         }}
-                        className="p-3 bg-white rounded-xl border border-[#E2E8F0] hover:border-[#0066cc] transition-all cursor-pointer shadow-2xs group"
+                        className="w-full text-left p-3 bg-white rounded-xl border border-[#E2E8F0] hover:border-[#0066cc] transition-all cursor-pointer shadow-2xs group"
                       >
                         <div className="flex items-center justify-between mb-1">
                           <span className="text-xs font-bold text-slate-900 group-hover:text-[#0066cc]">
@@ -611,7 +605,7 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
                           </span>
                         </div>
                         <p className="text-xs text-slate-600 italic">"{item.text}"</p>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -633,10 +627,11 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                     {filteredBooks.map((book) => (
-                      <div
+                      <button
                         key={book.id}
+                        type="button"
                         onClick={() => handleSelectBook(book)}
-                        className="p-3.5 rounded-2xl bg-white border border-[#E2E8F0] hover:border-[#0066cc] hover:bg-blue-50/30 hover:shadow-sm transition-all cursor-pointer flex flex-col justify-between group"
+                        className="w-full text-left p-3.5 rounded-2xl bg-white border border-[#E2E8F0] hover:border-[#0066cc] hover:bg-blue-50/30 hover:shadow-sm transition-all cursor-pointer flex flex-col justify-between group"
                       >
                         <div className="flex items-center justify-between mb-2.5">
                           <span className="w-8 h-8 rounded-xl bg-slate-50 border border-[#E2E8F0] text-slate-800 font-bold text-xs flex items-center justify-center shadow-2xs group-hover:bg-[#0066cc] group-hover:text-white group-hover:border-[#0066cc] transition-colors">
@@ -664,7 +659,7 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
                             </span>
                           </div>
                         </div>
-                      </div>
+                      </button>
                     ))}
                   </div>
                 )}
@@ -829,24 +824,10 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
 
                 {/* Right toolbar controls: Version, Font Size, Audio, Copy */}
                 <div className="flex items-center gap-2 flex-wrap self-end sm:self-auto">
-                  {/* Versão da Bíblia */}
-                  <div className="flex items-center bg-slate-100 p-0.5 rounded-xl text-xs font-semibold border border-slate-200/60">
-                    <button
-                      onClick={() => setBibleVersion('ARA')}
-                      className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
-                        bibleVersion === 'ARA' ? 'bg-white text-[#0066cc] shadow-xs' : 'text-slate-600'
-                      }`}
-                    >
-                      ARA
-                    </button>
-                    <button
-                      onClick={() => setBibleVersion('NVI')}
-                      className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
-                        bibleVersion === 'NVI' ? 'bg-white text-[#0066cc] shadow-xs' : 'text-slate-600'
-                      }`}
-                    >
-                      NVI
-                    </button>
+                  {/* O projeto não fornece textos separados por versão. */}
+                  <div className="flex items-center bg-slate-100 p-0.5 rounded-xl text-xs font-semibold border border-slate-200/60" aria-label="Versões não disponíveis nos trechos incluídos">
+                    <button type="button" disabled title="Versão não identificada no conteúdo incluído" className="px-2 py-1 rounded-lg text-slate-400 cursor-not-allowed">ARA</button>
+                    <button type="button" disabled title="Versão não identificada no conteúdo incluído" className="px-2 py-1 rounded-lg text-slate-400 cursor-not-allowed">NVI</button>
                   </div>
 
                   {/* Ajuste de Tamanho de Fonte */}
@@ -883,22 +864,24 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
                   {/* Áudio Text-To-Speech */}
                   <button
                     onClick={() => handleToggleAudio(fullChapterText)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    disabled={currentVerses.length === 0}
+                    className={`disabled:opacity-50 disabled:cursor-not-allowed px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                       isPlayingAudio
                         ? 'bg-amber-500 text-white shadow-xs animate-pulse'
                         : 'border border-[#E2E8F0] text-slate-700 hover:bg-slate-50'
                     }`}
-                    title={isPlayingAudio ? 'Pausar leitura' : 'Ouvir capítulo em áudio'}
+                    title={isPlayingAudio ? 'Parar leitura' : 'Ouvir versículos disponíveis'}
                   >
                     {isPlayingAudio ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-                    <span>{isPlayingAudio ? 'Pausar' : 'Ouvir'}</span>
+                    <span>{isPlayingAudio ? 'Parar' : 'Ouvir'}</span>
                   </button>
 
                   {/* Copiar Capítulo */}
                   <button
                     onClick={() => handleCopyText(fullChapterText, `${selectedBook.name} ${selectedChapter}`)}
-                    className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
-                    title="Copiar texto do capítulo"
+                    disabled={currentVerses.length === 0}
+                    className="disabled:opacity-50 disabled:cursor-not-allowed p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                    title="Copiar versículos disponíveis"
                   >
                     <Copy className="w-3.5 h-3.5" />
                     <span className="hidden sm:inline">Copiar</span>
@@ -911,6 +894,7 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
                 <input
                   type="text"
+                  aria-label="Pesquisar no capítulo"
                   placeholder={`Pesquisar palavra ou número de versículo em ${selectedBook.name} ${selectedChapter}...`}
                   value={chapterFilterQuery}
                   onChange={(e) => setChapterFilterQuery(e.target.value)}
@@ -937,7 +921,12 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
                   {selectedBook.name} {selectedChapter}
                 </h3>
                 <p className="text-xs text-slate-500 mt-1">
-                  {currentVerses.length} versículos no total
+                  {currentVerses.length > 0
+                    ? `${currentVerses.length} versículo(s) disponível(is)`
+                    : 'Nenhum versículo disponível neste capítulo'}
+                </p>
+                <p className="text-xs text-slate-500 mt-1">
+                  Os trechos podem estar incompletos e a versão não está identificada.
                 </p>
               </div>
 
@@ -952,7 +941,11 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
                     : 'text-xl sm:text-2xl'
                 }`}
               >
-                {displayedVerses.length === 0 ? (
+                {currentVerses.length === 0 ? (
+                  <div className="text-center py-8 text-slate-500 text-xs">
+                    O texto deste capítulo não está disponível na aplicação.
+                  </div>
+                ) : displayedVerses.length === 0 ? (
                   <div className="text-center py-8 text-slate-400 text-xs">
                     Nenhum versículo encontrado para "{chapterFilterQuery}".
                   </div>
@@ -1125,12 +1118,7 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
                       return (
                         <button
                           key={book.id}
-                          onClick={() => {
-                            setSelectedBook(book);
-                            setSelectedChapter(1);
-                            setShowBookPickerModal(false);
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                          }}
+                          onClick={() => handleSelectChapter(1, book)}
                           className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer flex items-center justify-between ${
                             isCurrent
                               ? 'bg-blue-50 border-[#0066cc] text-[#0066cc] font-bold'

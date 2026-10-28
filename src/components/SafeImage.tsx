@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Church, Music, BookOpen, Users, User, Calendar, Image as ImageIcon } from 'lucide-react';
+import { Church, Music, BookOpen, Users, User, Calendar } from 'lucide-react';
 
 export interface SafeImageProps {
   src: string;
@@ -20,16 +20,16 @@ export default function SafeImage({
   loading = 'lazy',
   onClick,
 }: SafeImageProps) {
-  const [currentSrc, setCurrentSrc] = useState<string>(src);
+  const [currentSrc, setCurrentSrc] = useState<string>(src || fallbackSrc || '');
   const [hasError, setHasError] = useState(false);
-  const [triedFallbackSrc, setTriedFallbackSrc] = useState(false);
+  const [triedFallbackSrc, setTriedFallbackSrc] = useState(!src && !!fallbackSrc);
 
-  // Sync state if src changes
+  // Recomeça a tentativa se a imagem principal ou a alternativa mudar.
   useEffect(() => {
-    setCurrentSrc(src);
+    setCurrentSrc(src || fallbackSrc || '');
     setHasError(false);
-    setTriedFallbackSrc(false);
-  }, [src]);
+    setTriedFallbackSrc(!src && !!fallbackSrc);
+  }, [src, fallbackSrc]);
 
   const handleError = () => {
     if (fallbackSrc && !triedFallbackSrc && fallbackSrc !== currentSrc) {

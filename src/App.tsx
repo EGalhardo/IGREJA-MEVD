@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import HomeScreen from './components/screens/HomeScreen';
 import EventsScreen from './components/screens/EventsScreen';
 import EventDetailScreen from './components/screens/EventDetailScreen';
@@ -10,18 +10,41 @@ import Sidebar from './components/Sidebar';
 import BottomNav from './components/BottomNav';
 import Modals from './components/Modals';
 import { CHURCH_EVENTS, CURRENT_USER } from './data/mockData';
-import { ChurchEvent, Screen, UserProfile } from './types';
-import { Smartphone, Monitor, Tablet, Sparkles, X } from 'lucide-react';
+import { ChurchEvent, EventCategory, Screen, UserProfile } from './types';
+import { Smartphone, Monitor, X } from 'lucide-react';
 
 type LayoutOverride = 'auto' | 'mobile-vertical' | 'desktop-horizontal';
 
+function getLinkedEvent(): ChurchEvent | undefined {
+  if (typeof window === 'undefined') return undefined;
+  const eventId = new URLSearchParams(window.location.search).get('evento');
+  return CHURCH_EVENTS.find((event) => event.id === eventId);
+}
+
+function clearLinkedEvent() {
+  if (typeof window === 'undefined') return;
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has('evento')) return;
+  url.searchParams.delete('evento');
+  try {
+    window.history.replaceState(window.history.state, '', url);
+  } catch {
+    // A navegação continua a funcionar mesmo que o navegador restrinja o histórico.
+  }
+}
+
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<Screen>('home');
-  const [previousScreen, setPreviousScreen] = useState<Screen>('home');
-  const [selectedEvent, setSelectedEvent] = useState<ChurchEvent>(CHURCH_EVENTS[0]);
+  const [linkedEvent] = useState(getLinkedEvent);
+  const [currentScreen, setCurrentScreen] = useState<Screen>(linkedEvent ? 'event-detail' : 'home');
+  const [previousScreen, setPreviousScreen] = useState<Screen>(linkedEvent ? 'events' : 'home');
+  const [selectedEvent, setSelectedEvent] = useState<ChurchEvent>(linkedEvent ?? CHURCH_EVENTS[0]);
+  const [registeredEventIds, setRegisteredEventIds] = useState<string[]>([]);
+  const [eventCategory, setEventCategory] = useState<EventCategory>('Todos');
+  const [eventSearchQuery, setEventSearchQuery] = useState('');
   const [user, setUser] = useState<UserProfile>(CURRENT_USER);
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastTimer = useRef<number | null>(null);
 
   // Layout mode override: auto detects window dimensions & orientation, or allows manual previewing
   const [layoutOverride, setLayoutOverride] = useState<LayoutOverride>('auto');
@@ -57,23 +80,32 @@ export default function App() {
       ? false
       : isWindowDesktopOrLandscape;
 
+  useEffect(() => () => {
+    if (toastTimer.current !== null) window.clearTimeout(toastTimer.current);
+  }, []);
+
   // Show temporary toast message
   const showToast = (message: string) => {
+    if (toastTimer.current !== null) window.clearTimeout(toastTimer.current);
     setToastMessage(message);
-    setTimeout(() => {
-      setToastMessage((cur) => (cur === message ? null : cur));
+    toastTimer.current = window.setTimeout(() => {
+      setToastMessage(null);
+      toastTimer.current = null;
     }, 3200);
   };
 
   // Safe navigation helper
   const navigateTo = (screen: Screen) => {
+    if (screen !== 'event-detail') clearLinkedEvent();
+    if (screen === currentScreen) return;
     setPreviousScreen(currentScreen);
     setCurrentScreen(screen);
   };
 
   const handleBack = () => {
+    clearLinkedEvent();
     if (currentScreen === 'event-detail') {
-      setCurrentScreen(previousScreen || 'events');
+      setCurrentScreen(previousScreen === 'event-detail' ? 'events' : previousScreen);
     } else {
       setCurrentScreen('home');
     }
@@ -81,6 +113,14 @@ export default function App() {
 
   const handleSelectEvent = (event: ChurchEvent) => {
     setSelectedEvent(event);
+  };
+
+  const handleToggleRegistration = (eventId: string) => {
+    setRegisteredEventIds((previous) =>
+      previous.includes(eventId)
+        ? previous.filter((id) => id !== eventId)
+        : [...previous, eventId]
+    );
   };
 
   const handleUpdateUser = (updated: Partial<UserProfile>) => {
@@ -92,7 +132,7 @@ export default function App() {
   };
 
   const handleConfirmLogout = () => {
-    showToast('Sessão terminada com sucesso.');
+    showToast('Não há uma sessão autenticada nesta versão.');
     navigateTo('home');
   };
 
@@ -176,7 +216,7 @@ export default function App() {
                 onBack={handleBack}
                 onOpenNotifications={() => setActiveModal('notificacoes')}
                 onOpenProfile={() => navigateTo('profile')}
-                onMicClick={() => showToast('🎙️ Microfone activado: Pesquisa por voz pronta para uso.')}
+                onMicClick={() => showToast('A pesquisa por voz não está disponível nesta versão.')}
                 user={user}
                 unreadCount={3}
               />
@@ -196,6 +236,10 @@ export default function App() {
                   <EventsScreen
                     onNavigate={navigateTo}
                     onSelectEvent={handleSelectEvent}
+                    selectedCategory={eventCategory}
+                    onSelectCategory={setEventCategory}
+                    searchQuery={eventSearchQuery}
+                    onSearchQueryChange={setEventSearchQuery}
                     isDesktopLayout={true}
                   />
                 )}
@@ -203,6 +247,8 @@ export default function App() {
                 {currentScreen === 'event-detail' && (
                   <EventDetailScreen
                     event={selectedEvent}
+                    isRegistered={registeredEventIds.includes(selectedEvent.id)}
+                    onToggleRegistration={handleToggleRegistration}
                     onNavigate={navigateTo}
                     onBack={handleBack}
                     onShowToast={showToast}
@@ -248,7 +294,7 @@ export default function App() {
               onBack={handleBack}
               onOpenNotifications={() => setActiveModal('notificacoes')}
               onOpenProfile={() => navigateTo('profile')}
-              onMicClick={() => showToast('🎙️ Microfone activado: Pesquisa por voz pronta para uso.')}
+              onMicClick={() => showToast('A pesquisa por voz não está disponível nesta versão.')}
               user={user}
               unreadCount={3}
             />
@@ -268,6 +314,10 @@ export default function App() {
                 <EventsScreen
                   onNavigate={navigateTo}
                   onSelectEvent={handleSelectEvent}
+                  selectedCategory={eventCategory}
+                  onSelectCategory={setEventCategory}
+                  searchQuery={eventSearchQuery}
+                  onSearchQueryChange={setEventSearchQuery}
                   isDesktopLayout={false}
                 />
               )}
@@ -275,6 +325,8 @@ export default function App() {
               {currentScreen === 'event-detail' && (
                 <EventDetailScreen
                   event={selectedEvent}
+                  isRegistered={registeredEventIds.includes(selectedEvent.id)}
+                  onToggleRegistration={handleToggleRegistration}
                   onNavigate={navigateTo}
                   onBack={handleBack}
                   onShowToast={showToast}
@@ -319,7 +371,7 @@ export default function App() {
 
         {/* Floating Toast Notification */}
         {toastMessage && (
-          <div className="fixed top-14 left-1/2 -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-4 duration-300 w-full max-w-sm px-4">
+          <div className="fixed top-14 left-1/2 -translate-x-1/2 z-[60] animate-in fade-in slide-in-from-top-4 duration-300 w-full max-w-sm px-4">
             <div className="bg-slate-900/95 backdrop-blur-md text-white text-xs font-semibold px-4 py-3 rounded-2xl shadow-xl flex items-center justify-between border border-slate-700/60">
               <span>{toastMessage}</span>
               <button

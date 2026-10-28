@@ -20,7 +20,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
       {/* Início */}
       <button
         onClick={() => onNavigate('home')}
-        className={`flex flex-col items-center gap-1 py-1 px-2 sm:px-3 transition-all cursor-pointer ${
+        className={`flex min-w-10 flex-col items-center gap-1 py-1 px-0.5 sm:px-3 transition-all cursor-pointer ${
           currentScreen === 'home' ? 'text-[#0066cc]' : 'text-slate-400 hover:text-slate-700'
         }`}
       >
@@ -31,7 +31,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
       {/* Eventos */}
       <button
         onClick={() => onNavigate('events')}
-        className={`flex flex-col items-center gap-1 py-1 px-2 sm:px-3 transition-all cursor-pointer ${
+        className={`flex min-w-10 flex-col items-center gap-1 py-1 px-0.5 sm:px-3 transition-all cursor-pointer ${
           currentScreen === 'events' || currentScreen === 'event-detail'
             ? 'text-[#0066cc]'
             : 'text-slate-400 hover:text-slate-700'
@@ -44,7 +44,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
       {/* Bíblia (Entre Eventos e Comunicados) */}
       <button
         onClick={() => onNavigate('bible')}
-        className={`flex flex-col items-center gap-1 py-1 px-2 sm:px-3 transition-all cursor-pointer ${
+        className={`flex min-w-10 flex-col items-center gap-1 py-1 px-0.5 sm:px-3 transition-all cursor-pointer ${
           currentScreen === 'bible' ? 'text-[#0066cc]' : 'text-slate-400 hover:text-slate-700'
         }`}
       >
@@ -55,7 +55,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
       {/* Comunicados */}
       <button
         onClick={() => onNavigate('announcements')}
-        className={`flex flex-col items-center gap-1 py-1 px-2 sm:px-3 transition-all cursor-pointer ${
+        className={`flex min-w-10 flex-col items-center gap-1 py-1 px-0.5 sm:px-3 transition-all cursor-pointer ${
           currentScreen === 'announcements' ? 'text-[#0066cc]' : 'text-slate-400 hover:text-slate-700'
         }`}
       >
@@ -66,7 +66,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
       {/* Perfil */}
       <button
         onClick={() => onNavigate('profile')}
-        className={`flex flex-col items-center gap-1 py-1 px-2 sm:px-3 transition-all cursor-pointer ${
+        className={`flex min-w-10 flex-col items-center gap-1 py-1 px-0.5 sm:px-3 transition-all cursor-pointer ${
           isProfileActive ? 'text-[#0066cc]' : 'text-slate-400 hover:text-slate-700'
         }`}
       >

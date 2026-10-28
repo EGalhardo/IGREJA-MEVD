@@ -49,8 +49,8 @@ export async function shareOrCopy(
     return true;
   }
 
-  // 3. Fallback informativo
-  onFeedback('Link do evento: ' + (shareUrl || payload.title), true);
+  // Nenhum método de partilha ou cópia funcionou.
+  onFeedback('Não foi possível partilhar ou copiar os detalhes neste navegador.', false);
   return false;
 }
 
@@ -74,8 +74,9 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 
   // 2. Fallback clássico via elemento textarea
   if (typeof document !== 'undefined') {
+    let textArea: HTMLTextAreaElement | null = null;
     try {
-      const textArea = document.createElement('textarea');
+      textArea = document.createElement('textarea');
       textArea.value = text;
       textArea.style.position = 'fixed';
       textArea.style.top = '-9999px';
@@ -86,13 +87,13 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 
       textArea.focus();
       textArea.select();
-      textArea.setSelectionRange(0, 99999);
+      textArea.setSelectionRange(0, text.length);
 
-      const successful = document.execCommand('copy');
-      document.body.removeChild(textArea);
-      return !!successful;
+      return !!document.execCommand('copy');
     } catch {
       return false;
+    } finally {
+      textArea?.remove();
     }
   }
 

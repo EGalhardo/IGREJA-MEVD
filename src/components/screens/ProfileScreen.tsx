@@ -13,10 +13,8 @@ interface ProfileScreenProps {
 
 export default function ProfileScreen({
   user = CURRENT_USER,
-  onNavigate,
   onOpenOption,
   onLogout,
-  isDesktopLayout = false,
 }: ProfileScreenProps) {
   return (
     <div className="flex-1 flex flex-col bg-white overflow-y-auto w-full">

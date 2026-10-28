@@ -1,86 +1,74 @@
 /**
- * Utilitários de sanitização e validação de dados de entrada do utilizador
- * Previne injecções de script/HTML, formata e valida campos de perfil.
+ * Utilitários de validação dos dados de perfil.
+ * Os valores são apresentados como texto pelo React, que escapa HTML na renderização.
  */
 
-/**
- * Remove tags HTML, scripts, caracteres de controlo e normaliza espaços.
- */
+/** Remove tags e caracteres de controlo sem alterar pontuação legítima de nomes e moradas. */
 export function sanitizeText(input: string, maxLength: number = 100): string {
   if (!input) return '';
   return input
-    .replace(/<[^>]*>/g, '') // Remove tags HTML/XML
-    .replace(/[<>'"&`]/g, (char) => {
-      // Escapa caracteres perigosos comuns
-      const map: Record<string, string> = {
-        '<': '',
-        '>': '',
-        "'": '',
-        '"': '',
-        '&': 'e',
-        '`': '',
-      };
-      return map[char] || '';
-    })
-    .replace(/[\u0000-\u001F\u007F-\u009F]/g, '') // Remove caracteres de controlo invisíveis
-    .replace(/\s+/g, ' ') // Colapsa múltiplos espaços
+    .replace(/<[^>]*>/g, '')
+    .replace(/[<>]/g, '')
+    .replace(/[\u0000-\u001F\u007F-\u009F]/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim()
     .slice(0, maxLength);
 }
 
-/**
- * Sanitiza e valida endereço de email.
- */
+/** Valida o email sem modificar caracteres válidos do endereço. */
 export function sanitizeEmail(input: string): { isValid: boolean; value: string; error?: string } {
-  const sanitized = sanitizeText(input, 120).toLowerCase();
+  const value = input.trim();
 
-  if (!sanitized) {
+  if (!value) {
     return { isValid: false, value: '', error: 'O email é obrigatório.' };
   }
 
-  // Expressão regular padrão para validação de email RFC 5322 simplificada
   const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;
+  const localPart = value.split('@')[0];
 
-  if (!emailRegex.test(sanitized)) {
+  if (
+    value.length > 120 ||
+    localPart.length > 64 ||
+    localPart.startsWith('.') ||
+    localPart.endsWith('.') ||
+    localPart.includes('..') ||
+    !emailRegex.test(value)
+  ) {
     return {
       isValid: false,
-      value: sanitized,
+      value,
       error: 'Formato de email inválido. Exemplo: nome@email.com',
     };
   }
 
-  return { isValid: true, value: sanitized };
+  return { isValid: true, value };
 }
 
-/**
- * Sanitiza número de telefone ou WhatsApp (permite dígitos, +, -, (, ), e espaços).
- */
+/** Valida número de telefone sem remover silenciosamente caracteres inválidos. */
 export function sanitizePhone(input: string): { isValid: boolean; value: string; error?: string } {
-  // Limpa caracteres não permitidos em telefones
-  const sanitized = input
-    .replace(/<[^>]*>/g, '')
-    .replace(/[^\d+()\-\s]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 30);
-
-  // Contar apenas dígitos
-  const digitsCount = (sanitized.match(/\d/g) || []).length;
+  const value = input.replace(/\s+/g, ' ').trim();
+  const digitsCount = (value.match(/\d/g) || []).length;
 
   if (digitsCount < 7) {
     return {
       isValid: false,
-      value: sanitized,
+      value,
       error: 'O número de contacto deve conter pelo menos 7 dígitos.',
     };
   }
 
-  return { isValid: true, value: sanitized };
+  if (value.length > 30 || !/^\+?[\d()\- ]+$/.test(value)) {
+    return {
+      isValid: false,
+      value,
+      error: 'O número de contacto contém caracteres inválidos.',
+    };
+  }
+
+  return { isValid: true, value };
 }
 
-/**
- * Valida o estado civil perante os valores permitidos.
- */
+/** Valida o estado civil perante os valores permitidos. */
 export const ALLOWED_CIVIL_STATUSES = [
   'Solteiro(a)',
   'Casado(a)',

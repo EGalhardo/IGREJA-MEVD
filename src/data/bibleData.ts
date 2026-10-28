@@ -111,7 +111,7 @@ export const ALL_BIBLE_BOOKS: BibleBook[] = [
   { id: 'apocalipse', name: 'Apocalipse', abbr: 'Ap', testament: 'NT', category: 'Profecia', chapters: 22 },
 ];
 
-// Textos bíblicos completos gravados em português (Versão Almeida Revista e Atualizada / Corrigida)
+// Trechos bíblicos incluídos no projeto. Alguns capítulos estão incompletos e a versão não é identificada.
 export const SCRIPTURE_CACHE: Record<string, BibleVerse[]> = {
   // Gênesis 1
   'genesis-1': [
@@ -306,59 +306,9 @@ export const SCRIPTURE_CACHE: Record<string, BibleVerse[]> = {
   ],
 };
 
-// Gerador dinâmico contextual para capítulos que ainda não estão no cache offline completo
+// Devolve apenas os versículos realmente incluídos no projeto.
 export function getChapterVerses(bookId: string, chapter: number): BibleVerse[] {
-  const cacheKey = `${bookId}-${chapter}`;
-  if (SCRIPTURE_CACHE[cacheKey]) {
-    return SCRIPTURE_CACHE[cacheKey];
-  }
-
-  const book = ALL_BIBLE_BOOKS.find((b) => b.id === bookId);
-  if (!book) {
-    return [
-      { number: 1, text: 'Capítulo não localizado. Selecione outro livro da Bíblia Sagrada.' }
-    ];
-  }
-
-  // Gera texto bíblico devocional autêntico de leitura com múltiplos versículos para o capítulo
-  const theme = book.testament === 'AT' 
-    ? 'aliança divina, justiça e fidelidade do Senhor dos Exércitos' 
-    : 'graça salvadora, redenção em Cristo Jesus e comunhão no Espírito';
-
-  return [
-    {
-      number: 1,
-      text: `Palavra do Senhor revelada em ${book.name}, no capítulo ${chapter}, proclamando a fidelidade de Deus para com o Seu povo.`
-    },
-    {
-      number: 2,
-      text: `Lembrai-vos dos preceitos santos e guardai no coração os mandamentos que trazem vida, sabedoria e paz perpétua.`
-    },
-    {
-      number: 3,
-      text: `Porque o Senhor é refúgio seguro em dias de angústia; Ele sustenta os justos e não desampara aqueles que nEle esperam.`
-    },
-    {
-      number: 4,
-      text: `Edificai a vossa casa sobre a rocha eterna da verdade, buscando a ${theme} em retidão e temor reverente.`
-    },
-    {
-      number: 5,
-      text: `Clamai ao Altíssimo e Ele vos responderá, guiando os vossos passos pelas veredas da justiça por amor do Seu Santo Nome.`
-    },
-    {
-      number: 6,
-      text: `Que a luz da palavra de Deus seja lâmpada para os vossos pés e farol para o vosso caminho em todos os dias da vossa vida.`
-    },
-    {
-      number: 7,
-      text: `Permanecei firmes na oração, na comunhão fraternal e na proclamação do Evangelho eterno a todas as famílias da terra.`
-    },
-    {
-      number: 8,
-      text: `Bendito seja o Deus da nossa salvação, que opera maravilhas e renova as Suas misericórdias a cada alvorecer. Amém!`
-    }
-  ];
+  return SCRIPTURE_CACHE[`${bookId}-${chapter}`] ?? [];
 }
 
 // Temas bíblicos populares para busca rápida por palavras-chave

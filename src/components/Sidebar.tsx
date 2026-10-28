@@ -1,6 +1,7 @@
 import { Home, Calendar, BookOpen, Megaphone, User, LogOut } from 'lucide-react';
 import ChurchLogo from './ChurchLogo';
 import { Screen, UserProfile } from '../types';
+import { CHURCH_EVENTS } from '../data/mockData';
 
 interface SidebarProps {
   currentScreen: Screen;
@@ -26,7 +27,7 @@ export default function Sidebar({
       id: 'events' as Screen,
       label: 'Eventos',
       icon: Calendar,
-      badge: '4',
+      badge: String(CHURCH_EVENTS.length),
     },
     {
       id: 'bible' as Screen,
