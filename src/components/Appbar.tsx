@@ -75,7 +75,7 @@ export default function Appbar({
         </div>
 
         {/* Center: Search Field in Desktop Appbar */}
-        <div className="flex-1 max-w-md mx-6 hidden md:flex justify-center">
+        <div className="flex-1 min-w-0 max-w-md mx-6 hidden xl:flex justify-center">
           <button
             onClick={() => onNavigate('events')}
             className="w-full flex items-center justify-between gap-2.5 bg-slate-100/90 hover:bg-slate-200/70 border border-[#E2E8F0] rounded-xl px-4 py-2 text-xs text-slate-500 transition-all cursor-pointer shadow-2xs group"
@@ -120,6 +120,8 @@ export default function Appbar({
           {/* User Profile Summary */}
           <button
             onClick={onOpenProfile}
+            aria-label="Perfil"
+            title="Ver Perfil"
             className="flex items-center gap-2.5 pl-2 pr-3 py-1 rounded-xl hover:bg-slate-50 border border-slate-200/70 transition-colors cursor-pointer"
           >
             <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-blue-100 shrink-0">
@@ -131,8 +133,8 @@ export default function Appbar({
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="text-left hidden md:block">
-              <p className="text-xs font-bold text-slate-900 leading-tight">{user.name}</p>
+            <div className="text-left hidden lg:block max-w-40">
+              <p className="text-xs font-bold text-slate-900 leading-tight truncate">{user.name}</p>
               <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 font-semibold">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 {user.status}
@@ -146,29 +148,29 @@ export default function Appbar({
 
   // Mobile & Tablet Vertical Mode Appbar
   return (
-    <header className="w-full bg-white text-slate-900 border-b border-[#E2E8F0] px-4 py-2.5 flex items-center justify-between shrink-0 sticky top-0 z-30 shadow-xs transition-colors">
+    <header className="w-full bg-white text-slate-900 border-b border-[#E2E8F0] px-3 min-[320px]:px-4 py-2.5 flex items-center justify-between shrink-0 sticky top-0 z-30 shadow-xs transition-colors">
       {/* Left section: Logo on Home, or Back button + Title on other pages */}
-      <div className="flex items-center gap-2.5">
+      <div className="flex min-w-0 flex-1 items-center gap-2.5">
         {currentScreen === 'home' ? (
-          <div className="flex items-center gap-2.5">
+          <div className="flex min-w-0 items-center gap-2.5">
             <ChurchLogo size="sm" />
             <div>
-              <h1 className="text-base font-bold text-slate-900 tracking-tight leading-none">
+              <h1 className="text-sm min-[320px]:text-base font-bold text-slate-900 tracking-tight leading-none">
                 IGREJA MEVD
               </h1>
               <p className="text-[11px] text-blue-600 font-semibold mt-0.5">Juntos na fé</p>
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <button
               onClick={onBack}
-              className="p-1.5 -ml-1.5 text-slate-700 hover:text-slate-900 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
+              className="shrink-0 p-1.5 -ml-1.5 text-slate-700 hover:text-slate-900 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
               aria-label="Voltar"
             >
               <ArrowLeft className="w-5 h-5 stroke-[2.2]" />
             </button>
-            <h1 className="text-lg font-bold text-slate-900 tracking-tight leading-none">
+            <h1 className="min-w-0 text-base min-[320px]:text-lg font-bold text-slate-900 tracking-tight leading-none break-words">
               {getScreenTitle()}
             </h1>
           </div>
@@ -176,11 +178,11 @@ export default function Appbar({
       </div>
 
       {/* Right section: Microfone + Sino de Notificações + Avatar de Perfil */}
-      <div className="flex items-center gap-1">
+      <div className="flex shrink-0 items-center gap-0.5 min-[320px]:gap-1">
         {/* Microfone Icon (à esquerda do sino) */}
         <button
           onClick={onMicClick}
-          className="p-2 text-slate-700 hover:text-slate-900 hover:bg-slate-100 active:bg-slate-200 rounded-full transition-colors cursor-pointer"
+          className="p-1.5 min-[320px]:p-2 text-slate-700 hover:text-slate-900 hover:bg-slate-100 active:bg-slate-200 rounded-full transition-colors cursor-pointer"
           title="Microfone"
           aria-label="Microfone"
         >
@@ -190,7 +192,7 @@ export default function Appbar({
         {/* Sino de Notificações */}
         <button
           onClick={onOpenNotifications}
-          className="relative p-2 text-slate-700 hover:text-slate-900 hover:bg-slate-100 active:bg-slate-200 rounded-full transition-colors cursor-pointer"
+          className="relative p-1.5 min-[320px]:p-2 text-slate-700 hover:text-slate-900 hover:bg-slate-100 active:bg-slate-200 rounded-full transition-colors cursor-pointer"
           aria-label="Notificações"
           title="Notificações"
         >
@@ -205,7 +207,7 @@ export default function Appbar({
         {/* Avatar de Perfil */}
         <button
           onClick={onOpenProfile}
-          className="p-0.5 rounded-full hover:ring-2 hover:ring-blue-400 transition-all cursor-pointer ml-1"
+          className="p-0.5 rounded-full hover:ring-2 hover:ring-blue-400 transition-all cursor-pointer ml-0.5 min-[320px]:ml-1"
           aria-label="Perfil"
           title="Ver Perfil"
         >

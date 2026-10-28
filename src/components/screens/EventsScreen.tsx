@@ -96,7 +96,7 @@ export default function EventsScreen({
         </div>
 
         {/* Events Grid: 1 col on mobile, 2 cols on tablet/desktop */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
+        <div className="grid grid-cols-1 @min-[40rem]:grid-cols-2 gap-3.5 sm:gap-4">
           {filteredEvents.length === 0 ? (
             <div className="col-span-full text-center py-12 text-slate-400 text-xs sm:text-sm bg-white rounded-2xl border border-[#E2E8F0]">
               Nenhum evento encontrado para a pesquisa actual.
@@ -110,10 +110,10 @@ export default function EventsScreen({
                   onSelectEvent(event);
                   onNavigate('event-detail');
                 }}
-                className="w-full text-left bg-white rounded-2xl p-3.5 sm:p-4 shadow-xs border border-[#E2E8F0] flex items-center gap-3.5 cursor-pointer hover:border-[#0066cc]/60 hover:shadow-md active:scale-[0.99] transition-all group"
+                className="@container w-full text-left bg-white rounded-2xl p-3.5 sm:p-4 shadow-xs border border-[#E2E8F0] flex items-center gap-2 sm:gap-2.5 cursor-pointer hover:border-[#0066cc]/60 hover:shadow-md active:scale-[0.99] transition-all group"
               >
                 {/* Left Thumbnail with SafeImage */}
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 bg-slate-100 relative shadow-2xs">
+                <div className="w-16 h-16 @min-[24rem]:w-24 @min-[24rem]:h-24 rounded-xl overflow-hidden shrink-0 bg-slate-100 relative shadow-2xs">
                   <SafeImage
                     src={event.image}
                     alt={event.title}
@@ -156,7 +156,7 @@ export default function EventsScreen({
                   </div>
 
                   {/* Status Badge */}
-                  <div className="mt-2 flex items-center justify-between">
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-1">
                     {event.statusBadge.variant === 'green' && (
                       <span className="inline-block bg-emerald-50 text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">
                         {event.statusBadge.text}

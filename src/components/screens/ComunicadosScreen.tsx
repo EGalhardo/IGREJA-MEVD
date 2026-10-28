@@ -53,7 +53,7 @@ export default function ComunicadosScreen(_props: ComunicadosScreenProps) {
         </div>
 
         {/* Announcements List - 1 col on mobile, 2 cols on tablet / desktop */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
+        <div className="grid grid-cols-1 @min-[40rem]:grid-cols-2 gap-3.5 sm:gap-4">
           {ANNOUNCEMENTS.map((item) => (
             <div
               key={item.id}

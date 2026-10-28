@@ -61,7 +61,7 @@ export default function ProfileScreen({
           <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">
             Definições & Actividades
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-3.5">
+          <div className="grid grid-cols-1 @min-[40rem]:grid-cols-2 gap-3 sm:gap-3.5">
             {/* 1. Os meus dados */}
             <button
               onClick={() => onOpenOption('meus-dados')}

@@ -25,7 +25,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
         }`}
       >
         <Home className="w-5 h-5 stroke-[2.2]" />
-        <span className="text-[11px] font-bold">Início</span>
+        <span className="text-[10px] min-[360px]:text-[11px] font-bold">Início</span>
       </button>
 
       {/* Eventos */}
@@ -38,7 +38,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
         }`}
       >
         <Calendar className="w-5 h-5 stroke-[2.2]" />
-        <span className="text-[11px] font-bold">Eventos</span>
+        <span className="text-[10px] min-[360px]:text-[11px] font-bold">Eventos</span>
       </button>
 
       {/* Bíblia (Entre Eventos e Comunicados) */}
@@ -49,7 +49,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
         }`}
       >
         <BookOpen className="w-5 h-5 stroke-[2.2]" />
-        <span className="text-[11px] font-bold">Bíblia</span>
+        <span className="text-[10px] min-[360px]:text-[11px] font-bold">Bíblia</span>
       </button>
 
       {/* Comunicados */}
@@ -60,7 +60,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
         }`}
       >
         <Megaphone className="w-5 h-5 stroke-[2.2]" />
-        <span className="text-[11px] font-bold">Comunicados</span>
+        <span className="text-[10px] min-[360px]:text-[11px] font-bold">Comunicados</span>
       </button>
 
       {/* Perfil */}
@@ -71,7 +71,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
         }`}
       >
         <User className="w-5 h-5 stroke-[2.2]" />
-        <span className="text-[11px] font-bold">Perfil</span>
+        <span className="text-[10px] min-[360px]:text-[11px] font-bold">Perfil</span>
       </button>
     </nav>
   );

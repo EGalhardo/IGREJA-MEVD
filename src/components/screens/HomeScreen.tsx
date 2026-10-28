@@ -253,11 +253,11 @@ export default function HomeScreen({
 
         {/* 4 Quick Actions Grid */}
         <div>
-          <div className="grid grid-cols-4 gap-2.5 sm:gap-4">
+          <div className="grid grid-cols-2 min-[360px]:grid-cols-4 gap-2.5 sm:gap-4">
             {/* 1. Eventos */}
             <button
               onClick={() => onNavigate('events')}
-              className="flex flex-col items-center justify-center bg-white rounded-2xl px-0.5 py-3 sm:p-4 shadow-xs border border-[#E2E8F0] hover:border-blue-300 hover:shadow-md active:scale-95 transition-all group cursor-pointer"
+              className="flex flex-col items-center justify-center bg-white rounded-2xl px-0.5 py-3 sm:px-2 sm:py-4 shadow-xs border border-[#E2E8F0] hover:border-blue-300 hover:shadow-md active:scale-95 transition-all group cursor-pointer"
             >
               <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mb-2 group-hover:bg-purple-100 group-hover:scale-105 transition-all">
                 <Calendar className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
@@ -268,7 +268,7 @@ export default function HomeScreen({
             {/* 2. Comunicados */}
             <button
               onClick={() => onNavigate('announcements')}
-              className="flex flex-col items-center justify-center bg-white rounded-2xl px-0.5 py-3 sm:p-4 shadow-xs border border-[#E2E8F0] hover:border-blue-300 hover:shadow-md active:scale-95 transition-all group cursor-pointer"
+              className="flex flex-col items-center justify-center bg-white rounded-2xl px-0.5 py-3 sm:px-2 sm:py-4 shadow-xs border border-[#E2E8F0] hover:border-blue-300 hover:shadow-md active:scale-95 transition-all group cursor-pointer"
             >
               <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-blue-50 text-[#0066cc] flex items-center justify-center mb-2 group-hover:bg-blue-100 group-hover:scale-105 transition-all">
                 <Megaphone className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
@@ -279,7 +279,7 @@ export default function HomeScreen({
             {/* 3. Sermões */}
             <button
               onClick={() => onOpenQuickFeature?.('sermoes')}
-              className="flex flex-col items-center justify-center bg-white rounded-2xl px-0.5 py-3 sm:p-4 shadow-xs border border-[#E2E8F0] hover:border-blue-300 hover:shadow-md active:scale-95 transition-all group cursor-pointer"
+              className="flex flex-col items-center justify-center bg-white rounded-2xl px-0.5 py-3 sm:px-2 sm:py-4 shadow-xs border border-[#E2E8F0] hover:border-blue-300 hover:shadow-md active:scale-95 transition-all group cursor-pointer"
             >
               <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-2 group-hover:bg-emerald-100 group-hover:scale-105 transition-all">
                 <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center pl-0.5">
@@ -292,7 +292,7 @@ export default function HomeScreen({
             {/* 4. Bíblia */}
             <button
               onClick={() => onNavigate('bible')}
-              className="flex flex-col items-center justify-center bg-white rounded-2xl px-0.5 py-3 sm:p-4 shadow-xs border border-[#E2E8F0] hover:border-blue-300 hover:shadow-md active:scale-95 transition-all group cursor-pointer"
+              className="flex flex-col items-center justify-center bg-white rounded-2xl px-0.5 py-3 sm:px-2 sm:py-4 shadow-xs border border-[#E2E8F0] hover:border-blue-300 hover:shadow-md active:scale-95 transition-all group cursor-pointer"
             >
               <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mb-2 group-hover:bg-amber-100 group-hover:scale-105 transition-all">
                 <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.2]" />
@@ -323,7 +323,7 @@ export default function HomeScreen({
           </div>
 
           {/* Event Cards - 1 col on mobile, 2 cols on tablet / desktop */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4">
+          <div className="grid grid-cols-1 @min-[40rem]:grid-cols-2 gap-3.5 sm:gap-4">
             {upcomingEvents.map((event) => (
               <button
                 key={event.id}
@@ -332,10 +332,10 @@ export default function HomeScreen({
                   onSelectEvent(event);
                   onNavigate('event-detail');
                 }}
-                className="w-full text-left bg-white rounded-2xl p-3.5 sm:p-4 shadow-xs border border-[#E2E8F0] flex items-center gap-3.5 cursor-pointer hover:border-[#0066cc]/60 hover:shadow-md active:scale-[0.99] transition-all group"
+                className="@container w-full text-left bg-white rounded-2xl p-3.5 sm:p-4 shadow-xs border border-[#E2E8F0] flex items-center gap-2 sm:gap-2.5 cursor-pointer hover:border-[#0066cc]/60 hover:shadow-md active:scale-[0.99] transition-all group"
               >
                 {/* Left Thumbnail with SafeImage Fallback */}
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 bg-slate-100 relative shadow-2xs">
+                <div className="w-16 h-16 @min-[24rem]:w-24 @min-[24rem]:h-24 rounded-xl overflow-hidden shrink-0 bg-slate-100 relative shadow-2xs">
                   <SafeImage
                     src={event.image}
                     alt={event.title}
@@ -378,7 +378,7 @@ export default function HomeScreen({
                   </div>
 
                   {/* Status Badge */}
-                  <div className="mt-2 flex items-center justify-between">
+                  <div className="mt-2 flex flex-wrap items-center justify-between gap-1">
                     {event.statusBadge.variant === 'green' && (
                       <span className="inline-block bg-emerald-50 text-emerald-800 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-200">
                         {event.statusBadge.text}

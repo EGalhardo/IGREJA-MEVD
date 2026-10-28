@@ -378,7 +378,7 @@ export default function BibleScreen({ onShowToast }: BibleScreenProps) {
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
         {/* Toast Notificação de Cópia */}
         {copiedNotification && (
-          <div className="fixed top-14 right-4 z-50 flex items-center gap-2 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg border border-slate-700 text-xs font-semibold animate-in fade-in duration-200">
+          <div className="fixed top-16 sm:top-20 right-4 z-50 flex max-w-[calc(100vw-2rem)] items-center gap-2 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg border border-slate-700 text-xs font-semibold animate-in fade-in duration-200">
             <Check className="w-4 h-4 text-emerald-400" />
             <span>{copiedNotification} copiado com sucesso!</span>
           </div>
@@ -392,13 +392,13 @@ export default function BibleScreen({ onShowToast }: BibleScreenProps) {
             {/* Banner Inspirador do Versículo do Dia com Áudio e Navegação Direta */}
             <div className="relative rounded-3xl overflow-hidden shadow-sm border border-amber-200/60 bg-gradient-to-br from-amber-600 via-amber-700 to-amber-900 p-6 sm:p-8 text-white">
               <div className="relative z-10 flex flex-col justify-between min-h-[170px] sm:min-h-[190px]">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-md text-amber-100 border border-white/20">
                     <Sparkles className="w-3.5 h-3.5" />
                     Versículo do Dia • IGREJA MEVD
                   </span>
 
-                  <div className="flex items-center gap-2">
+                  <div className="ml-auto flex items-center gap-2">
                     <button
                       onClick={() => handleToggleAudio(`Versículo do dia. ${activeVerse.ref}. ${activeVerse.text}`)}
                       className={`p-2 rounded-full backdrop-blur-md transition-colors cursor-pointer ${
@@ -475,10 +475,10 @@ export default function BibleScreen({ onShowToast }: BibleScreenProps) {
             {/* Container Principal: Livros da Bíblia Sagrada */}
             <div className="bg-white rounded-3xl p-5 sm:p-7 shadow-xs border border-[#E2E8F0] space-y-6">
               {/* Cabeçalho e Filtros de Testamento */}
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div className="flex flex-col @min-[56rem]:flex-row @min-[56rem]:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                    <BookOpen className="w-6 h-6 text-[#0066cc]" />
+                    <BookOpen className="w-6 h-6 shrink-0 text-[#0066cc]" />
                     <span>Bíblia Sagrada • Antigo e Novo Testamento</span>
                   </h2>
                   <p className="text-xs text-slate-500 mt-1">
@@ -487,13 +487,13 @@ export default function BibleScreen({ onShowToast }: BibleScreenProps) {
                 </div>
 
                 {/* Abas dos Testamentos com contagem */}
-                <div className="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl text-xs font-semibold shrink-0">
+                <div className="flex flex-wrap items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl text-xs font-semibold shrink-0">
                   <button
                     onClick={() => {
                       setSelectedTestament('todos');
                       setActiveCategory('todos');
                     }}
-                    className={`px-3.5 py-2 rounded-xl transition-all cursor-pointer ${
+                    className={`whitespace-nowrap px-3.5 py-2 rounded-xl transition-all cursor-pointer ${
                       selectedTestament === 'todos'
                         ? 'bg-white text-[#0066cc] shadow-xs'
                         : 'text-slate-600 hover:text-slate-900'
@@ -506,7 +506,7 @@ export default function BibleScreen({ onShowToast }: BibleScreenProps) {
                       setSelectedTestament('AT');
                       setActiveCategory('todos');
                     }}
-                    className={`px-3.5 py-2 rounded-xl transition-all cursor-pointer ${
+                    className={`whitespace-nowrap px-3.5 py-2 rounded-xl transition-all cursor-pointer ${
                       selectedTestament === 'AT'
                         ? 'bg-white text-[#0066cc] shadow-xs'
                         : 'text-slate-600 hover:text-slate-900'
@@ -519,7 +519,7 @@ export default function BibleScreen({ onShowToast }: BibleScreenProps) {
                       setSelectedTestament('NT');
                       setActiveCategory('todos');
                     }}
-                    className={`px-3.5 py-2 rounded-xl transition-all cursor-pointer ${
+                    className={`whitespace-nowrap px-3.5 py-2 rounded-xl transition-all cursor-pointer ${
                       selectedTestament === 'NT'
                         ? 'bg-white text-[#0066cc] shadow-xs'
                         : 'text-slate-600 hover:text-slate-900'
@@ -613,7 +613,7 @@ export default function BibleScreen({ onShowToast }: BibleScreenProps) {
 
               {/* Grid de Livros Canônicos */}
               <div>
-                <div className="flex items-center justify-between mb-3 text-xs text-slate-500 font-medium">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3 text-xs text-slate-500 font-medium">
                   <span>Mostrando {filteredBooks.length} de {ALL_BIBLE_BOOKS.length} livros</span>
                   <span>Clique em um livro para escolher o capítulo</span>
                 </div>
@@ -625,7 +625,7 @@ export default function BibleScreen({ onShowToast }: BibleScreenProps) {
                     <p className="text-xs text-slate-500 mt-1">Tente pesquisar com outro termo ou limpe o filtro.</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                  <div className="grid grid-cols-1 @min-[20rem]:grid-cols-2 @min-[30rem]:grid-cols-3 @min-[40rem]:grid-cols-4 @min-[48rem]:grid-cols-5 gap-3">
                     {filteredBooks.map((book) => (
                       <button
                         key={book.id}
@@ -957,17 +957,17 @@ export default function BibleScreen({ onShowToast }: BibleScreenProps) {
                     return (
                       <div
                         key={verse.number}
-                        className={`p-2.5 rounded-xl transition-colors hover:bg-slate-50 flex items-start gap-3 group relative ${
+                        className={`p-2.5 rounded-xl transition-colors hover:bg-slate-50 grid grid-cols-[auto_minmax(0,1fr)] sm:flex sm:items-start gap-2 sm:gap-3 group relative ${
                           isBookmarked ? 'bg-amber-50/70 border-l-4 border-amber-500' : ''
                         }`}
                       >
                         <span className="font-sans font-bold text-xs text-[#0066cc] select-none pt-1 shrink-0 w-6">
                           {verse.number}
                         </span>
-                        <p className="flex-1">{verse.text}</p>
+                        <p className="min-w-0 flex-1 [overflow-wrap:anywhere]">{verse.text}</p>
 
                         {/* Ações rápidas no versículo */}
-                        <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 shrink-0 transition-opacity">
+                        <div className="col-start-2 flex items-center justify-end gap-1 shrink-0 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 [@media(hover:none)]:opacity-100">
                           <button
                             onClick={() => toggleBookmark(verseRef)}
                             className={`p-1.5 rounded-lg text-slate-400 hover:text-amber-600 transition-colors cursor-pointer ${
