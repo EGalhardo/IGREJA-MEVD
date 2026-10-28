@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { ArrowLeft, Share2, MapPin, Clock, Users, Mic, Music, UserCheck, Check } from 'lucide-react';
 import { ChurchEvent, Screen } from '../../types';
+import SafeImage from '../SafeImage';
+import { shareOrCopy } from '../../utils/shareUtils';
 
 interface EventDetailScreenProps {
   event: ChurchEvent;
@@ -17,6 +19,7 @@ export default function EventDetailScreen({
   isDesktopLayout = false,
 }: EventDetailScreenProps) {
   const [isRegistered, setIsRegistered] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
 
   const handleRegister = () => {
     setIsRegistered((prev) => !prev);
@@ -27,27 +30,24 @@ export default function EventDetailScreen({
     }
   };
 
-  const handleShare = () => {
-    if (typeof navigator !== 'undefined' && navigator.share) {
-      navigator
-        .share({
-          title: event.title,
-          text: `Participe do ${event.title} em ${event.location}!`,
-          url: window.location.href,
-        })
-        .catch(() => {});
-    } else if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
-      navigator.clipboard
-        .writeText(window.location.href)
-        .then(() => {
-          onShowToast('Link do evento copiado para a área de transferência!');
-        })
-        .catch(() => {
-          onShowToast('Link do evento: ' + window.location.href);
-        });
-    } else {
-      onShowToast('Link do evento: ' + window.location.href);
-    }
+  const handleShare = async () => {
+    if (isSharing) return;
+    setIsSharing(true);
+
+    const shareDescription = `Participe do ${event.title}!\nData: ${event.dateDay} de ${event.dateMonth} • ${event.time}\nLocal: ${event.location}\nIGREJA MEVD - Juntos na fé.`;
+
+    await shareOrCopy(
+      {
+        title: `${event.title} • IGREJA MEVD`,
+        text: shareDescription,
+        url: typeof window !== 'undefined' ? window.location.href : '',
+      },
+      (msg) => {
+        onShowToast(msg);
+      }
+    );
+
+    setIsSharing(false);
   };
 
   return (
@@ -57,15 +57,13 @@ export default function EventDetailScreen({
         <div className="bg-white sm:rounded-3xl shadow-xs border-0 sm:border border-[#E2E8F0] overflow-hidden flex flex-col">
           {/* Top Hero Image Banner */}
           <div className="relative w-full h-64 sm:h-80 lg:h-96 bg-slate-900 shrink-0">
-            <img
+            <SafeImage
               src={event.image}
               alt={event.title}
+              fallbackSrc="/assets/aistudio/2_b0dbb042.png"
+              fallbackType="event"
               className="w-full h-full object-cover"
-              onError={(e) => {
-                const target = e.currentTarget;
-                target.onerror = null;
-                target.src = '/assets/aistudio/2_b0dbb042.png';
-              }}
+              loading="eager"
             />
             {/* Dark gradient for button visibility */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/40 pointer-events-none" />
@@ -82,8 +80,10 @@ export default function EventDetailScreen({
 
               <button
                 onClick={handleShare}
-                className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition-colors cursor-pointer"
-                aria-label="Partilhar"
+                disabled={isSharing}
+                className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                aria-label="Partilhar evento"
+                title="Partilhar evento"
               >
                 <Share2 className="w-5 h-5 stroke-[2.2]" />
               </button>
@@ -148,27 +148,38 @@ export default function EventDetailScreen({
                   </div>
                 </div>
 
-                {/* Inscription Action Button */}
-                <button
-                  onClick={handleRegister}
-                  className={`w-full py-4 px-6 rounded-2xl font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2.5 shadow-sm transition-all active:scale-[0.98] cursor-pointer ${
-                    isRegistered
-                      ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                      : 'bg-[#0066cc] hover:bg-[#0055aa] text-white shadow-blue-500/20'
-                  }`}
-                >
-                  {isRegistered ? (
-                    <>
-                      <Check className="w-5 h-5 stroke-[2.5]" />
-                      <span>Presença Confirmada • Dentro do Evento</span>
-                    </>
-                  ) : (
-                    <>
-                      <UserCheck className="w-5 h-5 stroke-[2.2]" />
-                      <span>Entrar no Evento</span>
-                    </>
-                  )}
-                </button>
+                {/* Inscription Action Button & Secondary Share Action */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={handleRegister}
+                    className={`flex-1 py-4 px-6 rounded-2xl font-bold text-xs sm:text-sm tracking-wide flex items-center justify-center gap-2.5 shadow-sm transition-all active:scale-[0.98] cursor-pointer ${
+                      isRegistered
+                        ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                        : 'bg-[#0066cc] hover:bg-[#0055aa] text-white shadow-blue-500/20'
+                    }`}
+                  >
+                    {isRegistered ? (
+                      <>
+                        <Check className="w-5 h-5 stroke-[2.5]" />
+                        <span>Presença Confirmada • Dentro do Evento</span>
+                      </>
+                    ) : (
+                      <>
+                        <UserCheck className="w-5 h-5 stroke-[2.2]" />
+                        <span>Entrar no Evento</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={handleShare}
+                    className="py-4 px-5 rounded-2xl font-bold text-xs sm:text-sm text-slate-700 bg-slate-100 hover:bg-slate-200 border border-[#E2E8F0] flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-[0.98]"
+                    title="Partilhar evento com amigos"
+                  >
+                    <Share2 className="w-4 h-4 text-[#0066cc]" />
+                    <span>Partilhar</span>
+                  </button>
+                </div>
               </div>
 
               {/* Right Column (or Bottom): Description & 3 Highlights */}

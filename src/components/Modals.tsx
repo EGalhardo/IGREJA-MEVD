@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Check, Church, Phone, Mail, User, Shield, HelpCircle, Bell, Play, BookOpen, AlertTriangle, MapPin, Heart } from 'lucide-react';
 import { UserProfile } from '../types';
 import SafeImage from './SafeImage';
+import { sanitizeText, sanitizeEmail, sanitizePhone, sanitizeCivilStatus } from '../utils/sanitize';
 
 interface ModalsProps {
   activeModal: string | null;
@@ -28,6 +29,14 @@ export default function Modals({
   const [email, setEmail] = useState(user.email);
   const [notifications, setNotifications] = useState(user.notificationsActive);
 
+  // Form error states
+  const [errors, setErrors] = useState<{
+    name?: string;
+    phone?: string;
+    email?: string;
+    address?: string;
+  }>({});
+
   // Sync state if user changes or modal opens
   useEffect(() => {
     if (activeModal === 'meus-dados') {
@@ -36,10 +45,61 @@ export default function Modals({
       setPhone(user.phone);
       setAddress(user.address || 'Rua do Sanatório, Morro Bento, Luanda');
       setEmail(user.email);
+      setErrors({});
     }
   }, [user, activeModal]);
 
   if (!activeModal) return null;
+
+  const handleSaveProfile = () => {
+    const newErrors: { name?: string; phone?: string; email?: string; address?: string } = {};
+
+    // 1. Sanitize & Validate Name
+    const cleanName = sanitizeText(name, 60);
+    if (!cleanName || cleanName.length < 2) {
+      newErrors.name = 'O nome deve ter pelo menos 2 caracteres.';
+    }
+
+    // 2. Sanitize Civil Status
+    const cleanCivilStatus = sanitizeCivilStatus(civilStatus);
+
+    // 3. Sanitize & Validate Phone
+    const phoneResult = sanitizePhone(phone);
+    if (!phoneResult.isValid) {
+      newErrors.phone = phoneResult.error || 'Número de contacto inválido.';
+    }
+
+    // 4. Sanitize Address
+    const cleanAddress = sanitizeText(address, 120);
+    if (!cleanAddress || cleanAddress.length < 3) {
+      newErrors.address = 'Por favor, indique a sua morada.';
+    }
+
+    // 5. Sanitize & Validate Email
+    const emailResult = sanitizeEmail(email);
+    if (!emailResult.isValid) {
+      newErrors.email = emailResult.error || 'Email inválido.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      const firstError = Object.values(newErrors)[0];
+      onShowToast(firstError || 'Por favor, corrija os erros no formulário.');
+      return;
+    }
+
+    // Apply fully sanitized data
+    onUpdateUser({
+      name: cleanName,
+      civilStatus: cleanCivilStatus,
+      phone: phoneResult.value,
+      address: cleanAddress,
+      email: emailResult.value,
+    });
+
+    onShowToast('Dados do perfil actualizados com sucesso!');
+    onClose();
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -78,6 +138,7 @@ export default function Modals({
                 <SafeImage
                   src={user.avatar}
                   alt={user.name}
+                  fallbackSrc="/assets/aistudio/Foto_de_Perfil__1__bd7124df.png"
                   fallbackType="avatar"
                   className="w-12 h-12 rounded-full object-cover ring-2 ring-blue-100"
                 />
@@ -92,16 +153,25 @@ export default function Modals({
                 <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                   Nome
                 </label>
-                <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-slate-50 border border-[#E2E8F0] focus-within:border-blue-500 focus-within:bg-white rounded-xl text-xs transition-colors">
+                <div
+                  className={`flex items-center gap-2.5 px-3.5 py-2.5 bg-slate-50 border rounded-xl text-xs transition-colors ${
+                    errors.name ? 'border-red-400 bg-red-50/20' : 'border-[#E2E8F0] focus-within:border-blue-500 focus-within:bg-white'
+                  }`}
+                >
                   <User className="w-4 h-4 text-[#0066cc] shrink-0" />
                   <input
                     type="text"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    maxLength={60}
+                    onChange={(e) => {
+                      setName(e.target.value);
+                      if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+                    }}
                     placeholder="Seu nome completo"
                     className="w-full bg-transparent focus:outline-none text-slate-800 font-medium"
                   />
                 </div>
+                {errors.name && <p className="text-[10px] text-red-500 mt-1 font-medium">{errors.name}</p>}
               </div>
 
               {/* 2. Estado civil */}
@@ -129,16 +199,25 @@ export default function Modals({
                 <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                   contacto(Whatsapp)
                 </label>
-                <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-slate-50 border border-[#E2E8F0] focus-within:border-blue-500 focus-within:bg-white rounded-xl text-xs transition-colors">
+                <div
+                  className={`flex items-center gap-2.5 px-3.5 py-2.5 bg-slate-50 border rounded-xl text-xs transition-colors ${
+                    errors.phone ? 'border-red-400 bg-red-50/20' : 'border-[#E2E8F0] focus-within:border-blue-500 focus-within:bg-white'
+                  }`}
+                >
                   <Phone className="w-4 h-4 text-[#0066cc] shrink-0" />
                   <input
-                    type="text"
+                    type="tel"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    maxLength={25}
+                    onChange={(e) => {
+                      setPhone(e.target.value);
+                      if (errors.phone) setErrors((prev) => ({ ...prev, phone: undefined }));
+                    }}
                     placeholder="+244 9..."
                     className="w-full bg-transparent focus:outline-none text-slate-800 font-medium"
                   />
                 </div>
+                {errors.phone && <p className="text-[10px] text-red-500 mt-1 font-medium">{errors.phone}</p>}
               </div>
 
               {/* 4. Morada */}
@@ -146,16 +225,25 @@ export default function Modals({
                 <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                   Morada
                 </label>
-                <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-slate-50 border border-[#E2E8F0] focus-within:border-blue-500 focus-within:bg-white rounded-xl text-xs transition-colors">
+                <div
+                  className={`flex items-center gap-2.5 px-3.5 py-2.5 bg-slate-50 border rounded-xl text-xs transition-colors ${
+                    errors.address ? 'border-red-400 bg-red-50/20' : 'border-[#E2E8F0] focus-within:border-blue-500 focus-within:bg-white'
+                  }`}
+                >
                   <MapPin className="w-4 h-4 text-[#0066cc] shrink-0" />
                   <input
                     type="text"
                     value={address}
-                    onChange={(e) => setAddress(e.target.value)}
+                    maxLength={120}
+                    onChange={(e) => {
+                      setAddress(e.target.value);
+                      if (errors.address) setErrors((prev) => ({ ...prev, address: undefined }));
+                    }}
                     placeholder="Bairro, Rua, Província"
                     className="w-full bg-transparent focus:outline-none text-slate-800 font-medium"
                   />
                 </div>
+                {errors.address && <p className="text-[10px] text-red-500 mt-1 font-medium">{errors.address}</p>}
               </div>
 
               {/* 5. Email */}
@@ -163,34 +251,29 @@ export default function Modals({
                 <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
                   Email
                 </label>
-                <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-slate-50 border border-[#E2E8F0] focus-within:border-blue-500 focus-within:bg-white rounded-xl text-xs transition-colors">
+                <div
+                  className={`flex items-center gap-2.5 px-3.5 py-2.5 bg-slate-50 border rounded-xl text-xs transition-colors ${
+                    errors.email ? 'border-red-400 bg-red-50/20' : 'border-[#E2E8F0] focus-within:border-blue-500 focus-within:bg-white'
+                  }`}
+                >
                   <Mail className="w-4 h-4 text-[#0066cc] shrink-0" />
                   <input
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    maxLength={80}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+                    }}
                     placeholder="exemplo@email.com"
                     className="w-full bg-transparent focus:outline-none text-slate-800 font-medium"
                   />
                 </div>
+                {errors.email && <p className="text-[10px] text-red-500 mt-1 font-medium">{errors.email}</p>}
               </div>
 
               <button
-                onClick={() => {
-                  if (!name.trim()) {
-                    onShowToast('Por favor, introduza um nome válido.');
-                    return;
-                  }
-                  onUpdateUser({
-                    name: name.trim(),
-                    civilStatus,
-                    phone: phone.trim(),
-                    address: address.trim(),
-                    email: email.trim(),
-                  });
-                  onShowToast('Dados actualizados com sucesso!');
-                  onClose();
-                }}
+                onClick={handleSaveProfile}
                 className="w-full py-3 bg-[#0066cc] hover:bg-blue-700 text-white rounded-xl font-semibold text-xs transition-colors shadow-xs cursor-pointer mt-2"
               >
                 Salvar Alterações
@@ -412,7 +495,7 @@ export default function Modals({
               <div className="flex gap-2.5">
                 <button
                   onClick={onClose}
-                  className="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 text-slate-700 font-semibold text-xs hover:bg-slate-50 transition-colors"
+                  className="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 text-slate-700 font-semibold text-xs hover:bg-slate-50 transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -421,7 +504,7 @@ export default function Modals({
                     onConfirmLogout();
                     onClose();
                   }}
-                  className="flex-1 py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-xs transition-colors"
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-xs transition-colors cursor-pointer"
                 >
                   Terminar Sessão
                 </button>

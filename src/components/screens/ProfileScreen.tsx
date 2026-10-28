@@ -1,6 +1,7 @@
 import { User, Church, Calendar, Bell, Shield, Headphones, ChevronRight, LogOut, CheckCircle2, UserRoundPen } from 'lucide-react';
 import { CURRENT_USER } from '../../data/mockData';
 import { Screen, UserProfile } from '../../types';
+import SafeImage from '../SafeImage';
 
 interface ProfileScreenProps {
   user?: UserProfile;
@@ -24,15 +25,13 @@ export default function ProfileScreen({
         <div className="bg-white rounded-3xl p-5 sm:p-6 shadow-xs border border-[#E2E8F0] flex flex-col sm:flex-row items-center sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4 sm:gap-5 w-full sm:w-auto">
             <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-slate-100 ring-4 ring-blue-50 shrink-0">
-              <img
+              <SafeImage
                 src={user.avatar}
                 alt={user.name}
+                fallbackSrc="/assets/aistudio/Foto_de_Perfil__1__bd7124df.png"
+                fallbackType="avatar"
                 className="w-full h-full object-cover"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  target.onerror = null;
-                  target.src = '/assets/aistudio/Foto_de_Perfil__1__bd7124df.png';
-                }}
+                loading="eager"
               />
             </div>
 
@@ -199,7 +198,7 @@ export default function ProfileScreen({
           </div>
         </div>
 
-        {/* Terminar Sessão Button - Perfeitamente alinhado com o início de Privacidade e segurança e o final de Ajuda e suporte */}
+        {/* Terminar Sessão Button */}
         <div className="pt-2 w-full">
           <button
             onClick={onLogout}

@@ -1,53 +1,84 @@
-import { useState } from 'react';
-import { Church, Music, BookOpen, Users, User } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Church, Music, BookOpen, Users, User, Calendar, Image as ImageIcon } from 'lucide-react';
 
-interface SafeImageProps {
+export interface SafeImageProps {
   src: string;
   alt: string;
   className?: string;
-  fallbackType?: 'church' | 'concert' | 'prayer' | 'nature' | 'avatar' | 'crowd';
+  fallbackSrc?: string;
+  fallbackType?: 'church' | 'concert' | 'prayer' | 'nature' | 'avatar' | 'crowd' | 'event';
+  loading?: 'lazy' | 'eager';
+  onClick?: () => void;
 }
 
 export default function SafeImage({
   src,
   alt,
   className = '',
+  fallbackSrc,
   fallbackType = 'church',
+  loading = 'lazy',
+  onClick,
 }: SafeImageProps) {
+  const [currentSrc, setCurrentSrc] = useState<string>(src);
   const [hasError, setHasError] = useState(false);
+  const [triedFallbackSrc, setTriedFallbackSrc] = useState(false);
 
-  if (hasError || !src) {
+  // Sync state if src changes
+  useEffect(() => {
+    setCurrentSrc(src);
+    setHasError(false);
+    setTriedFallbackSrc(false);
+  }, [src]);
+
+  const handleError = () => {
+    if (fallbackSrc && !triedFallbackSrc && fallbackSrc !== currentSrc) {
+      setTriedFallbackSrc(true);
+      setCurrentSrc(fallbackSrc);
+    } else {
+      setHasError(true);
+    }
+  };
+
+  if (hasError || !currentSrc) {
     return (
       <div
-        className={`flex items-center justify-center bg-gradient-to-br ${
+        onClick={onClick}
+        className={`flex items-center justify-center select-none overflow-hidden ${
           fallbackType === 'avatar'
-            ? 'from-blue-600 to-indigo-700 text-white'
+            ? 'bg-gradient-to-br from-blue-600 via-indigo-600 to-slate-800 text-white'
             : fallbackType === 'concert'
-            ? 'from-indigo-900 via-blue-800 to-purple-900 text-white'
+            ? 'bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 text-purple-200'
             : fallbackType === 'prayer'
-            ? 'from-amber-900 via-yellow-800 to-amber-950 text-amber-200'
+            ? 'bg-gradient-to-br from-amber-900 via-orange-950 to-stone-900 text-amber-200'
             : fallbackType === 'nature'
-            ? 'from-emerald-800 via-teal-700 to-sky-800 text-emerald-200'
-            : 'from-blue-900 to-slate-900 text-blue-200'
+            ? 'bg-gradient-to-br from-emerald-900 via-teal-900 to-slate-900 text-emerald-200'
+            : fallbackType === 'event'
+            ? 'bg-gradient-to-br from-blue-900 via-indigo-950 to-slate-900 text-blue-200'
+            : 'bg-gradient-to-br from-slate-800 via-blue-950 to-slate-900 text-blue-200'
         } ${className}`}
+        role="img"
+        aria-label={alt}
       >
-        {fallbackType === 'avatar' && <User className="w-1/2 h-1/2 stroke-[2]" />}
-        {fallbackType === 'concert' && <Music className="w-1/3 h-1/3 stroke-[2]" />}
-        {fallbackType === 'prayer' && <BookOpen className="w-1/3 h-1/3 stroke-[2]" />}
-        {fallbackType === 'nature' && <BookOpen className="w-1/3 h-1/3 stroke-[2]" />}
-        {fallbackType === 'church' && <Church className="w-1/3 h-1/3 stroke-[2]" />}
-        {fallbackType === 'crowd' && <Users className="w-1/3 h-1/3 stroke-[2]" />}
+        {fallbackType === 'avatar' && <User className="w-1/2 h-1/2 stroke-[2] opacity-85" />}
+        {fallbackType === 'concert' && <Music className="w-1/3 h-1/3 stroke-[2] opacity-85" />}
+        {fallbackType === 'prayer' && <BookOpen className="w-1/3 h-1/3 stroke-[2] opacity-85" />}
+        {fallbackType === 'nature' && <BookOpen className="w-1/3 h-1/3 stroke-[2] opacity-85" />}
+        {fallbackType === 'church' && <Church className="w-1/3 h-1/3 stroke-[2] opacity-85" />}
+        {fallbackType === 'crowd' && <Users className="w-1/3 h-1/3 stroke-[2] opacity-85" />}
+        {fallbackType === 'event' && <Calendar className="w-1/3 h-1/3 stroke-[2] opacity-85" />}
       </div>
     );
   }
 
   return (
     <img
-      src={src}
+      src={currentSrc}
       alt={alt}
       className={className}
-      onError={() => setHasError(true)}
-      loading="lazy"
+      onError={handleError}
+      loading={loading}
+      onClick={onClick}
     />
   );
 }

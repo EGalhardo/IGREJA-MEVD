@@ -1,7 +1,20 @@
-import { useState, useEffect, useCallback } from 'react';
-import { ArrowRight, Calendar, Megaphone, Play, BookOpen, Clock, MapPin, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import {
+  ArrowRight,
+  Calendar,
+  Megaphone,
+  Play,
+  BookOpen,
+  Clock,
+  MapPin,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Pause,
+} from 'lucide-react';
 import { CHURCH_EVENTS } from '../../data/mockData';
 import { ChurchEvent, Screen } from '../../types';
+import SafeImage from '../SafeImage';
 
 interface HomeScreenProps {
   onNavigate: (screen: Screen) => void;
@@ -18,7 +31,7 @@ const HERO_CAROUSEL_SLIDES = [
     alt: 'IGREJA MEVD - Logomarca e Identidade Oficial',
     title: 'Bem-vindo à IGREJA MEVD',
     subtitle: 'Uma igreja viva, unida e em missão.',
-    cta: 'Conhecer a Igreja',
+    category: 'MEVD Oficial',
   },
   {
     id: 2,
@@ -26,7 +39,7 @@ const HERO_CAROUSEL_SLIDES = [
     alt: 'Nova Série: Edificando uma Família Excelente com Pr. Feliz & Pra. Manuela Paulo',
     title: 'Nova Série: Família Excelente',
     subtitle: 'Todos os domingos de Junho às 09h • Pr. Feliz & Pra. Manuela',
-    cta: 'Ver Programação',
+    category: 'Família',
   },
   {
     id: 3,
@@ -34,7 +47,7 @@ const HERO_CAROUSEL_SLIDES = [
     alt: 'Save the Date: 9º CVD Congresso de Jovens e Vigília de Oração',
     title: '9º CVD • Congresso de Jovens',
     subtitle: '17 e 18 de Outubro • Vigília de Oração e Louvor',
-    cta: 'Ver Detalhes do Evento',
+    category: 'Juventude',
   },
 ];
 
@@ -44,12 +57,12 @@ export default function HomeScreen({
   onOpenQuickFeature,
   isDesktopLayout = false,
 }: HomeScreenProps) {
-  // Todos os eventos recentes e novos da IGREJA MEVD para a secção Próximos Eventos
   const upcomingEvents = CHURCH_EVENTS;
 
-  // Carrossel de 5 segundos em modo loop
+  // Carrossel com temporizador de 5 segundos em modo loop
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
+  const touchStartX = useRef<number | null>(null);
 
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % HERO_CAROUSEL_SLIDES.length);
@@ -67,16 +80,38 @@ export default function HomeScreen({
     }, 5000); // 5 segundos
 
     return () => clearInterval(timer);
-  }, [nextSlide, isPaused]);
+  }, [nextSlide, isPaused, currentSlide]);
+
+  // Touch gesture support for mobile swiping
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = touchStartX.current - touchEndX;
+
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    }
+    touchStartX.current = null;
+  };
 
   return (
     <div className="flex-1 flex flex-col bg-white overflow-y-auto w-full">
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
         {/* Carrossel de Destaque Animado com Duração de 5 segundos e Loop Infinito */}
         <div
-          className="relative rounded-3xl overflow-hidden shadow-sm border border-[#E2E8F0] w-full aspect-[16/9] select-none group bg-slate-100"
+          className="relative rounded-3xl overflow-hidden shadow-sm border border-[#E2E8F0] w-full aspect-[16/9] select-none group bg-slate-900"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
         >
           {/* Slides: 100% Preenchimento Total do Container sem cortes nem espaços vazios */}
           {HERO_CAROUSEL_SLIDES.map((slide, index) => {
@@ -89,17 +124,17 @@ export default function HomeScreen({
                 }`}
                 onClick={() => onNavigate('events')}
               >
-                <img
+                <SafeImage
                   src={slide.image}
                   alt={slide.alt}
+                  fallbackSrc="/assets/aistudio/1_6270ba45.png"
+                  fallbackType="church"
                   className="w-full h-full object-cover object-center block"
                   loading={index === 0 ? 'eager' : 'lazy'}
-                  onError={(e) => {
-                    const target = e.currentTarget;
-                    target.onerror = null;
-                    target.src = '/assets/aistudio/1_6270ba45.png';
-                  }}
                 />
+
+                {/* Subtle bottom shadow vignette for contrast */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20 pointer-events-none" />
               </div>
             );
           })}
@@ -128,33 +163,52 @@ export default function HomeScreen({
             <ChevronRight className="w-5 h-5 stroke-[2.5]" />
           </button>
 
-          {/* Indicadores de Slide (Pills elegantes com fundo translúcido para contraste em qualquer imagem) */}
-          <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/35 backdrop-blur-md border border-white/20 shadow-sm">
-            {HERO_CAROUSEL_SLIDES.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCurrentSlide(idx);
-                }}
-                className={`transition-all duration-300 rounded-full cursor-pointer h-2 ${
-                  idx === currentSlide
-                    ? 'w-7 sm:w-8 bg-white shadow-xs'
-                    : 'w-2 bg-white/50 hover:bg-white/80'
-                }`}
-                aria-label={`Ir para slide ${idx + 1}`}
-              />
-            ))}
+          {/* Indicadores de Slide Segmentados com Progresso Contínuo */}
+          <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 shadow-sm">
+            {HERO_CAROUSEL_SLIDES.map((_, idx) => {
+              const isActive = idx === currentSlide;
+              return (
+                <button
+                  key={idx}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentSlide(idx);
+                  }}
+                  className="relative rounded-full cursor-pointer h-2 overflow-hidden transition-all duration-300 w-7 sm:w-9 bg-white/30"
+                  aria-label={`Ir para imagem ${idx + 1}`}
+                >
+                  {/* Fill progress inside the active indicator */}
+                  {isActive && (
+                    <div
+                      key={`pill-${currentSlide}`}
+                      className="absolute inset-y-0 left-0 bg-white rounded-full"
+                      style={{
+                        animation: 'carouselProgress 5s linear forwards',
+                        animationPlayState: isPaused ? 'paused' : 'running',
+                      }}
+                    />
+                  )}
+                  {idx < currentSlide && <div className="absolute inset-0 bg-white/90 rounded-full" />}
+                </button>
+              );
+            })}
+
+            {isPaused && (
+              <span className="text-[10px] text-white/75 font-semibold flex items-center gap-0.5 ml-1">
+                <Pause className="w-2.5 h-2.5 fill-current" />
+              </span>
+            )}
           </div>
 
           {/* Barra de Progresso Animada de 5 segundos no topo do carrossel */}
           <div className="absolute top-0 left-0 right-0 h-1 bg-white/20 z-30 overflow-hidden">
             <div
-              key={currentSlide}
-              className="h-full bg-amber-400"
+              key={`top-bar-${currentSlide}`}
+              className="h-full bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-200"
               style={{
                 width: '0%',
-                animation: isPaused ? 'none' : 'carouselProgress 5s linear forwards',
+                animation: 'carouselProgress 5s linear forwards',
+                animationPlayState: isPaused ? 'paused' : 'running',
               }}
             />
           </div>
@@ -267,17 +321,14 @@ export default function HomeScreen({
                 }}
                 className="bg-white rounded-2xl p-3.5 sm:p-4 shadow-xs border border-[#E2E8F0] flex items-center gap-3.5 cursor-pointer hover:border-[#0066cc]/60 hover:shadow-md active:scale-[0.99] transition-all group"
               >
-                {/* Left Thumbnail */}
+                {/* Left Thumbnail with SafeImage Fallback */}
                 <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 bg-slate-100 relative shadow-2xs">
-                  <img
+                  <SafeImage
                     src={event.image}
                     alt={event.title}
+                    fallbackSrc="/assets/aistudio/2_b0dbb042.png"
+                    fallbackType="event"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      target.onerror = null;
-                      target.src = '/assets/aistudio/2_b0dbb042.png';
-                    }}
                   />
                 </div>
 

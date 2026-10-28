@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Search, SlidersHorizontal, Clock, MapPin, ChevronRight } from 'lucide-react';
 import { CHURCH_EVENTS } from '../../data/mockData';
 import { ChurchEvent, EventCategory, Screen } from '../../types';
+import SafeImage from '../SafeImage';
 
 interface EventsScreenProps {
   onNavigate: (screen: Screen) => void;
@@ -95,17 +96,14 @@ export default function EventsScreen({ onNavigate, onSelectEvent, isDesktopLayou
                 }}
                 className="bg-white rounded-2xl p-3.5 sm:p-4 shadow-xs border border-[#E2E8F0] flex items-center gap-3.5 cursor-pointer hover:border-[#0066cc]/60 hover:shadow-md active:scale-[0.99] transition-all group"
               >
-                {/* Left Thumbnail */}
+                {/* Left Thumbnail with SafeImage */}
                 <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 bg-slate-100 relative shadow-2xs">
-                  <img
+                  <SafeImage
                     src={event.image}
                     alt={event.title}
+                    fallbackSrc="/assets/aistudio/2_b0dbb042.png"
+                    fallbackType="event"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      target.onerror = null;
-                      target.src = '/assets/aistudio/2_b0dbb042.png';
-                    }}
                   />
                 </div>
 

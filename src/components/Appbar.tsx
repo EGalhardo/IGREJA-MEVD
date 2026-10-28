@@ -1,5 +1,6 @@
 import { ArrowLeft, Bell, Search, Mic } from 'lucide-react';
 import ChurchLogo from './ChurchLogo';
+import SafeImage from './SafeImage';
 import { Screen, UserProfile } from '../types';
 
 interface AppbarProps {
@@ -91,7 +92,6 @@ export default function Appbar({
 
         {/* Right: Mic, Notifications & Profile Badge */}
         <div className="flex items-center gap-2.5 shrink-0">
-
           {/* Microfone Icon (à esquerda do sino) */}
           <button
             onClick={onMicClick}
@@ -122,16 +122,15 @@ export default function Appbar({
             onClick={onOpenProfile}
             className="flex items-center gap-2.5 pl-2 pr-3 py-1 rounded-xl hover:bg-slate-50 border border-slate-200/70 transition-colors cursor-pointer"
           >
-            <img
-              src={user.avatar}
-              alt={user.name}
-              className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-100"
-              onError={(e) => {
-                const target = e.currentTarget;
-                target.onerror = null;
-                target.src = '/assets/aistudio/Foto_de_Perfil__1__bd7124df.png';
-              }}
-            />
+            <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-blue-100 shrink-0">
+              <SafeImage
+                src={user.avatar}
+                alt={user.name}
+                fallbackSrc="/assets/aistudio/Foto_de_Perfil__1__bd7124df.png"
+                fallbackType="avatar"
+                className="w-full h-full object-cover"
+              />
+            </div>
             <div className="text-left hidden md:block">
               <p className="text-xs font-bold text-slate-900 leading-tight">{user.name}</p>
               <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 font-semibold">
@@ -145,7 +144,7 @@ export default function Appbar({
     );
   }
 
-  // Mobile & Tablet Vertical Mode Appbar: Fundo Branco para harmonia e máxima visibilidade
+  // Mobile & Tablet Vertical Mode Appbar
   return (
     <header className="w-full bg-white text-slate-900 border-b border-[#E2E8F0] px-4 py-2.5 flex items-center justify-between shrink-0 sticky top-0 z-30 shadow-xs transition-colors">
       {/* Left section: Logo on Home, or Back button + Title on other pages */}
@@ -210,16 +209,15 @@ export default function Appbar({
           aria-label="Perfil"
           title="Ver Perfil"
         >
-          <img
-            src={user.avatar}
-            alt={user.name}
-            className="w-7 h-7 rounded-full object-cover border border-slate-200 ring-1 ring-slate-100"
-            onError={(e) => {
-              const target = e.currentTarget;
-              target.onerror = null;
-              target.src = '/assets/aistudio/Foto_de_Perfil__1__bd7124df.png';
-            }}
-          />
+          <div className="w-7 h-7 rounded-full overflow-hidden border border-slate-200 ring-1 ring-slate-100">
+            <SafeImage
+              src={user.avatar}
+              alt={user.name}
+              fallbackSrc="/assets/aistudio/Foto_de_Perfil__1__bd7124df.png"
+              fallbackType="avatar"
+              className="w-full h-full object-cover"
+            />
+          </div>
         </button>
       </div>
     </header>

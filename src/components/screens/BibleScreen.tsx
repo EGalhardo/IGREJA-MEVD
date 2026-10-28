@@ -14,8 +14,11 @@ import {
   Check,
   Type,
   ExternalLink,
-  Flame,
-  Tag
+  ChevronDown,
+  ArrowUp,
+  SlidersHorizontal,
+  Compass,
+  Tag,
 } from 'lucide-react';
 import { Screen } from '../../types';
 import {
@@ -23,8 +26,9 @@ import {
   BibleBook,
   getChapterVerses,
   TOPICAL_SEARCH_VERSES,
-  BibleVerse
+  BibleVerse,
 } from '../../data/bibleData';
+import { copyToClipboard, shareOrCopy } from '../../utils/shareUtils';
 
 interface BibleScreenProps {
   onNavigate: (screen: Screen) => void;
@@ -78,6 +82,11 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
   const [selectedChapter, setSelectedChapter] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<'books' | 'chapters' | 'reader'>('books');
 
+  // Quick navigation popovers
+  const [showChapterPickerModal, setShowChapterPickerModal] = useState(false);
+  const [showBookPickerModal, setShowBookPickerModal] = useState(false);
+  const [chapterFilterQuery, setChapterFilterQuery] = useState('');
+
   // Filter state
   const [selectedTestament, setSelectedTestament] = useState<'todos' | 'AT' | 'NT'>('todos');
   const [searchQuery, setSearchQuery] = useState('');
@@ -91,6 +100,7 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
   const [fontSize, setFontSize] = useState<ReaderFontSize>('base');
   const [bibleVersion, setBibleVersion] = useState<'ARA' | 'NVI'>('ARA');
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const [bookmarkedVerses, setBookmarkedVerses] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('mevd_bible_bookmarks');
@@ -103,26 +113,37 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
 
   // Audio Speech Synthesis
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     return () => {
-      if ('speechSynthesis' in window) {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
     };
   }, []);
 
+  // Monitor scroll for back-to-top button
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 300) {
+        setShowScrollTop(true);
+      } else {
+        setShowScrollTop(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   // Filtered books
   const filteredBooks = useMemo(() => {
     return ALL_BIBLE_BOOKS.filter((book) => {
-      // Testament filter
       if (selectedTestament === 'AT' && book.testament !== 'AT') return false;
       if (selectedTestament === 'NT' && book.testament !== 'NT') return false;
 
-      // Category filter
       if (activeCategory !== 'todos' && book.category !== activeCategory) return false;
 
-      // Search query
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase().trim();
         const matchesName = book.name.toLowerCase().includes(query);
@@ -162,6 +183,7 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
   const handleSelectBook = (book: BibleBook) => {
     setSelectedBook(book);
     setViewMode('chapters');
+    setShowBookPickerModal(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -172,6 +194,9 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
       setSelectedBook(targetBook);
       setSelectedChapter(chapterNum);
       setViewMode('reader');
+      setShowChapterPickerModal(false);
+      setShowBookPickerModal(false);
+      setChapterFilterQuery('');
       stopAudio();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -187,42 +212,61 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
   // Return to chapter selection
   const handleBackToChapters = () => {
     setViewMode('chapters');
-    setSelectedChapter(null);
     stopAudio();
   };
 
-  // Next / Prev Chapter
-  const handleNextChapter = () => {
-    if (!selectedBook || selectedChapter === null) return;
+  // Next / Prev Chapter navigation calculation
+  const nextChapterInfo = useMemo(() => {
+    if (!selectedBook || selectedChapter === null) return null;
     if (selectedChapter < selectedBook.chapters) {
-      setSelectedChapter(selectedChapter + 1);
-      stopAudio();
-    } else {
-      // Go to next book
-      const currentIndex = ALL_BIBLE_BOOKS.findIndex((b) => b.id === selectedBook.id);
-      if (currentIndex < ALL_BIBLE_BOOKS.length - 1) {
-        const nextBook = ALL_BIBLE_BOOKS[currentIndex + 1];
-        setSelectedBook(nextBook);
-        setSelectedChapter(1);
-        stopAudio();
-      }
+      return {
+        book: selectedBook,
+        chapter: selectedChapter + 1,
+        label: `${selectedBook.name} ${selectedChapter + 1}`,
+      };
+    }
+    const currentIndex = ALL_BIBLE_BOOKS.findIndex((b) => b.id === selectedBook.id);
+    if (currentIndex < ALL_BIBLE_BOOKS.length - 1) {
+      const nextBook = ALL_BIBLE_BOOKS[currentIndex + 1];
+      return {
+        book: nextBook,
+        chapter: 1,
+        label: `${nextBook.name} 1`,
+      };
+    }
+    return null;
+  }, [selectedBook, selectedChapter]);
+
+  const prevChapterInfo = useMemo(() => {
+    if (!selectedBook || selectedChapter === null) return null;
+    if (selectedChapter > 1) {
+      return {
+        book: selectedBook,
+        chapter: selectedChapter - 1,
+        label: `${selectedBook.name} ${selectedChapter - 1}`,
+      };
+    }
+    const currentIndex = ALL_BIBLE_BOOKS.findIndex((b) => b.id === selectedBook.id);
+    if (currentIndex > 0) {
+      const prevBook = ALL_BIBLE_BOOKS[currentIndex - 1];
+      return {
+        book: prevBook,
+        chapter: prevBook.chapters,
+        label: `${prevBook.name} ${prevBook.chapters}`,
+      };
+    }
+    return null;
+  }, [selectedBook, selectedChapter]);
+
+  const handleNextChapter = () => {
+    if (nextChapterInfo) {
+      handleSelectChapter(nextChapterInfo.chapter, nextChapterInfo.book);
     }
   };
 
   const handlePrevChapter = () => {
-    if (!selectedBook || selectedChapter === null) return;
-    if (selectedChapter > 1) {
-      setSelectedChapter(selectedChapter - 1);
-      stopAudio();
-    } else {
-      // Go to prev book
-      const currentIndex = ALL_BIBLE_BOOKS.findIndex((b) => b.id === selectedBook.id);
-      if (currentIndex > 0) {
-        const prevBook = ALL_BIBLE_BOOKS[currentIndex - 1];
-        setSelectedBook(prevBook);
-        setSelectedChapter(prevBook.chapters);
-        stopAudio();
-      }
+    if (prevChapterInfo) {
+      handleSelectChapter(prevChapterInfo.chapter, prevChapterInfo.book);
     }
   };
 
@@ -243,25 +287,17 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
     });
   };
 
-  // Copy to clipboard safely
-  const handleCopyText = (text: string, label: string) => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard
-        .writeText(text)
-        .then(() => {
-          setCopiedNotification(label);
-          if (onShowToast) {
-            onShowToast(`${label} copiado!`);
-          }
-          setTimeout(() => setCopiedNotification(null), 2500);
-        })
-        .catch(() => {
-          setCopiedNotification(label);
-          setTimeout(() => setCopiedNotification(null), 2500);
-        });
-    } else {
+  // Safe clipboard copy
+  const handleCopyText = async (text: string, label: string) => {
+    const success = await copyToClipboard(text);
+    if (success) {
       setCopiedNotification(label);
+      if (onShowToast) {
+        onShowToast(`${label} copiado!`);
+      }
       setTimeout(() => setCopiedNotification(null), 2500);
+    } else if (onShowToast) {
+      onShowToast(`Texto selecionado: ${text.slice(0, 40)}...`);
     }
   };
 
@@ -321,6 +357,15 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
     return getChapterVerses(selectedBook.id, selectedChapter);
   }, [selectedBook, selectedChapter]);
 
+  // Filtered verses inside chapter if searching
+  const displayedVerses = useMemo(() => {
+    if (!chapterFilterQuery.trim()) return currentVerses;
+    const query = chapterFilterQuery.toLowerCase().trim();
+    return currentVerses.filter(
+      (v) => v.text.toLowerCase().includes(query) || String(v.number) === query
+    );
+  }, [currentVerses, chapterFilterQuery]);
+
   // Current chapter text string for audio and copy
   const fullChapterText = useMemo(() => {
     if (!selectedBook || selectedChapter === null) return '';
@@ -329,12 +374,19 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
       .join(' ')}`;
   }, [selectedBook, selectedChapter, currentVerses]);
 
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (containerRef.current) {
+      containerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="flex-1 flex flex-col bg-white overflow-y-auto w-full">
+    <div ref={containerRef} className="flex-1 flex flex-col bg-white overflow-y-auto w-full relative">
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
         {/* Toast Notificação de Cópia */}
         {copiedNotification && (
-          <div className="fixed top-4 right-4 z-50 flex items-center gap-2 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg border border-slate-700 text-xs font-semibold animate-in fade-in duration-200">
+          <div className="fixed top-14 right-4 z-50 flex items-center gap-2 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg border border-slate-700 text-xs font-semibold animate-in fade-in duration-200">
             <Check className="w-4 h-4 text-emerald-400" />
             <span>{copiedNotification} copiado com sucesso!</span>
           </div>
@@ -438,7 +490,7 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
                     <span>Bíblia Sagrada • Antigo e Novo Testamento</span>
                   </h2>
                   <p className="text-xs text-slate-500 mt-1">
-                    Consulte os 66 livros canônicos, selecione qualquer capítulo e leia a palavra de Deus.
+                    Consulte os 66 livros canónicos, navegue com facilidade entre capítulos e aprofunde o estudo da Palavra.
                   </p>
                 </div>
 
@@ -713,127 +765,165 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
         )}
 
         {/* ======================================================== */}
-        {/* VISTA 3: LEITOR BÍBLICO COMPLETO (READER MODE)           */}
+        {/* VISTA 3: LEITOR BÍBLICO COMPLETO (READER MODE REFINADO)  */}
         {/* ======================================================== */}
         {viewMode === 'reader' && selectedBook && selectedChapter !== null && (
           <div className="bg-white rounded-3xl p-5 sm:p-8 shadow-xs border border-[#E2E8F0] space-y-6 animate-in fade-in duration-200">
-            {/* Top Toolbar de Navegação e Controles */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#E2E8F0]">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={handleBackToChapters}
-                  className="p-2.5 rounded-xl border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer"
-                  title="Voltar aos capítulos"
-                  aria-label="Voltar aos capítulos"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </button>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-xl sm:text-2xl font-bold text-slate-900">
-                      {selectedBook.name} {selectedChapter}
-                    </h2>
-                    <span
-                      className={`text-xs font-bold px-2 py-0.5 rounded-md ${
-                        selectedBook.testament === 'AT'
-                          ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                          : 'bg-blue-50 text-blue-700 border border-blue-200'
+            {/* Top Toolbar Sticky de Navegação e Controles Rápidos */}
+            <div className="sticky top-0 bg-white/95 backdrop-blur-md z-20 pb-4 pt-1 border-b border-[#E2E8F0] flex flex-col gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                {/* Book & Chapter Direct Selectors */}
+                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                  <button
+                    onClick={handleBackToBooks}
+                    className="p-2 rounded-xl border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer"
+                    title="Voltar aos livros"
+                    aria-label="Voltar aos livros"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                  </button>
+
+                  {/* Quick Book Selector Dropdown Button */}
+                  <button
+                    onClick={() => setShowBookPickerModal(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200/80 rounded-xl text-xs font-bold text-slate-900 border border-[#E2E8F0] transition-colors cursor-pointer"
+                    title="Mudar de Livro"
+                  >
+                    <BookOpen className="w-3.5 h-3.5 text-[#0066cc]" />
+                    <span>{selectedBook.name}</span>
+                    <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+                  </button>
+
+                  {/* Quick Chapter Selector Dropdown Button */}
+                  <button
+                    onClick={() => setShowChapterPickerModal(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100/80 rounded-xl text-xs font-bold text-[#0066cc] border border-blue-200 transition-colors cursor-pointer"
+                    title="Mudar de Capítulo"
+                  >
+                    <span>Capítulo {selectedChapter} de {selectedBook.chapters}</span>
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </button>
+
+                  {/* Previous Chapter Quick Button */}
+                  {prevChapterInfo && (
+                    <button
+                      onClick={handlePrevChapter}
+                      className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center transition-colors cursor-pointer"
+                      title={`Ir para ${prevChapterInfo.label}`}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                  )}
+
+                  {/* Next Chapter Quick Button */}
+                  {nextChapterInfo && (
+                    <button
+                      onClick={handleNextChapter}
+                      className="p-1.5 rounded-lg border border-[#E2E8F0] hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center transition-colors cursor-pointer"
+                      title={`Ir para ${nextChapterInfo.label}`}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Right toolbar controls: Version, Font Size, Audio, Copy */}
+                <div className="flex items-center gap-2 flex-wrap self-end sm:self-auto">
+                  {/* Versão da Bíblia */}
+                  <div className="flex items-center bg-slate-100 p-0.5 rounded-xl text-xs font-semibold border border-slate-200/60">
+                    <button
+                      onClick={() => setBibleVersion('ARA')}
+                      className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                        bibleVersion === 'ARA' ? 'bg-white text-[#0066cc] shadow-xs' : 'text-slate-600'
                       }`}
                     >
-                      {selectedBook.testament === 'AT' ? 'AT' : 'NT'}
-                    </span>
+                      ARA
+                    </button>
+                    <button
+                      onClick={() => setBibleVersion('NVI')}
+                      className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                        bibleVersion === 'NVI' ? 'bg-white text-[#0066cc] shadow-xs' : 'text-slate-600'
+                      }`}
+                    >
+                      NVI
+                    </button>
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    {bibleVersion === 'ARA' ? 'Almeida Revista e Atualizada' : 'Nova Versão Internacional'}
-                  </p>
+
+                  {/* Ajuste de Tamanho de Fonte */}
+                  <div className="flex items-center bg-slate-100 p-0.5 rounded-xl text-xs font-semibold border border-slate-200/60">
+                    <button
+                      onClick={() => setFontSize('sm')}
+                      className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                        fontSize === 'sm' ? 'bg-white text-[#0066cc] shadow-xs' : 'text-slate-600'
+                      }`}
+                      title="Fonte menor"
+                    >
+                      A-
+                    </button>
+                    <button
+                      onClick={() => setFontSize('base')}
+                      className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                        fontSize === 'base' ? 'bg-white text-[#0066cc] shadow-xs' : 'text-slate-600'
+                      }`}
+                      title="Fonte normal"
+                    >
+                      A
+                    </button>
+                    <button
+                      onClick={() => setFontSize('lg')}
+                      className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
+                        fontSize === 'lg' ? 'bg-white text-[#0066cc] shadow-xs' : 'text-slate-600'
+                      }`}
+                      title="Fonte maior"
+                    >
+                      A+
+                    </button>
+                  </div>
+
+                  {/* Áudio Text-To-Speech */}
+                  <button
+                    onClick={() => handleToggleAudio(fullChapterText)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                      isPlayingAudio
+                        ? 'bg-amber-500 text-white shadow-xs animate-pulse'
+                        : 'border border-[#E2E8F0] text-slate-700 hover:bg-slate-50'
+                    }`}
+                    title={isPlayingAudio ? 'Pausar leitura' : 'Ouvir capítulo em áudio'}
+                  >
+                    {isPlayingAudio ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                    <span>{isPlayingAudio ? 'Pausar' : 'Ouvir'}</span>
+                  </button>
+
+                  {/* Copiar Capítulo */}
+                  <button
+                    onClick={() => handleCopyText(fullChapterText, `${selectedBook.name} ${selectedChapter}`)}
+                    className="p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                    title="Copiar texto do capítulo"
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Copiar</span>
+                  </button>
                 </div>
               </div>
 
-              {/* Botões de Ação do Leitor */}
-              <div className="flex items-center gap-2 flex-wrap">
-                {/* Versão da Bíblia */}
-                <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+              {/* In-chapter quick search / verse jump */}
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder={`Pesquisar palavra ou número de versículo em ${selectedBook.name} ${selectedChapter}...`}
+                  value={chapterFilterQuery}
+                  onChange={(e) => setChapterFilterQuery(e.target.value)}
+                  className="w-full pl-9 pr-8 py-1.5 bg-slate-50 border border-[#E2E8F0] rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0066cc] focus:bg-white transition-all"
+                />
+                {chapterFilterQuery && (
                   <button
-                    onClick={() => setBibleVersion('ARA')}
-                    className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                      bibleVersion === 'ARA' ? 'bg-white text-[#0066cc] shadow-xs' : 'text-slate-600'
-                    }`}
+                    onClick={() => setChapterFilterQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 hover:text-slate-800 cursor-pointer"
                   >
-                    ARA
+                    ✕
                   </button>
-                  <button
-                    onClick={() => setBibleVersion('NVI')}
-                    className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                      bibleVersion === 'NVI' ? 'bg-white text-[#0066cc] shadow-xs' : 'text-slate-600'
-                    }`}
-                  >
-                    NVI
-                  </button>
-                </div>
-
-                {/* Ajuste de Tamanho de Fonte */}
-                <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold">
-                  <button
-                    onClick={() => setFontSize('sm')}
-                    className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
-                      fontSize === 'sm' ? 'bg-white text-[#0066cc] shadow-xs' : 'text-slate-600'
-                    }`}
-                    title="Fonte pequena"
-                  >
-                    A-
-                  </button>
-                  <button
-                    onClick={() => setFontSize('base')}
-                    className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
-                      fontSize === 'base' ? 'bg-white text-[#0066cc] shadow-xs' : 'text-slate-600'
-                    }`}
-                    title="Fonte padrão"
-                  >
-                    A
-                  </button>
-                  <button
-                    onClick={() => setFontSize('lg')}
-                    className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
-                      fontSize === 'lg' ? 'bg-white text-[#0066cc] shadow-xs' : 'text-slate-600'
-                    }`}
-                    title="Fonte grande"
-                  >
-                    A+
-                  </button>
-                  <button
-                    onClick={() => setFontSize('xl')}
-                    className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
-                      fontSize === 'xl' ? 'bg-white text-[#0066cc] shadow-xs' : 'text-slate-600'
-                    }`}
-                    title="Fonte extra grande"
-                  >
-                    A++
-                  </button>
-                </div>
-
-                {/* Áudio Text-To-Speech */}
-                <button
-                  onClick={() => handleToggleAudio(fullChapterText)}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                    isPlayingAudio
-                      ? 'bg-amber-500 text-white shadow-xs animate-pulse'
-                      : 'border border-[#E2E8F0] text-slate-700 hover:bg-slate-50'
-                  }`}
-                  title={isPlayingAudio ? 'Pausar áudio' : 'Ouvir capítulo em áudio'}
-                >
-                  {isPlayingAudio ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                  <span className="hidden sm:inline">{isPlayingAudio ? 'Pausar' : 'Ouvir'}</span>
-                </button>
-
-                {/* Copiar Capítulo */}
-                <button
-                  onClick={() => handleCopyText(fullChapterText, `${selectedBook.name} ${selectedChapter}`)}
-                  className="p-2 sm:px-3 sm:py-2 rounded-xl border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
-                  title="Copiar texto do capítulo"
-                >
-                  <Copy className="w-4 h-4" />
-                  <span className="hidden sm:inline">Copiar</span>
-                </button>
+                )}
               </div>
             </div>
 
@@ -841,11 +931,14 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
             <div className="space-y-4 max-w-4xl mx-auto py-2">
               <div className="text-center pb-4 border-b border-slate-100">
                 <span className="text-xs uppercase tracking-widest text-[#0066cc] font-bold">
-                  {selectedBook.category}
+                  {selectedBook.category} • {selectedBook.testament === 'AT' ? 'Antigo Testamento' : 'Novo Testamento'}
                 </span>
                 <h3 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 mt-1">
                   {selectedBook.name} {selectedChapter}
                 </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  {currentVerses.length} versículos no total
+                </p>
               </div>
 
               <div
@@ -859,78 +952,213 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false, onSho
                     : 'text-xl sm:text-2xl'
                 }`}
               >
-                {currentVerses.map((verse) => {
-                  const verseRef = `${selectedBook.name} ${selectedChapter}:${verse.number}`;
-                  const isBookmarked = bookmarkedVerses.includes(verseRef);
+                {displayedVerses.length === 0 ? (
+                  <div className="text-center py-8 text-slate-400 text-xs">
+                    Nenhum versículo encontrado para "{chapterFilterQuery}".
+                  </div>
+                ) : (
+                  displayedVerses.map((verse) => {
+                    const verseRef = `${selectedBook.name} ${selectedChapter}:${verse.number}`;
+                    const isBookmarked = bookmarkedVerses.includes(verseRef);
 
-                  return (
-                    <div
-                      key={verse.number}
-                      className={`p-2.5 rounded-xl transition-colors hover:bg-slate-50 flex items-start gap-3 group relative ${
-                        isBookmarked ? 'bg-amber-50/60 border-l-4 border-amber-500' : ''
-                      }`}
-                    >
-                      <span className="font-sans font-bold text-xs text-[#0066cc] select-none pt-1 shrink-0 w-6">
-                        {verse.number}
-                      </span>
-                      <p className="flex-1">{verse.text}</p>
+                    return (
+                      <div
+                        key={verse.number}
+                        className={`p-2.5 rounded-xl transition-colors hover:bg-slate-50 flex items-start gap-3 group relative ${
+                          isBookmarked ? 'bg-amber-50/70 border-l-4 border-amber-500' : ''
+                        }`}
+                      >
+                        <span className="font-sans font-bold text-xs text-[#0066cc] select-none pt-1 shrink-0 w-6">
+                          {verse.number}
+                        </span>
+                        <p className="flex-1">{verse.text}</p>
 
-                      {/* Ações rápidas no versículo */}
-                      <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 shrink-0 transition-opacity">
-                        <button
-                          onClick={() => toggleBookmark(verseRef)}
-                          className={`p-1.5 rounded-lg text-slate-400 hover:text-amber-600 transition-colors cursor-pointer ${
-                            isBookmarked ? 'text-amber-600' : ''
-                          }`}
-                          title={isBookmarked ? 'Remover dos favoritos' : 'Favoritar versículo'}
-                        >
-                          <Bookmark className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-current' : ''}`} />
-                        </button>
-                        <button
-                          onClick={() => handleCopyText(`"${verse.text}" (${verseRef})`, verseRef)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
-                          title="Copiar versículo"
-                        >
-                          <Copy className="w-3.5 h-3.5" />
-                        </button>
+                        {/* Ações rápidas no versículo */}
+                        <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 shrink-0 transition-opacity">
+                          <button
+                            onClick={() => toggleBookmark(verseRef)}
+                            className={`p-1.5 rounded-lg text-slate-400 hover:text-amber-600 transition-colors cursor-pointer ${
+                              isBookmarked ? 'text-amber-600' : ''
+                            }`}
+                            title={isBookmarked ? 'Remover dos favoritos' : 'Favoritar versículo'}
+                          >
+                            <Bookmark className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-current' : ''}`} />
+                          </button>
+                          <button
+                            onClick={() => handleCopyText(`"${verse.text}" (${verseRef})`, verseRef)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 transition-colors cursor-pointer"
+                            title="Copiar versículo"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </div>
             </div>
 
-            {/* Rodapé com Navegação para Capítulo Anterior e Próximo */}
-            <div className="pt-6 border-t border-[#E2E8F0] flex items-center justify-between gap-3">
-              <button
-                onClick={handlePrevChapter}
-                disabled={selectedChapter === 1 && selectedBook.id === ALL_BIBLE_BOOKS[0].id}
-                className="px-4 py-2.5 rounded-xl border border-[#E2E8F0] hover:bg-slate-50 text-slate-800 disabled:opacity-40 disabled:pointer-events-none text-xs font-bold flex items-center gap-2 transition-all cursor-pointer"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span>Capítulo Anterior</span>
-              </button>
+            {/* Rodapé com Navegação Completa e Refinada para Capítulos Anterior e Próximo */}
+            <div className="pt-6 border-t border-[#E2E8F0] flex flex-col sm:flex-row items-center justify-between gap-4">
+              {prevChapterInfo ? (
+                <button
+                  onClick={handlePrevChapter}
+                  className="w-full sm:w-auto px-4 py-3 rounded-2xl border border-[#E2E8F0] hover:border-blue-400 hover:bg-blue-50/30 text-slate-800 text-xs font-bold flex items-center gap-3 transition-all cursor-pointer shadow-2xs group"
+                >
+                  <ChevronLeft className="w-4 h-4 text-[#0066cc] group-hover:-translate-x-0.5 transition-transform" />
+                  <div className="text-left">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider block font-semibold">Anterior</span>
+                    <span className="text-xs text-slate-900 group-hover:text-[#0066cc]">{prevChapterInfo.label}</span>
+                  </div>
+                </button>
+              ) : (
+                <div className="hidden sm:block w-32" />
+              )}
 
-              <button
-                onClick={handleBackToChapters}
-                className="text-xs font-bold text-[#0066cc] hover:underline cursor-pointer"
-              >
-                Ver todos os capítulos
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowChapterPickerModal(true)}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Selecionar Capítulo
+                </button>
+                <button
+                  onClick={() => setShowBookPickerModal(true)}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-colors cursor-pointer"
+                >
+                  Outro Livro
+                </button>
+              </div>
 
-              <button
-                onClick={handleNextChapter}
-                disabled={
-                  selectedChapter === selectedBook.chapters &&
-                  selectedBook.id === ALL_BIBLE_BOOKS[ALL_BIBLE_BOOKS.length - 1].id
-                }
-                className="px-4 py-2.5 rounded-xl bg-[#0066cc] hover:bg-[#0055aa] text-white disabled:opacity-40 disabled:pointer-events-none text-xs font-bold flex items-center gap-2 transition-all shadow-xs cursor-pointer"
-              >
-                <span>Próximo Capítulo</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
+              {nextChapterInfo ? (
+                <button
+                  onClick={handleNextChapter}
+                  className="w-full sm:w-auto px-4 py-3 rounded-2xl bg-[#0066cc] hover:bg-[#0055aa] text-white text-xs font-bold flex items-center justify-between sm:justify-start gap-3 transition-all shadow-xs cursor-pointer group"
+                >
+                  <div className="text-left sm:text-right">
+                    <span className="text-[10px] text-blue-200 uppercase tracking-wider block font-semibold">Próximo</span>
+                    <span className="text-xs text-white">{nextChapterInfo.label}</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-white group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              ) : (
+                <div className="hidden sm:block w-32" />
+              )}
             </div>
+
+            {/* Quick Chapter Picker Popover Modal */}
+            {showChapterPickerModal && (
+              <div
+                className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
+                onClick={() => setShowChapterPickerModal(false)}
+              >
+                <div
+                  className="bg-white rounded-3xl p-6 max-w-lg w-full max-h-[80vh] overflow-y-auto border border-[#E2E8F0] shadow-2xl space-y-4"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-sm">
+                        Capítulos de {selectedBook.name}
+                      </h3>
+                      <p className="text-xs text-slate-500">Escolha o capítulo que deseja ler:</p>
+                    </div>
+                    <button
+                      onClick={() => setShowChapterPickerModal(false)}
+                      className="p-1 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-6 sm:grid-cols-8 gap-2 pt-1">
+                    {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map((chNum) => {
+                      const isCurrent = chNum === selectedChapter;
+                      return (
+                        <button
+                          key={chNum}
+                          onClick={() => handleSelectChapter(chNum)}
+                          className={`h-10 rounded-xl font-bold text-xs transition-all cursor-pointer ${
+                            isCurrent
+                              ? 'bg-[#0066cc] text-white shadow-xs'
+                              : 'bg-slate-50 hover:bg-blue-50 text-slate-800 border border-[#E2E8F0]'
+                          }`}
+                        >
+                          {chNum}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Quick Book Picker Popover Modal */}
+            {showBookPickerModal && (
+              <div
+                className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
+                onClick={() => setShowBookPickerModal(false)}
+              >
+                <div
+                  className="bg-white rounded-3xl p-6 max-w-2xl w-full max-h-[85vh] overflow-y-auto border border-[#E2E8F0] shadow-2xl space-y-4"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+                    <div>
+                      <h3 className="font-bold text-slate-900 text-base">
+                        Navegar para outro livro da Bíblia
+                      </h3>
+                      <p className="text-xs text-slate-500">Selecione qualquer um dos 66 livros:</p>
+                    </div>
+                    <button
+                      onClick={() => setShowBookPickerModal(false)}
+                      className="p-1 rounded-full text-slate-400 hover:text-slate-700 cursor-pointer"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 max-h-[60vh] overflow-y-auto pr-1">
+                    {ALL_BIBLE_BOOKS.map((book) => {
+                      const isCurrent = book.id === selectedBook.id;
+                      return (
+                        <button
+                          key={book.id}
+                          onClick={() => {
+                            setSelectedBook(book);
+                            setSelectedChapter(1);
+                            setShowBookPickerModal(false);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }}
+                          className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer flex items-center justify-between ${
+                            isCurrent
+                              ? 'bg-blue-50 border-[#0066cc] text-[#0066cc] font-bold'
+                              : 'bg-white hover:bg-slate-50 border-[#E2E8F0] text-slate-800'
+                          }`}
+                        >
+                          <span className="text-xs truncate">{book.name}</span>
+                          <span className="text-[10px] text-slate-400">{book.chapters}c</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
+        )}
+
+        {/* Floating Scroll to Top button */}
+        {showScrollTop && (
+          <button
+            onClick={scrollToTop}
+            className="fixed bottom-20 right-6 z-40 p-3 bg-slate-900/80 hover:bg-slate-900 text-white rounded-full shadow-lg backdrop-blur-md transition-all cursor-pointer animate-in fade-in"
+            title="Voltar ao topo"
+            aria-label="Voltar ao topo"
+          >
+            <ArrowUp className="w-4 h-4 stroke-[2.5]" />
+          </button>
         )}
       </div>
     </div>
