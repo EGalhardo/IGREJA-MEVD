@@ -1,0 +1,6 @@
+{
+  "name": "IGREJA MEVD",
+  "description": "Aplicação oficial da IGREJA MEVD com perfil de membro, agenda de eventos, Bíblia sagrada e comunicados.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

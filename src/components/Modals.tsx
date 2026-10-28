@@ -1,0 +1,421 @@
+import { useState, useEffect } from 'react';
+import { X, Check, Church, Phone, Mail, User, Shield, HelpCircle, Bell, Play, BookOpen, AlertTriangle, MapPin, Heart } from 'lucide-react';
+import { UserProfile } from '../types';
+import SafeImage from './SafeImage';
+
+interface ModalsProps {
+  activeModal: string | null;
+  onClose: () => void;
+  user: UserProfile;
+  onUpdateUser: (updated: Partial<UserProfile>) => void;
+  onConfirmLogout: () => void;
+  onShowToast: (message: string) => void;
+}
+
+export default function Modals({
+  activeModal,
+  onClose,
+  user,
+  onUpdateUser,
+  onConfirmLogout,
+  onShowToast,
+}: ModalsProps) {
+  // Form states for 'Os meus dados': Nome, Estado civil, contacto(Whatsapp), Morada, Email
+  const [name, setName] = useState(user.name);
+  const [civilStatus, setCivilStatus] = useState(user.civilStatus || 'Casado(a)');
+  const [phone, setPhone] = useState(user.phone);
+  const [address, setAddress] = useState(user.address || 'Rua do Sanatório, Morro Bento, Luanda');
+  const [email, setEmail] = useState(user.email);
+  const [notifications, setNotifications] = useState(user.notificationsActive);
+
+  // Sync state if user changes or modal opens
+  useEffect(() => {
+    if (activeModal === 'meus-dados') {
+      setName(user.name);
+      setCivilStatus(user.civilStatus || 'Casado(a)');
+      setPhone(user.phone);
+      setAddress(user.address || 'Rua do Sanatório, Morro Bento, Luanda');
+      setEmail(user.email);
+    }
+  }, [user, activeModal]);
+
+  if (!activeModal) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+      <div
+        className="w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl border border-[#E2E8F0] max-h-[90vh] overflow-y-auto flex flex-col p-5"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+          <h2 className="text-base font-bold text-slate-900">
+            {activeModal === 'meus-dados' && 'Os meus dados'}
+            {activeModal === 'minha-igreja' && 'Igreja'}
+            {activeModal === 'actividades' && 'As minhas actividades'}
+            {activeModal === 'notificacoes' && 'Notificações'}
+            {activeModal === 'privacidade' && 'Privacidade e segurança'}
+            {activeModal === 'ajuda' && 'Ajuda e suporte'}
+            {activeModal === 'logout-confirm' && 'Terminar sessão'}
+            {activeModal === 'sermoes' && 'Sermões Recentes'}
+            {activeModal === 'biblia' && 'Palavra do Dia'}
+          </h2>
+
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Modal Bodies */}
+        <div className="py-4 space-y-4">
+          {/* 1. Os meus dados: Nome, Estado civil, contacto(Whatsapp), Morada e Email */}
+          {activeModal === 'meus-dados' && (
+            <div className="space-y-3.5">
+              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-2xl border border-[#E2E8F0]">
+                <SafeImage
+                  src={user.avatar}
+                  alt={user.name}
+                  fallbackType="avatar"
+                  className="w-12 h-12 rounded-full object-cover ring-2 ring-blue-100"
+                />
+                <div>
+                  <p className="text-xs font-bold text-slate-900">{name || user.name}</p>
+                  <p className="text-[11px] text-emerald-600 font-semibold">{user.status}</p>
+                </div>
+              </div>
+
+              {/* 1. Nome */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                  Nome
+                </label>
+                <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-slate-50 border border-[#E2E8F0] focus-within:border-blue-500 focus-within:bg-white rounded-xl text-xs transition-colors">
+                  <User className="w-4 h-4 text-[#0066cc] shrink-0" />
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Seu nome completo"
+                    className="w-full bg-transparent focus:outline-none text-slate-800 font-medium"
+                  />
+                </div>
+              </div>
+
+              {/* 2. Estado civil */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                  Estado civil
+                </label>
+                <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-slate-50 border border-[#E2E8F0] focus-within:border-blue-500 focus-within:bg-white rounded-xl text-xs transition-colors">
+                  <Heart className="w-4 h-4 text-[#0066cc] shrink-0" />
+                  <select
+                    value={civilStatus}
+                    onChange={(e) => setCivilStatus(e.target.value)}
+                    className="w-full bg-transparent focus:outline-none text-slate-800 font-medium cursor-pointer"
+                  >
+                    <option value="Solteiro(a)">Solteiro(a)</option>
+                    <option value="Casado(a)">Casado(a)</option>
+                    <option value="Divorciado(a)">Divorciado(a)</option>
+                    <option value="Viúvo(a)">Viúvo(a)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* 3. contacto(Whatsapp) */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                  contacto(Whatsapp)
+                </label>
+                <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-slate-50 border border-[#E2E8F0] focus-within:border-blue-500 focus-within:bg-white rounded-xl text-xs transition-colors">
+                  <Phone className="w-4 h-4 text-[#0066cc] shrink-0" />
+                  <input
+                    type="text"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    placeholder="+244 9..."
+                    className="w-full bg-transparent focus:outline-none text-slate-800 font-medium"
+                  />
+                </div>
+              </div>
+
+              {/* 4. Morada */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                  Morada
+                </label>
+                <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-slate-50 border border-[#E2E8F0] focus-within:border-blue-500 focus-within:bg-white rounded-xl text-xs transition-colors">
+                  <MapPin className="w-4 h-4 text-[#0066cc] shrink-0" />
+                  <input
+                    type="text"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Bairro, Rua, Província"
+                    className="w-full bg-transparent focus:outline-none text-slate-800 font-medium"
+                  />
+                </div>
+              </div>
+
+              {/* 5. Email */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-700 uppercase mb-1">
+                  Email
+                </label>
+                <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-slate-50 border border-[#E2E8F0] focus-within:border-blue-500 focus-within:bg-white rounded-xl text-xs transition-colors">
+                  <Mail className="w-4 h-4 text-[#0066cc] shrink-0" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="exemplo@email.com"
+                    className="w-full bg-transparent focus:outline-none text-slate-800 font-medium"
+                  />
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  onUpdateUser({
+                    name,
+                    civilStatus,
+                    phone,
+                    address,
+                    email,
+                  });
+                  onShowToast('Dados actualizados com sucesso!');
+                  onClose();
+                }}
+                className="w-full py-3 bg-[#0066cc] hover:bg-blue-700 text-white rounded-xl font-semibold text-xs transition-colors shadow-xs cursor-pointer mt-2"
+              >
+                Salvar Alterações
+              </button>
+            </div>
+          )}
+
+          {/* 2. Igreja */}
+          {activeModal === 'minha-igreja' && (
+            <div className="space-y-3.5 text-xs">
+              <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center gap-3">
+                <div className="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center shrink-0">
+                  <Church className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-slate-900 text-sm">IGREJA MEVD</h4>
+                  <p className="text-slate-600 text-[11px]">Sede Principal • Luanda, Angola</p>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 rounded-2xl p-3.5 space-y-2 border border-[#E2E8F0]">
+                <p className="text-slate-700 font-semibold text-[11px]">Horários de Cultos:</p>
+                <ul className="text-slate-600 space-y-1 text-[11px]">
+                  <li>• Domingo: 09:00 - Culto de Adoração & Ensino</li>
+                  <li>• Quarta-feira: 18:30 - Culto de Doutrina e Oração</li>
+                  <li>• Sábado: 16:00 - Reunião de Jovens e Adolescentes</li>
+                </ul>
+              </div>
+
+              <div className="bg-slate-50 rounded-2xl p-3.5 border border-[#E2E8F0]">
+                <p className="text-slate-700 font-semibold text-[11px]">Pastorado Sénior:</p>
+                <p className="text-slate-600 text-[11px] mt-0.5">Pr. Feliz Paulo</p>
+              </div>
+            </div>
+          )}
+
+          {/* 3. As minhas actividades */}
+          {activeModal === 'actividades' && (
+            <div className="space-y-3">
+              <div>
+                <h4 className="text-xs font-bold text-slate-900 mb-2">Eventos Inscritos (3)</h4>
+                <div className="space-y-2">
+                  <div className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold text-xs text-slate-800">Congresso de Jovens 2027</p>
+                      <p className="text-[10px] text-slate-500">15 Mai • Luanda, Angola</p>
+                    </div>
+                    <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                      Confirmado
+                    </span>
+                  </div>
+                  <div className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold text-xs text-slate-800">Vigília de Oração</p>
+                      <p className="text-[10px] text-slate-500">28 Jun • Sede da Igreja</p>
+                    </div>
+                    <span className="text-[10px] font-bold text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full">
+                      Pendente
+                    </span>
+                  </div>
+                  <div className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between">
+                    <div>
+                      <p className="font-semibold text-xs text-slate-800">Retiro Espiritual</p>
+                      <p className="text-[10px] text-slate-500">12 Jul • Província de Talatona</p>
+                    </div>
+                    <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">
+                      Em breve
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <h4 className="text-xs font-bold text-slate-900 mb-2">Departamentos (2)</h4>
+                <div className="space-y-2">
+                  <div className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between">
+                    <p className="font-semibold text-xs text-slate-800">Ministério de Louvor</p>
+                    <span className="text-[10px] font-medium text-slate-500">Vocal</span>
+                  </div>
+                  <div className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between">
+                    <p className="font-semibold text-xs text-slate-800">Departamento Jovem</p>
+                    <span className="text-[10px] font-medium text-slate-500">Comissão de Apoio</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 4. Notificações */}
+          {activeModal === 'notificacoes' && (
+            <div className="space-y-3.5">
+              <div className="flex items-center justify-between p-3.5 bg-slate-50 rounded-2xl border border-slate-100">
+                <div>
+                  <h4 className="text-xs font-bold text-slate-900">Alertas de Eventos e Cultos</h4>
+                  <p className="text-[11px] text-slate-500">Lembretes 24h antes das actividades</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setNotifications(!notifications);
+                    onUpdateUser({ notificationsActive: !notifications });
+                    onShowToast(!notifications ? 'Notificações activadas!' : 'Notificações desactivadas.');
+                  }}
+                  className={`w-11 h-6 rounded-full transition-colors relative p-0.5 ${
+                    notifications ? 'bg-[#0066cc]' : 'bg-slate-300'
+                  }`}
+                >
+                  <div
+                    className={`w-5 h-5 bg-white rounded-full shadow-sm transition-transform ${
+                      notifications ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              <div className="p-3 bg-blue-50 text-blue-900 rounded-2xl text-[11px] leading-relaxed">
+                Todas as notificações importantes da sua igreja serão enviadas para o seu telemóvel e email.
+              </div>
+            </div>
+          )}
+
+          {/* 5. Privacidade e Segurança */}
+          {activeModal === 'privacidade' && (
+            <div className="space-y-3 text-xs text-slate-600">
+              <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex items-start gap-2.5">
+                <Shield className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-bold text-slate-900 text-xs">Protecção de Dados Pessoais</h4>
+                  <p className="text-[11px] text-slate-500 mt-1">
+                    Os seus dados e informações de membro estão protegidos com encriptação de ponta a ponta e apenas visíveis para a secretaria da igreja.
+                  </p>
+                </div>
+              </div>
+              <p className="text-[11px] leading-relaxed">
+                Pode solicitar a qualquer momento a actualização ou exportação do seu registo ministerial junto do conselho pastoral.
+              </p>
+            </div>
+          )}
+
+          {/* 6. Ajuda e suporte */}
+          {activeModal === 'ajuda' && (
+            <div className="space-y-3 text-xs">
+              <p className="text-slate-600 text-[11px]">
+                Precisa de apoio espiritual, informações ou esclarecimento de dúvidas? Fale connosco:
+              </p>
+              <div className="space-y-2">
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                  <span className="font-semibold text-slate-800 text-xs">Secretaria Geral</span>
+                  <span className="text-blue-600 font-semibold text-xs">+244 923 000 111</span>
+                </div>
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between">
+                  <span className="font-semibold text-slate-800 text-xs">Linha de Oração e Aconselhamento</span>
+                  <span className="text-blue-600 font-semibold text-xs">+244 912 333 444</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 7. Sermões */}
+          {activeModal === 'sermoes' && (
+            <div className="space-y-2.5 text-xs">
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center pl-0.5 shrink-0">
+                  <Play className="w-4 h-4 fill-current" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-bold text-slate-900 text-xs truncate">Vencendo Gigantes pela Fé</h4>
+                  <p className="text-[10px] text-slate-500">Pr. Feliz Paulo • 42 min</p>
+                </div>
+              </div>
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center pl-0.5 shrink-0">
+                  <Play className="w-4 h-4 fill-current" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-bold text-slate-900 text-xs truncate">O Poder da Oração em Unidade</h4>
+                  <p className="text-[10px] text-slate-500">Pra. Manuela Paulo • 38 min</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 8. Bíblia */}
+          {activeModal === 'biblia' && (
+            <div className="space-y-3 text-xs">
+              <div className="p-4 bg-amber-50/80 rounded-2xl border border-amber-200/60">
+                <span className="text-[10px] font-bold text-amber-800 uppercase tracking-wider block mb-1">
+                  Versículo do Dia • Filipenses 4:13
+                </span>
+                <blockquote className="text-slate-800 italic font-medium text-xs leading-relaxed">
+                  "Tudo posso naquele que me fortalece."
+                </blockquote>
+              </div>
+              <p className="text-slate-500 text-[11px] leading-relaxed">
+                Leia o plano bíblico anual da IGREJA MEVD e fortaleça a sua fé diariamente.
+              </p>
+            </div>
+          )}
+
+          {/* 9. Confirm Logout */}
+          {activeModal === 'logout-confirm' && (
+            <div className="space-y-4">
+              <div className="p-4 bg-red-50 rounded-2xl flex items-center gap-3 text-red-700">
+                <AlertTriangle className="w-6 h-6 shrink-0" />
+                <p className="text-xs leading-relaxed font-medium">
+                  Tem a certeza de que deseja terminar a sessão de membro em <strong>IGREJA MEVD</strong>?
+                </p>
+              </div>
+
+              <div className="flex gap-2.5">
+                <button
+                  onClick={onClose}
+                  className="flex-1 py-2.5 px-4 rounded-xl border border-slate-200 text-slate-700 font-semibold text-xs hover:bg-slate-50 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => {
+                    onConfirmLogout();
+                    onClose();
+                  }}
+                  className="flex-1 py-2.5 px-4 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold text-xs transition-colors"
+                >
+                  Terminar Sessão
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
