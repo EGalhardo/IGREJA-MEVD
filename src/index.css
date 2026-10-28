@@ -1,5 +1,23 @@
 @import "tailwindcss";
 
+/* Uniformiza as bordas existentes e remove sombras em todo o aplicativo. */
+#root,
+#root *,
+#root::before,
+#root::after,
+#root *::before,
+#root *::after {
+  border-color: #e2e8f0;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+/* O foco pelo teclado continua visível sem depender de sombras. */
+#root :focus-visible {
+  outline: 2px solid #0066cc;
+  outline-offset: 2px;
+}
+
 html,
 body,
 #root {

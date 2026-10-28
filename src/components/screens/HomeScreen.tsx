@@ -114,7 +114,7 @@ export default function HomeScreen({
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
         {/* Carrossel de Destaque Animado com Duração de 5 segundos e Loop Infinito */}
         <div
-          className="relative rounded-3xl overflow-hidden shadow-sm border border-[#E2E8F0] w-full aspect-[16/9] select-none group bg-slate-900"
+          className="relative mx-auto w-[90%] aspect-[16/9] rounded-3xl overflow-hidden border border-[#E2E8F0] select-none group bg-slate-900"
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
           onTouchStart={handleTouchStart}
@@ -143,9 +143,6 @@ export default function HomeScreen({
                   className="w-full h-full object-cover object-center block"
                   loading={index === 0 ? 'eager' : 'lazy'}
                 />
-
-                {/* Subtle bottom shadow vignette for contrast */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20 pointer-events-none" />
               </button>
             );
           })}
@@ -175,7 +172,7 @@ export default function HomeScreen({
           </button>
 
           {/* Indicadores de Slide Segmentados com Progresso Contínuo */}
-          <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 shadow-sm">
+          <div className="absolute bottom-1 sm:bottom-4 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-3 py-0.5 sm:py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/20 shadow-sm">
             {HERO_CAROUSEL_SLIDES.map((_, idx) => {
               const isActive = idx === currentSlide;
               return (
