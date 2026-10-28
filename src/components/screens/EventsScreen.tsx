@@ -101,6 +101,11 @@ export default function EventsScreen({ onNavigate, onSelectEvent, isDesktopLayou
                     src={event.image}
                     alt={event.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      target.onerror = null;
+                      target.src = '/assets/aistudio/2_b0dbb042.png';
+                    }}
                   />
                 </div>
 

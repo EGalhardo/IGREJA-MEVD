@@ -213,6 +213,7 @@ export default function App() {
                 {currentScreen === 'bible' && (
                   <BibleScreen
                     onNavigate={navigateTo}
+                    onShowToast={showToast}
                     isDesktopLayout={true}
                   />
                 )}
@@ -284,6 +285,7 @@ export default function App() {
               {currentScreen === 'bible' && (
                 <BibleScreen
                   onNavigate={navigateTo}
+                  onShowToast={showToast}
                   isDesktopLayout={false}
                 />
               )}

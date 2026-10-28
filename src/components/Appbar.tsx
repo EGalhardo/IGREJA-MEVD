@@ -126,6 +126,11 @@ export default function Appbar({
               src={user.avatar}
               alt={user.name}
               className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-100"
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.onerror = null;
+                target.src = '/assets/aistudio/Foto_de_Perfil__1__bd7124df.png';
+              }}
             />
             <div className="text-left hidden md:block">
               <p className="text-xs font-bold text-slate-900 leading-tight">{user.name}</p>
@@ -209,6 +214,11 @@ export default function Appbar({
             src={user.avatar}
             alt={user.name}
             className="w-7 h-7 rounded-full object-cover border border-slate-200 ring-1 ring-slate-100"
+            onError={(e) => {
+              const target = e.currentTarget;
+              target.onerror = null;
+              target.src = '/assets/aistudio/Foto_de_Perfil__1__bd7124df.png';
+            }}
           />
         </button>
       </div>

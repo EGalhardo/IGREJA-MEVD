@@ -177,12 +177,16 @@ export default function Modals({
 
               <button
                 onClick={() => {
+                  if (!name.trim()) {
+                    onShowToast('Por favor, introduza um nome válido.');
+                    return;
+                  }
                   onUpdateUser({
-                    name,
+                    name: name.trim(),
                     civilStatus,
-                    phone,
-                    address,
-                    email,
+                    phone: phone.trim(),
+                    address: address.trim(),
+                    email: email.trim(),
                   });
                   onShowToast('Dados actualizados com sucesso!');
                   onClose();
@@ -347,21 +351,31 @@ export default function Modals({
           {/* 7. Sermões */}
           {activeModal === 'sermoes' && (
             <div className="space-y-2.5 text-xs">
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center pl-0.5 shrink-0">
+              <div
+                onClick={() => onShowToast('A reproduzir áudio do sermão: "Vencendo Gigantes pela Fé"')}
+                className="p-3 bg-slate-50 hover:bg-blue-50/50 rounded-xl border border-slate-100 flex items-center gap-3 cursor-pointer transition-colors group"
+              >
+                <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center pl-0.5 shrink-0 group-hover:scale-105 transition-transform">
                   <Play className="w-4 h-4 fill-current" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-slate-900 text-xs truncate">Vencendo Gigantes pela Fé</h4>
+                  <h4 className="font-bold text-slate-900 text-xs truncate group-hover:text-blue-600 transition-colors">
+                    Vencendo Gigantes pela Fé
+                  </h4>
                   <p className="text-[10px] text-slate-500">Pr. Feliz Paulo • 42 min</p>
                 </div>
               </div>
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center pl-0.5 shrink-0">
+              <div
+                onClick={() => onShowToast('A reproduzir áudio do sermão: "O Poder da Oração em Unidade"')}
+                className="p-3 bg-slate-50 hover:bg-blue-50/50 rounded-xl border border-slate-100 flex items-center gap-3 cursor-pointer transition-colors group"
+              >
+                <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center pl-0.5 shrink-0 group-hover:scale-105 transition-transform">
                   <Play className="w-4 h-4 fill-current" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-slate-900 text-xs truncate">O Poder da Oração em Unidade</h4>
+                  <h4 className="font-bold text-slate-900 text-xs truncate group-hover:text-blue-600 transition-colors">
+                    O Poder da Oração em Unidade
+                  </h4>
                   <p className="text-[10px] text-slate-500">Pra. Manuela Paulo • 38 min</p>
                 </div>
               </div>

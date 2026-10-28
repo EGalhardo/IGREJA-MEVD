@@ -94,6 +94,11 @@ export default function HomeScreen({
                   alt={slide.alt}
                   className="w-full h-full object-cover object-center block"
                   loading={index === 0 ? 'eager' : 'lazy'}
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    target.onerror = null;
+                    target.src = '/assets/aistudio/1_6270ba45.png';
+                  }}
                 />
               </div>
             );
@@ -146,9 +151,9 @@ export default function HomeScreen({
           <div className="absolute top-0 left-0 right-0 h-1 bg-white/20 z-30 overflow-hidden">
             <div
               key={currentSlide}
-              className="h-full bg-amber-400 animate-in"
+              className="h-full bg-amber-400"
               style={{
-                width: '100%',
+                width: '0%',
                 animation: isPaused ? 'none' : 'carouselProgress 5s linear forwards',
               }}
             />
@@ -268,6 +273,11 @@ export default function HomeScreen({
                     src={event.image}
                     alt={event.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      target.onerror = null;
+                      target.src = '/assets/aistudio/2_b0dbb042.png';
+                    }}
                   />
                 </div>
 

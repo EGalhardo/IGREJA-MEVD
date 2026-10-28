@@ -29,6 +29,7 @@ import {
 interface BibleScreenProps {
   onNavigate: (screen: Screen) => void;
   isDesktopLayout?: boolean;
+  onShowToast?: (message: string) => void;
 }
 
 const DAILY_VERSES = [
@@ -71,7 +72,7 @@ const DAILY_VERSES = [
 
 type ReaderFontSize = 'sm' | 'base' | 'lg' | 'xl';
 
-export default function BibleScreen({ onNavigate, isDesktopLayout = false }: BibleScreenProps) {
+export default function BibleScreen({ onNavigate, isDesktopLayout = false, onShowToast }: BibleScreenProps) {
   // Navigation inside the Bible page
   const [selectedBook, setSelectedBook] = useState<BibleBook | null>(null);
   const [selectedChapter, setSelectedChapter] = useState<number | null>(null);
@@ -235,14 +236,30 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false }: Bib
       } catch {
         // Ignore local storage error
       }
+      if (onShowToast) {
+        onShowToast(exists ? 'Versículo removido dos favoritos.' : 'Versículo guardado nos favoritos!');
+      }
       return updated;
     });
   };
 
-  // Copy to clipboard
+  // Copy to clipboard safely
   const handleCopyText = (text: string, label: string) => {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(text);
+    if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          setCopiedNotification(label);
+          if (onShowToast) {
+            onShowToast(`${label} copiado!`);
+          }
+          setTimeout(() => setCopiedNotification(null), 2500);
+        })
+        .catch(() => {
+          setCopiedNotification(label);
+          setTimeout(() => setCopiedNotification(null), 2500);
+        });
+    } else {
       setCopiedNotification(label);
       setTimeout(() => setCopiedNotification(null), 2500);
     }
@@ -250,15 +267,21 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false }: Bib
 
   // Audio Speech Synthesis Player
   const stopAudio = () => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
+    try {
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+    } catch {
+      // Ignore audio synthesis interruption errors
     }
     setIsPlayingAudio(false);
   };
 
   const handleToggleAudio = (textToRead: string) => {
-    if (!('speechSynthesis' in window)) {
-      alert('A síntese de voz não é suportada neste navegador.');
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      if (onShowToast) {
+        onShowToast('A síntese de voz não é suportada neste navegador.');
+      }
       return;
     }
 
@@ -267,22 +290,29 @@ export default function BibleScreen({ onNavigate, isDesktopLayout = false }: Bib
       return;
     }
 
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(textToRead);
-    utterance.lang = 'pt-BR';
-    utterance.rate = 0.95;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(textToRead);
+      utterance.lang = 'pt-BR';
+      utterance.rate = 0.95;
 
-    utterance.onend = () => {
+      utterance.onend = () => {
+        setIsPlayingAudio(false);
+      };
+
+      utterance.onerror = () => {
+        setIsPlayingAudio(false);
+      };
+
+      speechRef.current = utterance;
+      setIsPlayingAudio(true);
+      window.speechSynthesis.speak(utterance);
+    } catch {
       setIsPlayingAudio(false);
-    };
-
-    utterance.onerror = () => {
-      setIsPlayingAudio(false);
-    };
-
-    speechRef.current = utterance;
-    setIsPlayingAudio(true);
-    window.speechSynthesis.speak(utterance);
+      if (onShowToast) {
+        onShowToast('Não foi possível iniciar o áudio no momento.');
+      }
+    }
   };
 
   // Current reader verses

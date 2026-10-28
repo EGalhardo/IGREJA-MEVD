@@ -28,6 +28,11 @@ export default function ProfileScreen({
                 src={user.avatar}
                 alt={user.name}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  target.onerror = null;
+                  target.src = '/assets/aistudio/Foto_de_Perfil__1__bd7124df.png';
+                }}
               />
             </div>
 

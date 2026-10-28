@@ -1,4 +1,4 @@
-import { Bell, Home, Calendar, Megaphone, User, Smartphone, Monitor } from 'lucide-react';
+import { Bell, Home, Calendar, BookOpen, Megaphone, User, Smartphone, Monitor } from 'lucide-react';
 import ChurchLogo from './ChurchLogo';
 import { Screen, UserProfile } from '../types';
 
@@ -24,6 +24,7 @@ export default function DesktopHeader({
   const navItems: Array<{ screen: Screen; label: string; icon: typeof Home }> = [
     { screen: 'home', label: 'Início', icon: Home },
     { screen: 'events', label: 'Eventos', icon: Calendar },
+    { screen: 'bible', label: 'Bíblia', icon: BookOpen },
     { screen: 'announcements', label: 'Comunicados', icon: Megaphone },
     { screen: 'profile', label: 'Perfil', icon: User },
   ];
@@ -40,7 +41,7 @@ export default function DesktopHeader({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-lg font-bold text-white tracking-tight leading-none group-hover:text-blue-200 transition-colors">
-                Minha Igreja
+                IGREJA MEVD
               </span>
             </div>
             <p className="text-xs text-blue-200 font-medium mt-1">Juntos na fé</p>

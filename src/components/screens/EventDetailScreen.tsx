@@ -28,15 +28,25 @@ export default function EventDetailScreen({
   };
 
   const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: event.title,
-        text: `Participe do ${event.title} em ${event.location}!`,
-        url: window.location.href,
-      }).catch(() => {});
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      navigator
+        .share({
+          title: event.title,
+          text: `Participe do ${event.title} em ${event.location}!`,
+          url: window.location.href,
+        })
+        .catch(() => {});
+    } else if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(window.location.href)
+        .then(() => {
+          onShowToast('Link do evento copiado para a área de transferência!');
+        })
+        .catch(() => {
+          onShowToast('Link do evento: ' + window.location.href);
+        });
     } else {
-      navigator.clipboard?.writeText(window.location.href);
-      onShowToast('Link do evento copiado para a área de transferência!');
+      onShowToast('Link do evento: ' + window.location.href);
     }
   };
 
@@ -51,6 +61,11 @@ export default function EventDetailScreen({
               src={event.image}
               alt={event.title}
               className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.currentTarget;
+                target.onerror = null;
+                target.src = '/assets/aistudio/2_b0dbb042.png';
+              }}
             />
             {/* Dark gradient for button visibility */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/40 pointer-events-none" />
