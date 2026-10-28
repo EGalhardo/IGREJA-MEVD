@@ -73,7 +73,7 @@ const DAILY_VERSES = [
 
 type ReaderFontSize = 'sm' | 'base' | 'lg' | 'xl';
 
-export default function BibleScreen({ onShowToast }: BibleScreenProps) {
+export default function BibleScreen({ onShowToast, isDesktopLayout = false }: BibleScreenProps) {
   // Navigation inside the Bible page
   const [selectedBook, setSelectedBook] = useState<BibleBook | null>(null);
   const [selectedChapter, setSelectedChapter] = useState<number | null>(null);
@@ -378,7 +378,7 @@ export default function BibleScreen({ onShowToast }: BibleScreenProps) {
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
         {/* Toast Notificação de Cópia */}
         {copiedNotification && (
-          <div className="fixed top-16 sm:top-20 right-4 z-50 flex max-w-[calc(100vw-2rem)] items-center gap-2 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg border border-slate-700 text-xs font-semibold animate-in fade-in duration-200">
+          <div className={`fixed ${isDesktopLayout ? 'top-[calc(var(--desktop-header-height)+0.5rem)]' : 'top-16 sm:top-20'} right-4 z-50 flex max-w-[calc(100vw-2rem)] items-center gap-2 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg border border-slate-700 text-xs font-semibold animate-in fade-in duration-200`}>
             <Check className="w-4 h-4 text-emerald-400" />
             <span>{copiedNotification} copiado com sucesso!</span>
           </div>

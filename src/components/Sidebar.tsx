@@ -48,10 +48,10 @@ export default function Sidebar({
   ];
 
   return (
-    <aside className="w-64 xl:w-72 bg-white border-r border-[#E2E8F0] flex flex-col justify-between shrink-0 h-full overflow-y-auto select-none z-20">
+    <aside className="w-64 xl:w-72 bg-white border-r border-[#E2E8F0] flex flex-col justify-between shrink-0 h-full overflow-y-auto [scroll-padding-top:calc(var(--desktop-header-height)+0.25rem)] select-none z-20">
       {/* Brand Header */}
       <div>
-        <div className="p-6 border-b border-[#E2E8F0] flex items-center gap-3.5">
+        <div className="sticky top-0 z-10 h-[var(--desktop-header-height)] bg-white p-6 border-b border-[#E2E8F0] flex items-center gap-3.5">
           <ChurchLogo />
           <div>
             <h1 className="text-base font-bold text-slate-900 tracking-tight leading-tight">

@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+#root {
+  --desktop-header-height: 5.5625rem;
+}
+
 /* Uniformiza as bordas existentes e remove sombras em todo o aplicativo. */
 #root,
 #root *,
