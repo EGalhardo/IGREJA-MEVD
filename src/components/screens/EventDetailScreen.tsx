@@ -190,36 +190,6 @@ export default function EventDetailScreen({
                   </h1>
                 </div>
 
-                {/* Transmissão: moldura genérica do iframe (visível também offline) */}
-                <section
-                  aria-label="Transmissão do evento"
-                  className="space-y-2"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
-                      Transmissão ao vivo
-                    </h2>
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-rose-600">
-                      <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                      Em preparação
-                    </span>
-                  </div>
-
-                  <div className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-slate-900">
-                    <iframe
-                      title={`Transmissão do evento ${event.title}`}
-                      srcDoc={LIVE_PLACEHOLDER_HTML}
-                      loading="lazy"
-                      allow="fullscreen; picture-in-picture"
-                      className="block aspect-video w-full border-0"
-                    />
-                  </div>
-
-                  <p className="text-[11px] text-slate-500">
-                    O vídeo em directo será apresentado nesta moldura assim que a funcionalidade estiver disponível.
-                  </p>
-                </section>
-
                 {/* Metadata List */}
                 <div className="space-y-3 bg-slate-50/70 p-4 rounded-2xl border border-[#E2E8F0]">
                   <div className="flex items-center gap-3 text-xs sm:text-sm text-slate-700">
@@ -318,6 +288,37 @@ export default function EventDetailScreen({
             </div>
           </div>
         </div>
+
+        {/* Transmissão: moldura genérica do iframe, abaixo do cartão do evento.
+            Conteúdo autónomo (srcdoc) = visível também offline. */}
+        <section
+          aria-label="Transmissão do evento"
+          className="mt-3 border-t border-[#E2E8F0] bg-white p-5 sm:mt-6 sm:rounded-3xl sm:border sm:p-8"
+        >
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h2 className="text-sm font-bold tracking-tight text-slate-900 sm:text-base">
+              Transmissão ao vivo
+            </h2>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-rose-600">
+              <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+              Em preparação
+            </span>
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-slate-900">
+            <iframe
+              title={`Transmissão do evento ${event.title}`}
+              srcDoc={LIVE_PLACEHOLDER_HTML}
+              loading="lazy"
+              allow="fullscreen; picture-in-picture"
+              className="block aspect-video w-full border-0"
+            />
+          </div>
+
+          <p className="mt-2 text-[11px] text-slate-500">
+            O vídeo em directo será apresentado nesta moldura assim que a funcionalidade estiver disponível.
+          </p>
+        </section>
       </div>
     </div>
   );
