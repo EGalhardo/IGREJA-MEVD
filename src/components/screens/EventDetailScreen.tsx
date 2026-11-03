@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { ArrowLeft, Share2, MapPin, Clock, Users, Mic, Music, UserCheck, Check } from 'lucide-react';
+import { Share2, MapPin, Clock, Users, Mic, Music, UserCheck, Check } from 'lucide-react';
 import { ChurchEvent, Screen } from '../../types';
-import SafeImage from '../SafeImage';
 import { shareOrCopy } from '../../utils/shareUtils';
 
 
@@ -68,7 +67,6 @@ interface EventDetailScreenProps {
   isRegistered: boolean;
   onToggleRegistration: (eventId: string) => void;
   onNavigate: (screen: Screen) => void;
-  onBack: () => void;
   onShowToast: (message: string) => void;
   isDesktopLayout?: boolean;
 }
@@ -77,7 +75,6 @@ export default function EventDetailScreen({
   event,
   isRegistered,
   onToggleRegistration,
-  onBack,
   onShowToast,
 }: EventDetailScreenProps) {
   const [isSharing, setIsSharing] = useState(false);
@@ -118,38 +115,22 @@ export default function EventDetailScreen({
       <div className="w-full max-w-5xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-6">
         {/* Main Event Card Container */}
         <div className="bg-white sm:rounded-3xl shadow-xs border-0 sm:border border-[#E2E8F0] overflow-hidden flex flex-col">
-          {/* Top Hero Image Banner */}
-          <div className="relative w-full shrink-0 bg-slate-900 aspect-[16/10] sm:aspect-auto sm:h-80 lg:h-96">
-            <SafeImage
-              src={event.image}
-              alt={event.title}
-              fallbackType="event"
-              className="absolute inset-0 h-full w-full object-cover"
+          {/* Topo: moldura genérica da transmissão (substitui a antiga imagem de capa).
+              Conteúdo autónomo (srcdoc), por isso aparece também offline. */}
+          <div className="relative w-full shrink-0 bg-slate-900">
+            <iframe
+              title={`Transmissão do evento ${event.title}`}
+              srcDoc={LIVE_PLACEHOLDER_HTML}
               loading="eager"
+              allow="fullscreen; picture-in-picture"
+              className="block aspect-video w-full border-0"
             />
-            {/* Dark gradient for button visibility */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/40 pointer-events-none" />
 
-            {/* Overlaid Floating Buttons */}
-            <div className="absolute inset-x-0 top-0 p-4 sm:p-6 flex items-center justify-between z-10">
-              <button
-                onClick={onBack}
-                className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 transition-colors cursor-pointer"
-                aria-label="Voltar"
-              >
-                <ArrowLeft className="w-5 h-5 stroke-[2.2]" />
-              </button>
-
-              <button
-                onClick={handleShare}
-                disabled={isSharing}
-                className="w-10 h-10 rounded-full bg-black/40 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/60 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
-                aria-label="Partilhar evento"
-                title="Partilhar evento"
-              >
-                <Share2 className="w-5 h-5 stroke-[2.2]" />
-              </button>
-            </div>
+            {/* Indicador de estado sobre a moldura */}
+            <span className="pointer-events-none absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full border border-rose-400/40 bg-slate-950/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-rose-200 backdrop-blur-sm sm:right-4 sm:top-4">
+              <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+              Em preparação
+            </span>
 
             {/* Floating Date Badge on bottom-left */}
             <div className="absolute left-6 -bottom-6 z-10 bg-white rounded-2xl shadow-lg p-3 min-w-[64px] text-center border border-[#E2E8F0]">
@@ -189,36 +170,6 @@ export default function EventDetailScreen({
                     {event.title}
                   </h1>
                 </div>
-
-                {/* Transmissão: moldura genérica do iframe (visível também offline) */}
-                <section
-                  aria-label="Transmissão do evento"
-                  className="space-y-2"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
-                      Transmissão ao vivo
-                    </h2>
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-rose-600">
-                      <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                      Em preparação
-                    </span>
-                  </div>
-
-                  <div className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-slate-900">
-                    <iframe
-                      title={`Transmissão do evento ${event.title}`}
-                      srcDoc={LIVE_PLACEHOLDER_HTML}
-                      loading="lazy"
-                      allow="fullscreen; picture-in-picture"
-                      className="block aspect-video w-full border-0"
-                    />
-                  </div>
-
-                  <p className="text-[11px] text-slate-500">
-                    O vídeo em directo será apresentado nesta moldura assim que a funcionalidade estiver disponível.
-                  </p>
-                </section>
 
                 {/* Metadata List */}
                 <div className="space-y-3 bg-slate-50/70 p-4 rounded-2xl border border-[#E2E8F0]">

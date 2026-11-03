@@ -205,7 +205,6 @@ export default function App() {
                   isRegistered={registeredEventIds.includes(selectedEvent.id)}
                   onToggleRegistration={handleToggleRegistration}
                   onNavigate={navigateTo}
-                  onBack={handleBack}
                   onShowToast={showToast}
                   isDesktopLayout={isDesktopLayout}
                 />
