@@ -45,6 +45,7 @@ export default function App() {
   const [activeModal, setActiveModal] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastTimer = useRef<number | null>(null);
+  const mainRef = useRef<HTMLElement | null>(null);
 
   // O layout acompanha automaticamente a largura e a orientação do dispositivo.
   const [isDesktopLayout, setIsDesktopLayout] = useState(() =>
@@ -69,6 +70,12 @@ export default function App() {
   useEffect(() => () => {
     if (toastTimer.current !== null) window.clearTimeout(toastTimer.current);
   }, []);
+
+  // Ao mudar de ecrã o conteúdo começa sempre no topo, para que nenhum ecrã
+  // apareça deslocado por causa do scroll do ecrã anterior.
+  useEffect(() => {
+    mainRef.current?.scrollTo({ top: 0 });
+  }, [currentScreen]);
 
   // Show temporary toast message
   const showToast = (message: string) => {
@@ -157,7 +164,7 @@ export default function App() {
               unreadCount={3}
             />
 
-            <main className="@container flex min-h-0 flex-1 flex-col overflow-y-auto">
+            <main ref={mainRef} className="@container flex min-h-0 flex-1 flex-col overflow-y-auto">
               {currentScreen === 'home' && (
                 <HomeScreen
                   onNavigate={navigateTo}

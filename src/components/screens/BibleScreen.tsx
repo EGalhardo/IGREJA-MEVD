@@ -114,6 +114,18 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Devolve o contentor que realmente faz scroll (o <main> da aplicação).
+  // O ecrã da Bíblia não cria um segundo contentor de scroll próprio.
+  const getScrollParent = (): HTMLElement | null => {
+    let node: HTMLElement | null = containerRef.current?.parentElement ?? null;
+    while (node) {
+      const { overflowY } = window.getComputedStyle(node);
+      if (overflowY === 'auto' || overflowY === 'scroll') return node;
+      node = node.parentElement;
+    }
+    return null;
+  };
+
   useEffect(() => {
     return () => {
       speechRef.current = null;
@@ -131,13 +143,17 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
     }
   }, [bookmarkedVerses]);
 
-  // O conteúdo rola dentro do próprio leitor, não na janela.
+  // O conteúdo rola no contentor de scroll da aplicação (o mesmo de todos os ecrãs).
+  // Evita contentores de scroll encaixados, que deixavam a lista de livros e o leitor
+  // inacessíveis em alguns navegadores móveis.
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    const handleScroll = () => setShowScrollTop(container.scrollTop > 300);
-    container.addEventListener('scroll', handleScroll, { passive: true });
-    return () => container.removeEventListener('scroll', handleScroll);
+    const scroller = getScrollParent();
+    if (!scroller) return;
+    scroller.scrollTo({ top: 0, behavior: 'auto' });
+    const handleScroll = () => setShowScrollTop(scroller.scrollTop > 300);
+    handleScroll();
+    scroller.addEventListener('scroll', handleScroll, { passive: true });
+    return () => scroller.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Filtered books
@@ -183,7 +199,7 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
     return Array.from(cats);
   }, [selectedTestament]);
 
-  const resetScroll = () => containerRef.current?.scrollTo({ top: 0, behavior: 'auto' });
+  const resetScroll = () => getScrollParent()?.scrollTo({ top: 0, behavior: 'auto' });
 
   // Handle open a book to select chapter
   const handleSelectBook = (book: BibleBook) => {
@@ -370,11 +386,11 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
   }, [selectedBook, selectedChapter, currentVerses]);
 
   const scrollToTop = () => {
-    containerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    getScrollParent()?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <div ref={containerRef} className="flex-1 flex flex-col bg-white overflow-y-auto w-full relative">
+    <div ref={containerRef} className="flex min-h-0 w-full flex-1 flex-col bg-white relative">
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
         {/* Toast Notificação de Cópia */}
         {copiedNotification && (
@@ -765,10 +781,10 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
         {viewMode === 'reader' && selectedBook && selectedChapter !== null && (
           <div className="bg-white rounded-3xl p-5 sm:p-8 shadow-xs border border-[#E2E8F0] space-y-6 animate-in fade-in duration-200">
             {/* Top Toolbar Sticky de Navegação e Controles Rápidos */}
-            <div className="sticky top-0 bg-white/95 backdrop-blur-md z-20 pb-4 pt-1 border-b border-[#E2E8F0] flex flex-col gap-3">
+            <div className="z-20 border-b border-[#E2E8F0] bg-white/95 pb-3 backdrop-blur-md flex flex-col gap-3 sm:sticky sm:top-0 sm:pb-4 sm:pt-1">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 {/* Book & Chapter Direct Selectors */}
-                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <div className="no-scrollbar flex flex-nowrap items-center gap-2 overflow-x-auto sm:flex-wrap sm:gap-3">
                   <button
                     onClick={handleBackToBooks}
                     className="p-2 rounded-xl border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 transition-colors cursor-pointer"
@@ -781,7 +797,7 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
                   {/* Quick Book Selector Dropdown Button */}
                   <button
                     onClick={() => setShowBookPickerModal(true)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200/80 rounded-xl text-xs font-bold text-slate-900 border border-[#E2E8F0] transition-colors cursor-pointer"
+                    className="flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1.5 bg-slate-100 hover:bg-slate-200/80 rounded-xl text-xs font-bold text-slate-900 border border-[#E2E8F0] transition-colors cursor-pointer"
                     title="Mudar de Livro"
                   >
                     <BookOpen className="w-3.5 h-3.5 text-[#0066cc]" />
@@ -792,7 +808,7 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
                   {/* Quick Chapter Selector Dropdown Button */}
                   <button
                     onClick={() => setShowChapterPickerModal(true)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100/80 rounded-xl text-xs font-bold text-[#0066cc] border border-blue-200 transition-colors cursor-pointer"
+                    className="flex shrink-0 items-center gap-1.5 whitespace-nowrap px-3 py-1.5 bg-blue-50 hover:bg-blue-100/80 rounded-xl text-xs font-bold text-[#0066cc] border border-blue-200 transition-colors cursor-pointer"
                     title="Mudar de Capítulo"
                   >
                     <span>Capítulo {selectedChapter} de {selectedBook.chapters}</span>
@@ -823,15 +839,15 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
                 </div>
 
                 {/* Right toolbar controls: Version, Font Size, Audio, Copy */}
-                <div className="flex items-center gap-2 flex-wrap self-end sm:self-auto">
+                <div className="no-scrollbar flex w-full flex-nowrap items-center gap-2 overflow-x-auto sm:w-auto sm:flex-wrap sm:overflow-visible">
                   {/* O projeto não fornece textos separados por versão. */}
-                  <div className="flex items-center bg-slate-100 p-0.5 rounded-xl text-xs font-semibold border border-slate-200/60" aria-label="Versões não disponíveis nos trechos incluídos">
+                  <div className="flex shrink-0 items-center bg-slate-100 p-0.5 rounded-xl text-xs font-semibold border border-slate-200/60" aria-label="Versões não disponíveis nos trechos incluídos">
                     <button type="button" disabled title="Versão não identificada no conteúdo incluído" className="px-2 py-1 rounded-lg text-slate-400 cursor-not-allowed">ARA</button>
                     <button type="button" disabled title="Versão não identificada no conteúdo incluído" className="px-2 py-1 rounded-lg text-slate-400 cursor-not-allowed">NVI</button>
                   </div>
 
                   {/* Ajuste de Tamanho de Fonte */}
-                  <div className="flex items-center bg-slate-100 p-0.5 rounded-xl text-xs font-semibold border border-slate-200/60">
+                  <div className="flex shrink-0 items-center bg-slate-100 p-0.5 rounded-xl text-xs font-semibold border border-slate-200/60">
                     <button
                       onClick={() => setFontSize('sm')}
                       className={`px-2 py-1 rounded-lg transition-all cursor-pointer ${
@@ -865,7 +881,7 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
                   <button
                     onClick={() => handleToggleAudio(fullChapterText)}
                     disabled={currentVerses.length === 0}
-                    className={`disabled:opacity-50 disabled:cursor-not-allowed px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    className={`disabled:opacity-50 disabled:cursor-not-allowed px-3 py-1.5 rounded-xl text-xs font-bold flex shrink-0 items-center gap-1.5 transition-all cursor-pointer ${
                       isPlayingAudio
                         ? 'bg-amber-500 text-white shadow-xs animate-pulse'
                         : 'border border-[#E2E8F0] text-slate-700 hover:bg-slate-50'
@@ -880,7 +896,7 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
                   <button
                     onClick={() => handleCopyText(fullChapterText, `${selectedBook.name} ${selectedChapter}`)}
                     disabled={currentVerses.length === 0}
-                    className="disabled:opacity-50 disabled:cursor-not-allowed p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+                    className="disabled:opacity-50 disabled:cursor-not-allowed shrink-0 p-1.5 sm:px-2.5 sm:py-1.5 rounded-xl border border-[#E2E8F0] hover:bg-slate-50 text-slate-700 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
                     title="Copiar versículos disponíveis"
                   >
                     <Copy className="w-3.5 h-3.5" />
