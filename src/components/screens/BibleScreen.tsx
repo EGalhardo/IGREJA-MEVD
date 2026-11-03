@@ -999,7 +999,7 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
                     src={chapterImage.src}
                     alt={chapterImage.alt}
                     loading="lazy"
-                    className="aspect-[16/7] w-full object-cover"
+                    className={`w-full object-cover ${isDesktopLayout ? 'aspect-[16/7]' : 'aspect-[32/21]'}`}
                   />
                   <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/15 to-transparent" />
                   <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-3 sm:p-4">

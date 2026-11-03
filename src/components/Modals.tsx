@@ -397,7 +397,7 @@ export default function Modals({
                     src={CHURCH_MAP_EMBED}
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                    className="relative h-44 w-full border-0 sm:h-52"
+                    className="relative h-[220px] w-full border-0 sm:h-52"
                   />
                 </div>
                 <div className="flex items-center justify-between gap-2 border-t border-[#E2E8F0] bg-white px-3 py-2">
