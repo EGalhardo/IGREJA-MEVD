@@ -13,7 +13,7 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Inscrições abertas',
       variant: 'green',
     },
-    image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=80',
+    image: '/assets/events/maio-intensa-oracao.jpg',
     capacity: '250 vagas',
     description:
       'Um encontro especial para jovens que desejam crescer na fé, fazer novas amizades e viver uma experiência única com Deus.',
@@ -35,7 +35,7 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Pendente',
       variant: 'blue',
     },
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80',
+    image: '/assets/events/cristo-pascoa.jpg',
     capacity: '300 vagas',
     description:
       'Uma noite consagrada à busca espiritual profunda, intercessão pelas famílias, nação e fortalecimento através da palavra e oração conjunta.',
@@ -79,7 +79,7 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Em breve',
       variant: 'purple',
     },
-    image: 'https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=800&q=80',
+    image: '/assets/events/vasos-disponiveis.jpg',
     capacity: '500 vagas',
     description:
       'Cruzada de evangelização e acção social comunitária para levar a mensagem de esperança e fé aos moradores da nossa comunidade.',
@@ -145,7 +145,7 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Em breve',
       variant: 'purple',
     },
-    image: 'https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=800&q=80',
+    image: '/assets/events/tarde-de-louvor.jpg',
     capacity: '450 vagas',
     description:
       'Uma noite inteira consagrada à oração fervorosa, intercessão pelas famílias de Angola, libertação de vidas e manifestação do poder de Deus no altar.',
