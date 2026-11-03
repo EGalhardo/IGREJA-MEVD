@@ -1,4 +1,4 @@
-import { ArrowLeft, Bell, Mic } from 'lucide-react';
+import { ArrowLeft, Bell } from 'lucide-react';
 import ChurchLogo from './ChurchLogo';
 import SafeImage from './SafeImage';
 import { Screen, UserProfile } from '../types';
@@ -10,7 +10,6 @@ interface AppbarProps {
   onBack: () => void;
   onOpenNotifications: () => void;
   onOpenProfile: () => void;
-  onMicClick?: () => void;
   user: UserProfile;
   unreadCount?: number;
 }
@@ -22,7 +21,6 @@ export default function Appbar({
   onBack,
   onOpenNotifications,
   onOpenProfile,
-  onMicClick,
   user,
   unreadCount = 3,
 }: AppbarProps) {
@@ -74,18 +72,8 @@ export default function Appbar({
           </div>
         </div>
 
-        {/* Right: Mic, Notifications & Profile Badge */}
+        {/* Right: Notifications & Profile */}
         <div className="flex items-center gap-2.5 shrink-0">
-          {/* Microfone Icon (à esquerda do sino) */}
-          <button
-            onClick={onMicClick}
-            className="p-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-            title="Microfone"
-            aria-label="Microfone"
-          >
-            <Mic className="w-5 h-5 stroke-[2]" />
-          </button>
-
           {/* Notifications Bell */}
           <button
             onClick={onOpenNotifications}
@@ -106,9 +94,9 @@ export default function Appbar({
             onClick={onOpenProfile}
             aria-label="Perfil"
             title="Ver Perfil"
-            className="flex items-center gap-2.5 pl-2 pr-3 py-1 rounded-xl hover:bg-slate-50 border border-slate-200/70 transition-colors cursor-pointer"
+            className="flex items-center gap-2.5 rounded-xl py-1 pl-1.5 pr-2.5 transition-colors hover:bg-slate-50 cursor-pointer"
           >
-            <div className="w-8 h-8 rounded-full overflow-hidden ring-2 ring-blue-100 shrink-0">
+            <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
               <SafeImage
                 src={user.avatar}
                 alt={user.name}
@@ -161,18 +149,8 @@ export default function Appbar({
         )}
       </div>
 
-      {/* Right section: Microfone + Sino de Notificações + Avatar de Perfil */}
-      <div className="flex shrink-0 items-center gap-0.5 min-[320px]:gap-1">
-        {/* Microfone Icon (à esquerda do sino) */}
-        <button
-          onClick={onMicClick}
-          className="p-1.5 min-[320px]:p-2 text-slate-700 hover:text-slate-900 hover:bg-slate-100 active:bg-slate-200 rounded-full transition-colors cursor-pointer"
-          title="Microfone"
-          aria-label="Microfone"
-        >
-          <Mic className="w-5 h-5 stroke-[2]" />
-        </button>
-
+      {/* Right section: Sino de Notificações + Avatar de Perfil */}
+      <div className="flex shrink-0 items-center gap-1 min-[320px]:gap-1.5">
         {/* Sino de Notificações */}
         <button
           onClick={onOpenNotifications}
@@ -191,11 +169,11 @@ export default function Appbar({
         {/* Avatar de Perfil */}
         <button
           onClick={onOpenProfile}
-          className="p-0.5 rounded-full hover:ring-2 hover:ring-blue-400 transition-all cursor-pointer ml-0.5 min-[320px]:ml-1"
+          className="ml-0.5 rounded-full p-0.5 transition-all hover:bg-slate-100 cursor-pointer min-[320px]:ml-1"
           aria-label="Perfil"
           title="Ver Perfil"
         >
-          <div className="w-7 h-7 rounded-full overflow-hidden border border-slate-200 ring-1 ring-slate-100">
+          <div className="w-7 h-7 rounded-full overflow-hidden">
             <SafeImage
               src={user.avatar}
               alt={user.name}

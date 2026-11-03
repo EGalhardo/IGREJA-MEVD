@@ -166,7 +166,6 @@ export default function App() {
               onBack={handleBack}
               onOpenNotifications={() => setActiveModal('notificacoes')}
               onOpenProfile={() => navigateTo('profile')}
-              onMicClick={() => showToast('A pesquisa por voz não está disponível nesta versão.')}
               user={user}
               unreadCount={3}
             />

@@ -12,7 +12,7 @@ export default function ChurchLogo({ className = '', size = 'md' }: ChurchLogoPr
 
   return (
     <div
-      className={`rounded-2xl bg-white shadow-xs flex items-center justify-center shrink-0 border border-[#E2E8F0] overflow-hidden ${sizeClasses} ${className}`}
+      className={`rounded-2xl bg-white flex items-center justify-center shrink-0 overflow-hidden ${sizeClasses} ${className}`}
     >
       <img
         src="/assets/aistudio/MEVD_LOGO_01.png"
