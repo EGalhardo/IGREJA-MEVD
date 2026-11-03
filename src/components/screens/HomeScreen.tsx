@@ -138,7 +138,7 @@ export default function HomeScreen({
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
         {/* Carrossel de Destaque Animado com Duração de 5 segundos e Loop Infinito */}
         <div
-          className={`relative mx-auto w-[90%] rounded-3xl overflow-hidden border border-[#E2E8F0] select-none group bg-slate-900 ${isDesktopLayout ? 'aspect-[16/9]' : 'aspect-[256/225]'}`}
+          className={`relative w-full rounded-3xl overflow-hidden border border-[#E2E8F0] select-none group bg-slate-900 ${isDesktopLayout ? 'aspect-[16/9]' : 'aspect-[256/225]'}`}
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
           onTouchStart={handleTouchStart}
@@ -247,7 +247,7 @@ export default function HomeScreen({
         </div>
 
         {/* Campo de Procura de Eventos (funcional em mobile e desktop) */}
-        <div className="mx-auto w-[90%] animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="w-full animate-in fade-in slide-in-from-top-2 duration-300">
           <form
             role="search"
             onSubmit={handleSubmitSearch}
