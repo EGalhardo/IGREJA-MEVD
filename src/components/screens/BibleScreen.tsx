@@ -641,7 +641,7 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
                     <p className="text-xs text-slate-500 mt-1">Tente pesquisar com outro termo ou limpe o filtro.</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 @min-[20rem]:grid-cols-2 @min-[30rem]:grid-cols-3 @min-[40rem]:grid-cols-4 @min-[48rem]:grid-cols-5 gap-3">
+                  <div className="grid grid-cols-2 @min-[30rem]:grid-cols-3 @min-[40rem]:grid-cols-4 @min-[48rem]:grid-cols-5 gap-3">
                     {filteredBooks.map((book) => (
                       <button
                         key={book.id}
@@ -760,12 +760,12 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
               <h3 className="text-sm font-bold text-slate-800 mb-3">
                 Selecione o capítulo para ler:
               </h3>
-              <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2.5">
+              <div className="grid grid-cols-6 gap-2 min-[380px]:grid-cols-8 sm:grid-cols-8 sm:gap-2.5 md:grid-cols-10 lg:grid-cols-12">
                 {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map((chNum) => (
                   <button
                     key={chNum}
                     onClick={() => handleSelectChapter(chNum)}
-                    className="h-11 rounded-xl border border-[#E2E8F0] hover:border-[#0066cc] bg-white hover:bg-blue-50 font-bold text-xs sm:text-sm text-slate-800 hover:text-[#0066cc] transition-all cursor-pointer flex items-center justify-center shadow-2xs"
+                    className="h-10 rounded-xl border border-[#E2E8F0] hover:border-[#0066cc] bg-white hover:bg-blue-50 font-bold text-xs sm:h-11 sm:text-sm text-slate-800 hover:text-[#0066cc] transition-all cursor-pointer flex items-center justify-center shadow-2xs"
                   >
                     {chNum}
                   </button>
