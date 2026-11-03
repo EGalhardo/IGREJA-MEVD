@@ -1,6 +1,6 @@
 interface ChurchLogoProps {
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'appbar';
 }
 
 export default function ChurchLogo({ className = '', size = 'md' }: ChurchLogoProps) {
@@ -8,6 +8,10 @@ export default function ChurchLogo({ className = '', size = 'md' }: ChurchLogoPr
     sm: 'w-8 h-8 p-1',
     md: 'w-10 h-10 p-1.5',
     lg: 'w-12 h-12 p-2',
+    // Appbar mobile: caixa 40px com 4px de margem -> imagem 32px
+    // (o PNG tem ~5% de margem transparente, logo a chama visivel fica ~28px,
+    // igual ao diametro da foto de perfil no appbar mobile)
+    appbar: 'w-10 h-10 p-1',
   }[size];
 
   return (
