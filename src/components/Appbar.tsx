@@ -1,4 +1,4 @@
-import { ArrowLeft, Bell } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import ChurchLogo from './ChurchLogo';
 import SafeImage from './SafeImage';
 import { Screen, UserProfile } from '../types';
@@ -24,6 +24,9 @@ export default function Appbar({
   user,
   unreadCount = 3,
 }: AppbarProps) {
+  // Saudação curta: primeiro nome do utilizador (ex.: "Oi, Edlásio")
+  const firstName = user.name.trim().split(/\s+/)[0] || user.name;
+
   const getScreenTitle = () => {
     switch (currentScreen) {
       case 'home':
@@ -72,47 +75,40 @@ export default function Appbar({
           </div>
         </div>
 
-        {/* Right: Notifications & Profile */}
-        <div className="flex items-center gap-2.5 shrink-0">
-          {/* Notifications Bell */}
-          <button
-            onClick={onOpenNotifications}
-            className="relative p-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
-            title="Notificações"
-            aria-label="Notificações"
-          >
-            <Bell className="w-5 h-5 stroke-[2]" />
-            {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center border-2 border-white">
-                {unreadCount}
+        {/* Right: saudação + foto de perfil com badge de notificações */}
+        <div className="flex shrink-0 items-center">
+          <div className="relative">
+            <button
+              onClick={onOpenProfile}
+              aria-label="Perfil"
+              title="Ver Perfil"
+              className="flex items-center gap-2.5 rounded-xl py-1 pl-1.5 pr-3 transition-colors hover:bg-slate-50 cursor-pointer"
+            >
+              <span className="block h-8 w-8 shrink-0 overflow-hidden rounded-full">
+                <SafeImage
+                  src={user.avatar}
+                  alt={user.name}
+                  fallbackSrc="/assets/aistudio/Foto_de_Perfil__1__bd7124df.png"
+                  fallbackType="avatar"
+                  className="w-full h-full object-cover"
+                />
               </span>
-            )}
-          </button>
+              <span className="whitespace-nowrap text-xs font-semibold text-slate-900">
+                Oi, {firstName}
+              </span>
+            </button>
 
-          {/* User Profile Summary */}
-          <button
-            onClick={onOpenProfile}
-            aria-label="Perfil"
-            title="Ver Perfil"
-            className="flex items-center gap-2.5 rounded-xl py-1 pl-1.5 pr-2.5 transition-colors hover:bg-slate-50 cursor-pointer"
-          >
-            <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
-              <SafeImage
-                src={user.avatar}
-                alt={user.name}
-                fallbackSrc="/assets/aistudio/Foto_de_Perfil__1__bd7124df.png"
-                fallbackType="avatar"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="text-left hidden lg:block max-w-40">
-              <p className="text-xs font-bold text-slate-900 leading-tight truncate">{user.name}</p>
-              <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                {user.status}
-              </span>
-            </div>
-          </button>
+            {unreadCount > 0 && (
+              <button
+                onClick={onOpenNotifications}
+                title="Notificações"
+                aria-label={`Notificações (${unreadCount} não lidas)`}
+                className="absolute -top-1 left-[26px] flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white ring-2 ring-white transition-transform hover:scale-110 cursor-pointer"
+              >
+                {unreadCount}
+              </button>
+            )}
+          </div>
         </div>
       </header>
     );
@@ -149,31 +145,15 @@ export default function Appbar({
         )}
       </div>
 
-      {/* Right section: Sino de Notificações + Avatar de Perfil */}
-      <div className="flex shrink-0 items-center gap-1 min-[320px]:gap-1.5">
-        {/* Sino de Notificações */}
-        <button
-          onClick={onOpenNotifications}
-          className="relative p-1.5 min-[320px]:p-2 text-slate-700 hover:text-slate-900 hover:bg-slate-100 active:bg-slate-200 rounded-full transition-colors cursor-pointer"
-          aria-label="Notificações"
-          title="Notificações"
-        >
-          <Bell className="w-5 h-5 stroke-[2]" />
-          {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center border-2 border-white">
-              {unreadCount}
-            </span>
-          )}
-        </button>
-
-        {/* Avatar de Perfil */}
+      {/* Right section: foto de perfil com badge de notificações */}
+      <div className="relative flex shrink-0 items-center">
         <button
           onClick={onOpenProfile}
-          className="ml-0.5 rounded-full p-0.5 transition-all hover:bg-slate-100 cursor-pointer min-[320px]:ml-1"
+          className="rounded-full p-0.5 transition-all hover:bg-slate-100 cursor-pointer"
           aria-label="Perfil"
           title="Ver Perfil"
         >
-          <div className="w-7 h-7 rounded-full overflow-hidden">
+          <span className="block h-7 w-7 overflow-hidden rounded-full">
             <SafeImage
               src={user.avatar}
               alt={user.name}
@@ -181,8 +161,19 @@ export default function Appbar({
               fallbackType="avatar"
               className="w-full h-full object-cover"
             />
-          </div>
+          </span>
         </button>
+
+        {unreadCount > 0 && (
+          <button
+            onClick={onOpenNotifications}
+            title="Notificações"
+            aria-label={`Notificações (${unreadCount} não lidas)`}
+            className="absolute -right-0.5 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white ring-2 ring-white transition-transform hover:scale-110 cursor-pointer"
+          >
+            {unreadCount}
+          </button>
+        )}
       </div>
     </header>
   );
