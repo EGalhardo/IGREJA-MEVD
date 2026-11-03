@@ -169,9 +169,6 @@ export default function App() {
               onMicClick={() => showToast('A pesquisa por voz não está disponível nesta versão.')}
               user={user}
               unreadCount={3}
-              searchQuery={eventSearchQuery}
-              onSearchQueryChange={setEventSearchQuery}
-              onSearchEvents={handleSearchEvents}
             />
 
             <main ref={mainRef} className="@container flex min-h-0 flex-1 flex-col overflow-y-auto">
