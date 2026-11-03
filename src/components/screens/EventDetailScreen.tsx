@@ -123,7 +123,7 @@ export default function EventDetailScreen({
               srcDoc={LIVE_PLACEHOLDER_HTML}
               loading="eager"
               allow="fullscreen; picture-in-picture"
-              className="block aspect-video w-full border-0"
+              className="block aspect-[160/117] w-full border-0"  /* 16:9 + 30% de altura */
             />
 
             {/* Indicador de estado sobre a moldura */}
