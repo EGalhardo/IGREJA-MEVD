@@ -21,6 +21,9 @@ import {
   ALL_BIBLE_BOOKS,
   BibleBook,
   getChapterVerses,
+  getLoadedBookText,
+  loadBookText,
+  versesFromBookText,
   TOPICAL_SEARCH_VERSES,
   BibleVerse,
 } from '../../data/bibleData';
@@ -110,6 +113,11 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
   });
   const [copiedNotification, setCopiedNotification] = useState<string | null>(null);
 
+  // Texto completo do livro aberto (carregado de public/data/biblia)
+  const [bookText, setBookText] = useState<Record<string, string[]> | null>(null);
+  const [isLoadingBookText, setIsLoadingBookText] = useState(false);
+  const [bookTextError, setBookTextError] = useState(false);
+
   // Audio Speech Synthesis
   const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -125,6 +133,45 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
     }
     return null;
   };
+
+  // Carrega o texto do livro aberto (uma vez por livro, depois fica em memória)
+  useEffect(() => {
+    const bookId = selectedBook?.id;
+    setBookTextError(false);
+
+    if (!bookId) {
+      setBookText(null);
+      setIsLoadingBookText(false);
+      return;
+    }
+
+    const alreadyLoaded = getLoadedBookText(bookId);
+    if (alreadyLoaded) {
+      setBookText(alreadyLoaded);
+      setIsLoadingBookText(false);
+      return;
+    }
+
+    let active = true;
+    setBookText(null);
+    setIsLoadingBookText(true);
+
+    loadBookText(bookId)
+      .then((data) => {
+        if (!active) return;
+        setBookText(data);
+        setIsLoadingBookText(false);
+      })
+      .catch(() => {
+        if (!active) return;
+        setBookTextError(true);
+        setIsLoadingBookText(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [selectedBook]);
 
   useEffect(() => {
     return () => {
@@ -365,8 +412,17 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
   // Current reader verses
   const currentVerses: BibleVerse[] = useMemo(() => {
     if (!selectedBook || selectedChapter === null) return [];
-    return getChapterVerses(selectedBook.id, selectedChapter);
-  }, [selectedBook, selectedChapter]);
+    return (
+      versesFromBookText(bookText, selectedChapter) ??
+      getChapterVerses(selectedBook.id, selectedChapter)
+    );
+  }, [selectedBook, selectedChapter, bookText]);
+
+  // O capítulo em ecrã tem o texto completo (e não apenas os trechos incluídos)?
+  const hasFullChapterText = useMemo(() => {
+    if (!selectedChapter) return false;
+    return versesFromBookText(bookText, selectedChapter) !== null;
+  }, [bookText, selectedChapter]);
 
   // Filtered verses inside chapter if searching
   const displayedVerses = useMemo(() => {
@@ -937,12 +993,16 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
                   {selectedBook.name} {selectedChapter}
                 </h3>
                 <p className="text-xs text-slate-500 mt-1">
-                  {currentVerses.length > 0
-                    ? `${currentVerses.length} versículo(s) disponível(is)`
+                  {isLoadingBookText
+                    ? 'A carregar o capítulo…'
+                    : currentVerses.length > 0
+                    ? `${currentVerses.length} versículo(s) ${hasFullChapterText ? 'do capítulo' : 'disponível(is)'}`
                     : 'Nenhum versículo disponível neste capítulo'}
                 </p>
                 <p className="text-xs text-slate-500 mt-1">
-                  Os trechos podem estar incompletos e a versão não está identificada.
+                  {hasFullChapterText
+                    ? 'Tradução Almeida Corrigida Fiel (ACF) • texto completo'
+                    : 'Os trechos podem estar incompletos e a versão não está identificada.'}
                 </p>
               </div>
 
@@ -959,7 +1019,11 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
               >
                 {currentVerses.length === 0 ? (
                   <div className="text-center py-8 text-slate-500 text-xs">
-                    O texto deste capítulo não está disponível na aplicação.
+                    {isLoadingBookText
+                      ? 'A carregar o texto do capítulo…'
+                      : bookTextError
+                      ? 'Não foi possível carregar o texto deste capítulo. Verifica a ligação à internet e tenta de novo.'
+                      : 'O texto deste capítulo não está disponível na aplicação.'}
                   </div>
                 ) : displayedVerses.length === 0 ? (
                   <div className="text-center py-8 text-slate-400 text-xs">

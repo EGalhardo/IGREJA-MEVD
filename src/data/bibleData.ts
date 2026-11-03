@@ -391,3 +391,60 @@ export const TOPICAL_SEARCH_VERSES: BibleTopicSearch[] = [
     text: 'E Deus limpará de seus olhos toda a lágrima; e não haverá mais morte, nem pranto, nem clamor, nem dor.'
   },
 ];
+
+/* ---------------------------------------------------------------------------
+ * Texto completo da Bíblia (tradução Almeida).
+ *
+ * O texto de todos os 66 livros (1189 capítulos) está em `public/data/biblia`,
+ * num ficheiro por livro: { "1": ["versículo 1", "versículo 2", ...], ... }.
+ * Cada livro é carregado apenas quando é aberto e fica em memória depois disso,
+ * por isso a aplicação não perde tempo a descarregar a Bíblia inteira (≈3,8 MB)
+ * e continua a funcionar sem ligação depois do primeiro acesso ao livro.
+ * ------------------------------------------------------------------------- */
+
+const loadedBooks = new Map<string, Record<string, string[]>>();
+const pendingBooks = new Map<string, Promise<Record<string, string[]>>>();
+
+/** Livro já carregado (ou null se ainda não foi pedido). */
+export function getLoadedBookText(bookId: string): Record<string, string[]> | null {
+  return loadedBooks.get(bookId) ?? null;
+}
+
+/** Carrega o texto de um livro (com cache em memória e pedidos deduplicados). */
+export function loadBookText(bookId: string): Promise<Record<string, string[]>> {
+  const cached = loadedBooks.get(bookId);
+  if (cached) return Promise.resolve(cached);
+
+  const pending = pendingBooks.get(bookId);
+  if (pending) return pending;
+
+  const base = import.meta.env.BASE_URL || '/';
+  const request = fetch(`${base}data/biblia/${bookId}.json`)
+    .then((response) => {
+      if (!response.ok) throw new Error(`Falha ao carregar ${bookId} (${response.status})`);
+      return response.json() as Promise<Record<string, string[]>>;
+    })
+    .then((data) => {
+      loadedBooks.set(bookId, data);
+      pendingBooks.delete(bookId);
+      return data;
+    })
+    .catch((error: unknown) => {
+      pendingBooks.delete(bookId);
+      throw error;
+    });
+
+  pendingBooks.set(bookId, request);
+  return request;
+}
+
+/** Converte o texto de um capítulo carregado na lista de versículos do leitor. */
+export function versesFromBookText(
+  bookText: Record<string, string[]> | null,
+  chapter: number
+): BibleVerse[] | null {
+  if (!bookText) return null;
+  const verses = bookText[String(chapter)];
+  if (!verses || verses.length === 0) return null;
+  return verses.map((text, index) => ({ number: index + 1, text }));
+}
