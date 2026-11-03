@@ -1,8 +1,8 @@
 import { Search, SlidersHorizontal, Clock, MapPin, ChevronRight } from 'lucide-react';
-import { CHURCH_EVENTS } from '../../data/mockData';
+import { CHURCH_EVENTS, eventSearchValues } from '../../data/mockData';
 import { ChurchEvent, EventCategory, Screen } from '../../types';
 import SafeImage from '../SafeImage';
-import { normalizeSearch } from '../../utils/search';
+import { matchesSearchTerms } from '../../utils/search';
 
 interface EventsScreenProps {
   onNavigate: (screen: Screen) => void;
@@ -25,13 +25,12 @@ export default function EventsScreen({
   onSearchQueryChange,
 }: EventsScreenProps) {
 
-  const normalizedQuery = normalizeSearch(searchQuery);
+  // A pesquisa cobre todos os dados do evento: título, local, categoria, descrição,
+  // horário, data, vagas e destaques. Aceita várias palavras em qualquer ordem.
   const filteredEvents = CHURCH_EVENTS.filter((event) => {
     const matchesCategory =
       selectedCategory === 'Todos' || event.category === selectedCategory;
-    const matchesSearch =
-      normalizeSearch(event.title).includes(normalizedQuery) ||
-      normalizeSearch(event.location).includes(normalizedQuery);
+    const matchesSearch = matchesSearchTerms(eventSearchValues(event), searchQuery);
     return matchesCategory && matchesSearch;
   });
 
@@ -99,7 +98,9 @@ export default function EventsScreen({
         <div className="grid grid-cols-1 @min-[40rem]:grid-cols-2 gap-3.5 sm:gap-4">
           {filteredEvents.length === 0 ? (
             <div className="col-span-full text-center py-12 text-slate-400 text-xs sm:text-sm bg-white rounded-2xl border border-[#E2E8F0]">
-              Nenhum evento encontrado para a pesquisa actual.
+              {searchQuery.trim()
+                ? `Nenhum evento encontrado para "${searchQuery.trim()}".`
+                : 'Nenhum evento encontrado para os filtros selecionados.'}
             </div>
           ) : (
             filteredEvents.map((event) => (

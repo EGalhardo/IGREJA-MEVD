@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, type FormEvent } from 'react';
 import {
   ArrowRight,
   Calendar,
@@ -12,15 +12,21 @@ import {
   ChevronRight,
   Pause,
 } from 'lucide-react';
-import { CHURCH_EVENTS } from '../../data/mockData';
+import { CHURCH_EVENTS, eventSearchValues } from '../../data/mockData';
 import { ChurchEvent, Screen } from '../../types';
 import SafeImage from '../SafeImage';
+import { matchesSearchTerms } from '../../utils/search';
 
 interface HomeScreenProps {
   onNavigate: (screen: Screen) => void;
   onSelectEvent: (event: ChurchEvent) => void;
   onOpenQuickFeature?: (feature: string) => void;
   isDesktopLayout?: boolean;
+  /** Texto actual da pesquisa de eventos (partilhado com a página Eventos). */
+  searchQuery?: string;
+  onSearchQueryChange?: (query: string) => void;
+  /** Abre a agenda já filtrada pela pesquisa. */
+  onSearchEvents?: (query: string) => void;
 }
 
 // Imagens em destaque do carrossel oficial da IGREJA MEVD
@@ -56,8 +62,26 @@ export default function HomeScreen({
   onSelectEvent,
   onOpenQuickFeature,
   isDesktopLayout = false,
+  searchQuery = '',
+  onSearchQueryChange,
+  onSearchEvents,
 }: HomeScreenProps) {
   const upcomingEvents = CHURCH_EVENTS;
+
+  // Resultados em directo para o campo de procura da página inicial.
+  const searchResults = CHURCH_EVENTS.filter((event) =>
+    matchesSearchTerms(eventSearchValues(event), searchQuery)
+  );
+  const hasQuery = searchQuery.trim().length > 0;
+
+  const handleSubmitSearch = (event: FormEvent) => {
+    event.preventDefault();
+    if (onSearchEvents) {
+      onSearchEvents(searchQuery);
+      return;
+    }
+    onNavigate('events');
+  };
 
   // Carrossel com temporizador de 5 segundos em modo loop
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -222,31 +246,50 @@ export default function HomeScreen({
           </div>
         </div>
 
-        {/* Campo Centralizado "Pesquisar Eventos" no Modo Desktop / Tablet */}
-        {isDesktopLayout && (
-          <div className="flex justify-center w-full animate-in fade-in slide-in-from-top-2 duration-300">
+        {/* Campo de Procura de Eventos (funcional em mobile e desktop) */}
+        <div className="flex w-full justify-center animate-in fade-in slide-in-from-top-2 duration-300">
+          <form
+            role="search"
+            onSubmit={handleSubmitSearch}
+            className="flex w-full max-w-2xl items-center gap-3 rounded-2xl border border-[#E2E8F0] bg-white p-2.5 text-left transition-all focus-within:border-[#0066cc] sm:p-3"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#0066cc]">
+              <Search className="h-5 w-5 stroke-[2.2]" />
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <label htmlFor="home-event-search" className="sr-only">
+                Pesquisar eventos
+              </label>
+              <input
+                id="home-event-search"
+                type="text"
+                inputMode="search"
+                enterKeyHint="search"
+                value={searchQuery}
+                onChange={(e) => onSearchQueryChange?.(e.target.value)}
+                placeholder="Pesquisar eventos..."
+                className="w-full bg-transparent text-xs font-bold text-slate-800 placeholder:font-bold placeholder:text-slate-400 focus:outline-none sm:text-sm"
+              />
+              <p className="truncate text-[11px] text-slate-400" aria-live="polite">
+                {hasQuery
+                  ? searchResults.length > 0
+                    ? `${searchResults.length} evento(s) encontrado(s)`
+                    : 'Nenhum evento corresponde à pesquisa'
+                  : 'Encontre cultos, congressos, vigílias e actividades especiais da IGREJA MEVD...'}
+              </p>
+            </div>
+
             <button
-              type="button"
-              onClick={() => onNavigate('events')}
-              className="w-full max-w-2xl text-left bg-white rounded-2xl p-2.5 sm:p-3 shadow-xs border border-[#E2E8F0] hover:border-blue-400 hover:shadow-md transition-all flex items-center gap-3.5 cursor-pointer group"
+              type="submit"
+              className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-xl bg-[#0066cc] px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-[#0055aa] sm:px-4"
+              aria-label={hasQuery ? 'Ver resultados na agenda' : 'Explorar agenda'}
             >
-              <div className="w-10 h-10 rounded-xl bg-blue-50 text-[#0066cc] flex items-center justify-center shrink-0 group-hover:bg-blue-100 transition-colors">
-                <Search className="w-5 h-5 stroke-[2.2]" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
-                  Pesquisar Eventos
-                </p>
-                <p className="text-[11px] text-slate-400 truncate">
-                  Encontre cultos, congressos, vigílias e actividades especiais da IGREJA MEVD...
-                </p>
-              </div>
-              <span className="hidden sm:inline-flex items-center text-xs font-bold text-white bg-[#0066cc] hover:bg-[#0055aa] px-4 py-2 rounded-xl shadow-xs transition-colors">
-                Explorar Agenda
-              </span>
+              <span className="hidden sm:inline">{hasQuery ? 'Ver' : 'Explorar Agenda'}</span>
+              <ArrowRight className="h-4 w-4" />
             </button>
-          </div>
-        )}
+          </form>
+        </div>
 
         {/* 4 Quick Actions Grid */}
         <div>

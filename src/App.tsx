@@ -104,6 +104,13 @@ export default function App() {
     }
   };
 
+  // Pesquisa de eventos a partir de qualquer ecrã (Home): aplica o texto e abre a agenda.
+  const handleSearchEvents = (query: string) => {
+    setEventSearchQuery(query);
+    setEventCategory('Todos');
+    navigateTo('events');
+  };
+
   const handleSelectEvent = (event: ChurchEvent) => {
     setSelectedEvent(event);
   };
@@ -162,6 +169,9 @@ export default function App() {
               onMicClick={() => showToast('A pesquisa por voz não está disponível nesta versão.')}
               user={user}
               unreadCount={3}
+              searchQuery={eventSearchQuery}
+              onSearchQueryChange={setEventSearchQuery}
+              onSearchEvents={handleSearchEvents}
             />
 
             <main ref={mainRef} className="@container flex min-h-0 flex-1 flex-col overflow-y-auto">
@@ -171,6 +181,9 @@ export default function App() {
                   onSelectEvent={handleSelectEvent}
                   onOpenQuickFeature={(feature) => setActiveModal(feature)}
                   isDesktopLayout={isDesktopLayout}
+                  searchQuery={eventSearchQuery}
+                  onSearchQueryChange={setEventSearchQuery}
+                  onSearchEvents={handleSearchEvents}
                 />
               )}
 

@@ -13,6 +13,10 @@ interface AppbarProps {
   onMicClick?: () => void;
   user: UserProfile;
   unreadCount?: number;
+  /** Pesquisa de eventos partilhada com as páginas Início e Eventos. */
+  searchQuery?: string;
+  onSearchQueryChange?: (query: string) => void;
+  onSearchEvents?: (query: string) => void;
 }
 
 export default function Appbar({
@@ -25,6 +29,9 @@ export default function Appbar({
   onMicClick,
   user,
   unreadCount = 3,
+  searchQuery = '',
+  onSearchQueryChange,
+  onSearchEvents,
 }: AppbarProps) {
   const getScreenTitle = () => {
     switch (currentScreen) {
@@ -74,21 +81,38 @@ export default function Appbar({
           </div>
         </div>
 
-        {/* Center: Search Field in Desktop Appbar */}
-        <div className="flex-1 min-w-0 max-w-md mx-6 hidden xl:flex justify-center">
+        {/* Center: campo de procura de eventos (funcional) */}
+        <form
+          role="search"
+          onSubmit={(e) => {
+            e.preventDefault();
+            onSearchEvents?.(searchQuery);
+          }}
+          className="mx-6 flex hidden min-w-0 max-w-md flex-1 items-center justify-between gap-2.5 rounded-xl border border-[#E2E8F0] bg-slate-100/90 px-4 py-2 text-xs transition-all focus-within:border-[#0066cc] focus-within:bg-white xl:flex"
+        >
+          <div className="flex min-w-0 flex-1 items-center gap-2.5">
+            <Search className="h-4 w-4 shrink-0 text-slate-400" />
+            <label htmlFor="appbar-event-search" className="sr-only">
+              Pesquisar eventos
+            </label>
+            <input
+              id="appbar-event-search"
+              type="text"
+              inputMode="search"
+              enterKeyHint="search"
+              value={searchQuery}
+              onChange={(e) => onSearchQueryChange?.(e.target.value)}
+              placeholder="Pesquisar eventos..."
+              className="w-full min-w-0 bg-transparent font-medium text-slate-700 placeholder:text-slate-500 focus:outline-none"
+            />
+          </div>
           <button
-            onClick={() => onNavigate('events')}
-            className="w-full flex items-center justify-between gap-2.5 bg-slate-100/90 hover:bg-slate-200/70 border border-[#E2E8F0] rounded-xl px-4 py-2 text-xs text-slate-500 transition-all cursor-pointer shadow-2xs group"
+            type="submit"
+            className="shrink-0 cursor-pointer rounded border border-[#E2E8F0] bg-white px-2 py-0.5 font-mono text-[10px] text-slate-400 transition-colors hover:text-[#0066cc]"
           >
-            <div className="flex items-center gap-2.5">
-              <Search className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
-              <span className="font-medium text-slate-600">Pesquisar Eventos...</span>
-            </div>
-            <kbd className="text-[10px] bg-white border border-slate-200 text-slate-400 px-2 py-0.5 rounded shadow-2xs font-mono">
-              Buscar
-            </kbd>
+            Buscar
           </button>
-        </div>
+        </form>
 
         {/* Right: Mic, Notifications & Profile Badge */}
         <div className="flex items-center gap-2.5 shrink-0">

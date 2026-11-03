@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { ALL_BIBLE_BOOKS, SCRIPTURE_CACHE, getChapterVerses } from '../src/data/bibleData';
-import { CHURCH_EVENTS } from '../src/data/mockData';
+import { CHURCH_EVENTS, eventSearchValues } from '../src/data/mockData';
 import { sanitizeEmail, sanitizePhone, sanitizeText } from '../src/utils/sanitize';
-import { normalizeSearch } from '../src/utils/search';
+import { matchesSearchTerms, normalizeSearch } from '../src/utils/search';
 import { shareOrCopy } from '../src/utils/shareUtils';
 
 test('pesquisa encontra texto com ou sem acentos', () => {
@@ -94,4 +94,26 @@ test('falha de partilha é comunicada e o elemento temporário é removido', asy
     if (documentDescriptor) Object.defineProperty(globalThis, 'document', documentDescriptor);
     else Reflect.deleteProperty(globalThis, 'document');
   }
+});
+
+test('pesquisa de eventos cobre todos os campos e aceita várias palavras', () => {
+  const campos = (id: string) => eventSearchValues(CHURCH_EVENTS.find((e) => e.id === id)!);
+
+  // título, local e categoria
+  assert.ok(matchesSearchTerms(campos('congresso-jovens-2027'), 'congresso'));
+  assert.ok(matchesSearchTerms(campos('congresso-jovens-2027'), 'congressos'));
+  assert.ok(matchesSearchTerms(campos('congresso-jovens-2027'), 'luanda'));
+
+  // descrição, horário, data, vagas e destaques
+  assert.ok(matchesSearchTerms(campos('congresso-jovens-2027'), 'amizades'));
+  assert.ok(matchesSearchTerms(campos('congresso-jovens-2027'), '250 vagas'));
+  assert.ok(matchesSearchTerms(campos('congresso-jovens-2027'), 'louvor'));
+
+  // várias palavras, sem acentos e em qualquer ordem
+  assert.ok(matchesSearchTerms(campos('vigilia-de-oracao'), 'vigilia oracao'));
+  assert.ok(matchesSearchTerms(campos('vigilia-de-oracao'), 'ORACAO vigilia'));
+
+  // termo inexistente e pesquisa vazia
+  assert.equal(matchesSearchTerms(campos('congresso-jovens-2027'), 'piscina'), false);
+  assert.equal(matchesSearchTerms(campos('congresso-jovens-2027'), '   '), true);
 });

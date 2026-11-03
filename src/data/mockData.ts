@@ -179,6 +179,21 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
   },
 ];
 
+/** Campos de um evento considerados pela pesquisa (título, local, descrição, etc.). */
+export function eventSearchValues(event: ChurchEvent): Array<string | undefined> {
+  return [
+    event.title,
+    event.location,
+    event.category,
+    event.description,
+    event.time,
+    event.dateDay,
+    event.dateMonth,
+    event.capacity,
+    ...(event.highlights ?? []).map((highlight) => highlight.title),
+  ];
+}
+
 export const CURRENT_USER: UserProfile = {
   name: 'Edlásio Galhardo',
   status: 'Membro activo',
