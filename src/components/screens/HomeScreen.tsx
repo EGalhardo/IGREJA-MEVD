@@ -247,11 +247,11 @@ export default function HomeScreen({
         </div>
 
         {/* Campo de Procura de Eventos (funcional em mobile e desktop) */}
-        <div className="flex w-full justify-center animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="mx-auto w-[90%] animate-in fade-in slide-in-from-top-2 duration-300">
           <form
             role="search"
             onSubmit={handleSubmitSearch}
-            className="flex w-full max-w-2xl items-center gap-3 rounded-2xl border border-[#E2E8F0] bg-white p-2.5 text-left transition-all focus-within:border-[#0066cc] sm:p-3"
+            className="flex w-full items-center gap-3 rounded-2xl border border-[#E2E8F0] bg-white p-2.5 text-left transition-all focus-within:border-[#0066cc] sm:p-3"
           >
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#0066cc]">
               <Search className="h-5 w-5 stroke-[2.2]" />

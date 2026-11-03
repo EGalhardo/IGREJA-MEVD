@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Church, Phone, Mail, User, Shield, Play, AlertTriangle, MapPin, Heart } from 'lucide-react';
+import { X, Church, Phone, Mail, User, Shield, Play, Pause, AlertTriangle, MapPin, Heart } from 'lucide-react';
 import { UserProfile } from '../types';
+import { RECENT_SERMONS, type Sermon } from '../data/sermonsData';
 import SafeImage from './SafeImage';
 import { sanitizeText, sanitizeEmail, sanitizePhone, sanitizeCivilStatus } from '../utils/sanitize';
 
@@ -40,6 +41,14 @@ export default function Modals({
     address?: string;
   }>({});
 
+  // Sermões: leitor de áudio
+  const [playingSermonId, setPlayingSermonId] = useState<string | null>(null);
+  const [isSermonPlaying, setIsSermonPlaying] = useState(false);
+  const [sermonProgress, setSermonProgress] = useState(0);
+  const [sermonElapsed, setSermonElapsed] = useState(0);
+  const [sermonTotal, setSermonTotal] = useState(60);
+  const sermonAudioRef = useRef<HTMLAudioElement>(null);
+
   // Sync state if user changes or modal opens
   useEffect(() => {
     if (activeModal === 'meus-dados') {
@@ -65,6 +74,48 @@ export default function Modals({
       if (previousFocus?.isConnected) previousFocus.focus({ preventScroll: true });
     };
   }, [activeModal]);
+
+  // Pára o sermão quando o utilizador sai do modal de Sermões
+  useEffect(() => {
+    if (activeModal === 'sermoes') return;
+    const audio = sermonAudioRef.current;
+    if (audio && !audio.paused) audio.pause();
+    setPlayingSermonId(null);
+    setIsSermonPlaying(false);
+    setSermonProgress(0);
+    setSermonElapsed(0);
+  }, [activeModal]);
+
+  const formatSermonTime = (seconds: number) => {
+    const total = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0;
+    return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+  };
+
+  const handleToggleSermon = (sermon: Sermon) => {
+    const audio = sermonAudioRef.current;
+    if (!audio) return;
+
+    // Mesmo sermão: alterna entre tocar e pausar
+    if (playingSermonId === sermon.id) {
+      if (audio.paused) {
+        void audio.play().catch(() => onShowToast('Não foi possível reproduzir o áudio.'));
+      } else {
+        audio.pause();
+      }
+      return;
+    }
+
+    // Outro sermão: troca a fonte e começa do início
+    setPlayingSermonId(sermon.id);
+    setSermonProgress(0);
+    setSermonElapsed(0);
+    audio.src = sermon.audioSrc;
+    audio.currentTime = 0;
+    void audio.play().catch(() => {
+      setIsSermonPlaying(false);
+      onShowToast('Não foi possível reproduzir o áudio.');
+    });
+  };
 
   if (!activeModal) return null;
 
@@ -471,36 +522,82 @@ export default function Modals({
           {/* 7. Sermões */}
           {activeModal === 'sermoes' && (
             <div className="space-y-2.5 text-xs">
-              <button
-                type="button"
-                onClick={() => onShowToast('Áudio do sermão indisponível nesta versão.')}
-                className="w-full text-left p-3 bg-slate-50 hover:bg-blue-50/50 rounded-xl border border-slate-100 flex items-center gap-3 cursor-pointer transition-colors group"
-              >
-                <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center pl-0.5 shrink-0 group-hover:scale-105 transition-transform">
-                  <Play className="w-4 h-4 fill-current" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-slate-900 text-xs truncate group-hover:text-blue-600 transition-colors">
-                    Vencendo Gigantes pela Fé
-                  </h4>
-                  <p className="text-[10px] text-slate-500">Pr. Feliz Paulo • 42 min</p>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => onShowToast('Áudio do sermão indisponível nesta versão.')}
-                className="w-full text-left p-3 bg-slate-50 hover:bg-blue-50/50 rounded-xl border border-slate-100 flex items-center gap-3 cursor-pointer transition-colors group"
-              >
-                <div className="w-9 h-9 rounded-full bg-emerald-600 text-white flex items-center justify-center pl-0.5 shrink-0 group-hover:scale-105 transition-transform">
-                  <Play className="w-4 h-4 fill-current" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-slate-900 text-xs truncate group-hover:text-blue-600 transition-colors">
-                    O Poder da Oração em Unidade
-                  </h4>
-                  <p className="text-[10px] text-slate-500">Pra. Manuela Paulo • 38 min</p>
-                </div>
-              </button>
+              <audio
+                ref={sermonAudioRef}
+                preload="metadata"
+                onPlay={() => setIsSermonPlaying(true)}
+                onPause={() => setIsSermonPlaying(false)}
+                onEnded={() => {
+                  setIsSermonPlaying(false);
+                  setSermonProgress(0);
+                  setSermonElapsed(0);
+                  if (sermonAudioRef.current) sermonAudioRef.current.currentTime = 0;
+                }}
+                onLoadedMetadata={(event) => {
+                  const audioEl = event.currentTarget;
+                  if (audioEl.duration > 0 && Number.isFinite(audioEl.duration)) setSermonTotal(audioEl.duration);
+                }}
+                onTimeUpdate={(event) => {
+                  const audioEl = event.currentTarget;
+                  setSermonElapsed(audioEl.currentTime);
+                  const total = audioEl.duration > 0 && Number.isFinite(audioEl.duration) ? audioEl.duration : 60;
+                  setSermonProgress(Math.min(100, (audioEl.currentTime / total) * 100));
+                }}
+              />
+              {RECENT_SERMONS.map((sermon) => {
+                const isActive = playingSermonId === sermon.id;
+                const isPlaying = isActive && isSermonPlaying;
+                return (
+                  <button
+                    key={sermon.id}
+                    type="button"
+                    onClick={() => handleToggleSermon(sermon)}
+                    aria-label={`${isPlaying ? 'Pausar' : 'Reproduzir'} ${sermon.title}`}
+                    className={`w-full text-left p-3 rounded-xl border flex items-center gap-3 cursor-pointer transition-colors group ${
+                      isActive
+                        ? 'bg-blue-50/70 border-blue-200'
+                        : 'bg-slate-50 hover:bg-blue-50/50 border-slate-100'
+                    }`}
+                  >
+                    <div
+                      className={`w-9 h-9 rounded-full text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform ${
+                        isActive ? 'bg-blue-600' : 'bg-emerald-600'
+                      }`}
+                    >
+                      {isPlaying ? (
+                        <Pause className="w-4 h-4 fill-current" />
+                      ) : (
+                        <Play className="w-4 h-4 fill-current pl-0.5" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4
+                        className={`font-bold text-xs truncate transition-colors ${
+                          isActive ? 'text-blue-700' : 'text-slate-900 group-hover:text-blue-600'
+                        }`}
+                      >
+                        {sermon.title}
+                      </h4>
+                      <p className="text-[10px] text-slate-500 truncate">
+                        {sermon.speaker} • {sermon.reference} • {sermon.duration}
+                      </p>
+                      {isActive && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <div className="flex-1 h-1 bg-slate-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full bg-blue-600 rounded-full"
+                              style={{ width: `${sermonProgress}%` }}
+                            />
+                          </div>
+                          <span className="text-[9px] font-semibold text-slate-500 tabular-nums shrink-0">
+                            {formatSermonTime(sermonElapsed)} / {formatSermonTime(sermonTotal)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           )}
 
