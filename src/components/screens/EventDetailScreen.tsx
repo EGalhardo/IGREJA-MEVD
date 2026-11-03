@@ -4,6 +4,65 @@ import { ChurchEvent, Screen } from '../../types';
 import SafeImage from '../SafeImage';
 import { shareOrCopy } from '../../utils/shareUtils';
 
+
+/**
+ * Moldura genérica da transmissão ao vivo.
+ *
+ * É um iframe real, mas com conteúdo autónomo (srcdoc), sem qualquer pedido à rede:
+ * por isso aparece igual com internet ou offline. Quando a transmissão for
+ * implementada, basta substituir `srcDoc={LIVE_PLACEHOLDER_HTML}` por
+ * `src="https://www.youtube.com/embed/ID_DO_VIDEO"`.
+ */
+const LIVE_PLACEHOLDER_HTML = `<!doctype html>
+<html lang="pt">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; overflow: hidden; }
+      body {
+        display: flex; align-items: center; justify-content: center;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+        background: radial-gradient(circle at 50% 40%, #1e293b 0%, #0f172a 55%, #020617 100%);
+        color: #e2e8f0; text-align: center; padding: 4% 6%;
+      }
+      .wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5vmin; max-width: 92%; }
+      .live {
+        display: inline-flex; align-items: center; gap: .6vmin;
+        font-size: clamp(7px, 1.9vmin, 10px); font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+        color: #fecdd3; background: rgba(244, 63, 94, .16);
+        border: 1px solid rgba(244, 63, 94, .45); border-radius: 999px; padding: .5vmin 1.6vmin;
+      }
+      .dot { width: 1.2vmin; height: 1.2vmin; min-width: 5px; min-height: 5px; border-radius: 999px; background: #f43f5e; }
+      .play {
+        width: clamp(30px, 9vmin, 58px); height: clamp(30px, 9vmin, 58px);
+        border-radius: 999px; flex: 0 0 auto;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.35);
+      }
+      .play span {
+        width: 0; height: 0; margin-left: 12%;
+        border-left: clamp(9px, 2.9vmin, 18px) solid #ffffff;
+        border-top: clamp(6px, 1.8vmin, 11px) solid transparent;
+        border-bottom: clamp(6px, 1.8vmin, 11px) solid transparent;
+      }
+      h1 { font-size: clamp(10px, 2.9vmin, 15px); margin: 0; letter-spacing: -.01em; }
+      p { font-size: clamp(8px, 2.3vmin, 12px); line-height: 1.4; margin: 0; color: #94a3b8; }
+      .brand { font-size: clamp(7px, 1.7vmin, 10px); letter-spacing: .18em; text-transform: uppercase; color: #64748b; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="live"><span class="dot"></span> Ao vivo</div>
+      <div class="play"><span></span></div>
+      <h1>Transmissão do evento</h1>
+      <p>Este espaço vai apresentar a transmissão em directo.</p>
+      <div class="brand">IGREJA MEVD</div>
+    </div>
+  </body>
+</html>`;
+
 interface EventDetailScreenProps {
   event: ChurchEvent;
   isRegistered: boolean;
@@ -60,13 +119,12 @@ export default function EventDetailScreen({
         {/* Main Event Card Container */}
         <div className="bg-white sm:rounded-3xl shadow-xs border-0 sm:border border-[#E2E8F0] overflow-hidden flex flex-col">
           {/* Top Hero Image Banner */}
-          <div className="relative w-full h-64 sm:h-80 lg:h-96 bg-slate-900 shrink-0">
+          <div className="relative w-full shrink-0 bg-slate-900 aspect-[16/10] sm:aspect-auto sm:h-80 lg:h-96">
             <SafeImage
               src={event.image}
               alt={event.title}
-              fallbackSrc="/assets/aistudio/2_b0dbb042.png"
               fallbackType="event"
-              className="w-full h-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover"
               loading="eager"
             />
             {/* Dark gradient for button visibility */}
@@ -131,6 +189,36 @@ export default function EventDetailScreen({
                     {event.title}
                   </h1>
                 </div>
+
+                {/* Transmissão: moldura genérica do iframe (visível também offline) */}
+                <section
+                  aria-label="Transmissão do evento"
+                  className="space-y-2"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <h2 className="text-sm sm:text-base font-bold text-slate-900 tracking-tight">
+                      Transmissão ao vivo
+                    </h2>
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-rose-600">
+                      <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                      Em preparação
+                    </span>
+                  </div>
+
+                  <div className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-slate-900">
+                    <iframe
+                      title={`Transmissão do evento ${event.title}`}
+                      srcDoc={LIVE_PLACEHOLDER_HTML}
+                      loading="lazy"
+                      allow="fullscreen; picture-in-picture"
+                      className="block aspect-video w-full border-0"
+                    />
+                  </div>
+
+                  <p className="text-[11px] text-slate-500">
+                    O vídeo em directo será apresentado nesta moldura assim que a funcionalidade estiver disponível.
+                  </p>
+                </section>
 
                 {/* Metadata List */}
                 <div className="space-y-3 bg-slate-50/70 p-4 rounded-2xl border border-[#E2E8F0]">
