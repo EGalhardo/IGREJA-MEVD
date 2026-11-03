@@ -42,7 +42,7 @@ export default function EventsScreen({
           {/* Search Input */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="relative flex-1">
-              <div className="flex items-center gap-2 bg-[#f1f5f9] rounded-xl px-3.5 py-2.5 border border-[#E2E8F0] focus-within:border-blue-500 focus-within:bg-white transition-all">
+              <div className="flex items-center gap-2 bg-white rounded-xl px-3.5 py-2.5 border border-[#E2E8F0] focus-within:border-blue-500 transition-all">
                 <Search className="w-4 h-4 text-slate-400 shrink-0" />
                 <input
                   type="text"

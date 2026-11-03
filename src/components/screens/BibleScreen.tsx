@@ -618,7 +618,7 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
                   placeholder="Pesquisar livro (ex: Salmos, Mateus, Gn, João) ou tema (ex: fé, amor, paz)..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-[#E2E8F0] rounded-2xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0066cc] focus:bg-white transition-all shadow-2xs"
+                  className="w-full pl-11 pr-4 py-3 bg-white border border-[#E2E8F0] rounded-2xl text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0066cc] focus:bg-white transition-all shadow-2xs"
                 />
                 {searchQuery && (
                   <button
@@ -977,7 +977,7 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
                   placeholder={`Pesquisar palavra ou número de versículo em ${selectedBook.name} ${selectedChapter}...`}
                   value={chapterFilterQuery}
                   onChange={(e) => setChapterFilterQuery(e.target.value)}
-                  className="w-full pl-9 pr-8 py-1.5 bg-slate-50 border border-[#E2E8F0] rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0066cc] focus:bg-white transition-all"
+                  className="w-full pl-9 pr-8 py-1.5 bg-white border border-[#E2E8F0] rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#0066cc] focus:bg-white transition-all"
                 />
                 {chapterFilterQuery && (
                   <button

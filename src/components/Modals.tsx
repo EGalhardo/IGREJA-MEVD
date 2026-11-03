@@ -5,6 +5,19 @@ import { RECENT_SERMONS, type Sermon } from '../data/sermonsData';
 import SafeImage from './SafeImage';
 import { sanitizeText, sanitizeEmail, sanitizePhone, sanitizeCivilStatus } from '../utils/sanitize';
 
+// Coordenadas da sede da IGREJA MEVD (Luanda, Angola)
+const CHURCH_COORDS = { lat: -8.857527092962336, lng: 13.280455807204433 };
+const CHURCH_MAP_BBOX = [
+  CHURCH_COORDS.lng - 0.004,
+  CHURCH_COORDS.lat - 0.004,
+  CHURCH_COORDS.lng + 0.004,
+  CHURCH_COORDS.lat + 0.004,
+]
+  .map((value) => value.toFixed(6))
+  .join('%2C');
+const CHURCH_MAP_EMBED = `https://www.openstreetmap.org/export/embed.html?bbox=${CHURCH_MAP_BBOX}&layer=mapnik&marker=${CHURCH_COORDS.lat}%2C${CHURCH_COORDS.lng}`;
+const CHURCH_MAP_LINK = `https://www.openstreetmap.org/?mlat=${CHURCH_COORDS.lat}&mlon=${CHURCH_COORDS.lng}#map=17/${CHURCH_COORDS.lat}/${CHURCH_COORDS.lng}`;
+
 interface ModalsProps {
   activeModal: string | null;
   onClose: () => void;
@@ -370,6 +383,38 @@ export default function Modals({
           {/* 2. Igreja */}
           {activeModal === 'minha-igreja' && (
             <div className="space-y-3.5 text-xs">
+              {/* Mapa da sede */}
+              <div className="overflow-hidden rounded-2xl border border-[#E2E8F0] bg-slate-100">
+                <div className="relative">
+                  <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-1 text-slate-400">
+                    <MapPin className="h-6 w-6" strokeWidth={2.2} />
+                    <span className="text-[10px] font-semibold">
+                      {CHURCH_COORDS.lat.toFixed(5)}, {CHURCH_COORDS.lng.toFixed(5)}
+                    </span>
+                  </div>
+                  <iframe
+                    title="Mapa da sede da IGREJA MEVD"
+                    src={CHURCH_MAP_EMBED}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="relative h-44 w-full border-0 sm:h-52"
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-2 border-t border-[#E2E8F0] bg-white px-3 py-2">
+                  <p className="min-w-0 truncate text-[10px] text-slate-500">
+                    Sede Principal • Luanda, Angola
+                  </p>
+                  <a
+                    href={CHURCH_MAP_LINK}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="shrink-0 text-[10px] font-bold text-[#0066cc] hover:underline"
+                  >
+                    Abrir no mapa →
+                  </a>
+                </div>
+              </div>
+
               <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl flex items-center gap-3">
                 <div className="w-12 h-12 bg-blue-600 text-white rounded-xl flex items-center justify-center shrink-0">
                   <Church className="w-6 h-6" />
