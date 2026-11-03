@@ -27,6 +27,7 @@ import {
   TOPICAL_SEARCH_VERSES,
   BibleVerse,
 } from '../../data/bibleData';
+import { getChapterImage } from '../../data/bibleImages';
 import { copyToClipboard } from '../../utils/shareUtils';
 import { normalizeSearch } from '../../utils/search';
 
@@ -417,6 +418,12 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
       getChapterVerses(selectedBook.id, selectedChapter)
     );
   }, [selectedBook, selectedChapter, bookText]);
+
+  // Ilustração que abre o capítulo (por capítulo → livro → grupo de livros)
+  const chapterImage = useMemo(() => {
+    if (!selectedBook) return null;
+    return getChapterImage(selectedBook, selectedChapter ?? 1);
+  }, [selectedBook, selectedChapter]);
 
   // O capítulo em ecrã tem o texto completo (e não apenas os trechos incluídos)?
   const hasFullChapterText = useMemo(() => {
@@ -985,6 +992,27 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
 
             {/* Texto dos Versículos Bíblicos */}
             <div className="space-y-4 max-w-4xl mx-auto py-2">
+              {/* Ilustração bíblica do capítulo, no topo do mesmo cartão */}
+              {chapterImage && (
+                <figure className="relative overflow-hidden rounded-2xl border border-[#E2E8F0] bg-slate-200 animate-in fade-in duration-300">
+                  <img
+                    src={chapterImage.src}
+                    alt={chapterImage.alt}
+                    loading="lazy"
+                    className="aspect-[16/7] w-full object-cover"
+                  />
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/15 to-transparent" />
+                  <figcaption className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-3 sm:p-4">
+                    <span className="min-w-0 truncate text-[11px] font-semibold text-white/95 sm:text-xs">
+                      {chapterImage.caption}
+                    </span>
+                    <span className="shrink-0 rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white/95 backdrop-blur-sm">
+                      {selectedBook.name} {selectedChapter}
+                    </span>
+                  </figcaption>
+                </figure>
+              )}
+
               <div className="text-center pb-4 border-b border-slate-100">
                 <span className="text-xs uppercase tracking-widest text-[#0066cc] font-bold">
                   {selectedBook.category} • {selectedBook.testament === 'AT' ? 'Antigo Testamento' : 'Novo Testamento'}
