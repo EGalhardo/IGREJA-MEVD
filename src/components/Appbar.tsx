@@ -118,8 +118,15 @@ export default function Appbar({
       {/* Left section: Logo on Home, or Back button + Title on other pages */}
       <div className="flex min-w-0 flex-1 items-center gap-2.5">
         {currentScreen === 'home' ? (
-          // Mobile: apenas a logomarca (sem o nome "IGREJA MEVD" nem "Juntos na fé")
-          <ChurchLogo size="appbar" />
+          <div className="flex min-w-0 items-center gap-2.5">
+            <ChurchLogo size="appbar" />
+            <div className="min-w-0">
+              <h1 className="text-sm min-[320px]:text-base font-bold text-slate-900 tracking-tight leading-none">
+                IGREJA MEVD
+              </h1>
+              <p className="mt-0.5 text-[11px] font-semibold leading-none text-blue-600">Juntos na fé</p>
+            </div>
+          </div>
         ) : (
           <div className="flex min-w-0 items-center gap-2">
             <button
