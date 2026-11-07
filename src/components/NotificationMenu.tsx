@@ -35,9 +35,15 @@ export default function NotificationMenu({ notifications, onSelect, onClose, sty
         <div className="flex items-center gap-2">
           <Bell className="h-4 w-4 text-[#0066cc] stroke-[2.2]" />
           <h3 className="text-xs font-bold text-slate-900">Notificações</h3>
-          <span className="rounded-full bg-[#0066cc] px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
-            {notifications.length}
-          </span>
+          {/* Mesmo número do badge da foto de perfil (apenas não lidas) */}
+          {unread > 0 && (
+            <span
+              title={`${unread} notificações não lidas`}
+              className="flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none text-white"
+            >
+              {unread}
+            </span>
+          )}
         </div>
         <button
           onClick={onClose}
@@ -89,7 +95,9 @@ export default function NotificationMenu({ notifications, onSelect, onClose, sty
 
       {/* Rodapé informativo */}
       <p className="border-t border-[#E2E8F0] bg-slate-50/80 px-4 py-2 text-[10px] font-semibold text-slate-500">
-        {unread > 0 ? `${unread} não lida(s) • toque para ver os detalhes` : 'Todas as notificações lidas'}
+        {unread > 0
+          ? `${unread} não lida(s) de ${notifications.length} • toque para ver os detalhes`
+          : `Todas as ${notifications.length} notificações lidas`}
       </p>
     </div>
   );
