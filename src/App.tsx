@@ -9,7 +9,9 @@ import Appbar from './components/Appbar';
 import Sidebar from './components/Sidebar';
 import BottomNav from './components/BottomNav';
 import Modals from './components/Modals';
+import NotificationPopup from './components/NotificationPopup';
 import { CHURCH_EVENTS, CURRENT_USER } from './data/mockData';
+import { NOTIFICATIONS, countUnread, type AppNotification } from './data/notificationsData';
 import { ChurchEvent, EventCategory, Screen, UserProfile } from './types';
 import { X } from 'lucide-react';
 
@@ -34,6 +36,9 @@ function clearLinkedEvent() {
 }
 
 export default function App() {
+  const [notifications, setNotifications] = useState<AppNotification[]>(NOTIFICATIONS);
+  const [openNotification, setOpenNotification] = useState<AppNotification | null>(null);
+  const unreadNotifications = countUnread(notifications);
   const [linkedEvent] = useState(getLinkedEvent);
   const [currentScreen, setCurrentScreen] = useState<Screen>(linkedEvent ? 'event-detail' : 'home');
   const [previousScreen, setPreviousScreen] = useState<Screen>(linkedEvent ? 'events' : 'home');
@@ -153,7 +158,7 @@ export default function App() {
               onNavigate={navigateTo}
               user={user}
               onLogout={handleLogout}
-              unreadCount={3}
+              unreadCount={unreadNotifications}
             />
           )}
 
@@ -167,7 +172,9 @@ export default function App() {
               onOpenNotifications={() => setActiveModal('notificacoes')}
               onOpenProfile={() => navigateTo('profile')}
               user={user}
-              unreadCount={3}
+              unreadCount={unreadNotifications}
+              notifications={notifications}
+              onSelectNotification={setOpenNotification}
             />
 
             <main ref={mainRef} className="@container flex min-h-0 flex-1 flex-col overflow-y-auto">
@@ -262,6 +269,20 @@ export default function App() {
           onUpdateUser={handleUpdateUser}
           onConfirmLogout={handleConfirmLogout}
           onShowToast={showToast}
+        />
+
+        {/* Popup da notificação escolhida no menu dropdown da foto de perfil */}
+        <NotificationPopup
+          notification={openNotification}
+          onClose={() => setOpenNotification(null)}
+          onConfirm={() => {
+            if (!openNotification) return;
+            setNotifications((list) =>
+              list.map((item) => (item.id === openNotification.id ? { ...item, read: true } : item))
+            );
+            setOpenNotification(null);
+            showToast('Notificação marcada como lida.');
+          }}
         />
       </div>
     </div>

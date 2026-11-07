@@ -1,6 +1,9 @@
+import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import ChurchLogo from './ChurchLogo';
 import SafeImage from './SafeImage';
+import NotificationMenu from './NotificationMenu';
+import type { AppNotification } from '../data/notificationsData';
 import { Screen, UserProfile } from '../types';
 
 interface AppbarProps {
@@ -12,6 +15,8 @@ interface AppbarProps {
   onOpenProfile: () => void;
   user: UserProfile;
   unreadCount?: number;
+  notifications?: AppNotification[];
+  onSelectNotification?: (notification: AppNotification) => void;
 }
 
 export default function Appbar({
@@ -23,7 +28,78 @@ export default function Appbar({
   onOpenProfile,
   user,
   unreadCount = 3,
+  notifications = [],
+  onSelectNotification,
 }: AppbarProps) {
+  // Menu dropdown das notificações (abre ao clicar na foto de perfil)
+  const [isNotifMenuOpen, setIsNotifMenuOpen] = useState(false);
+  const [notifMenuPosition, setNotifMenuPosition] = useState<{ top: number; right: number }>({
+    top: 0,
+    right: 16,
+  });
+  const notifWrapperRef = useRef<HTMLDivElement>(null);
+  const avatarButtonRef = useRef<HTMLButtonElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+
+  // Abre/fecha o menu, ancorando-o por baixo da foto de perfil
+  const toggleNotificationMenu = () => {
+    if (isNotifMenuOpen) {
+      setIsNotifMenuOpen(false);
+      return;
+    }
+
+    const avatarRect = avatarButtonRef.current?.getBoundingClientRect();
+    if (!avatarRect) return;
+
+    const headerRect = headerRef.current?.getBoundingClientRect();
+    const panelWidth = Math.min(320, window.innerWidth - 32);
+    const right = Math.max(
+      8,
+      Math.min(window.innerWidth - avatarRect.right, window.innerWidth - 8 - panelWidth)
+    );
+    // O menu abre imediatamente abaixo do appbar (nunca por cima da foto)
+    const anchorBottom = Math.max(headerRect?.bottom ?? 0, avatarRect.bottom);
+
+    setNotifMenuPosition({ top: Math.round(anchorBottom + 8), right: Math.round(right) });
+    setIsNotifMenuOpen(true);
+  };
+
+  useEffect(() => {
+    if (!isNotifMenuOpen) return;
+
+    const handlePointerDown = (event: MouseEvent | TouchEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+      // Cliques na foto/saudação ou dentro do menu (renderizado em portal) não fecham
+      if (notifWrapperRef.current?.contains(target)) return;
+      if (target.closest('[data-notification-menu="true"]')) return;
+      setIsNotifMenuOpen(false);
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsNotifMenuOpen(false);
+    };
+
+    const closeMenu = () => setIsNotifMenuOpen(false);
+
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('touchstart', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', closeMenu);
+    window.addEventListener('scroll', closeMenu, true);
+
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('touchstart', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('resize', closeMenu);
+      window.removeEventListener('scroll', closeMenu, true);
+    };
+  }, [isNotifMenuOpen]);
+
+  const handleSelectNotification = (notification: AppNotification) => {
+    setIsNotifMenuOpen(false);
+    onSelectNotification?.(notification);
+  };
   // Saudação curta: primeiro nome do utilizador (ex.: "Oi, Edlásio")
   const firstName = user.name.trim().split(/\s+/)[0] || user.name;
 
@@ -49,7 +125,7 @@ export default function Appbar({
   // If in desktop/tablet-landscape mode:
   if (isDesktopLayout) {
     return (
-      <header className="h-[var(--desktop-header-height)] w-full bg-white border-b border-[#E2E8F0] px-6 py-3.5 flex items-center justify-between shrink-0 sticky top-0 z-20 shadow-xs">
+      <header ref={headerRef} className="h-[var(--desktop-header-height)] w-full bg-white border-b border-[#E2E8F0] px-6 py-3.5 flex items-center justify-between shrink-0 sticky top-0 z-20 shadow-xs">
         {/* Left: Breadcrumbs & Current Page Title */}
         <div className="flex items-center gap-3">
           {currentScreen !== 'home' && (
@@ -75,15 +151,18 @@ export default function Appbar({
           </div>
         </div>
 
-        {/* Right: saudação + foto de perfil com badge de notificações */}
-        <div className="flex shrink-0 items-center">
-          <button
-            onClick={onOpenProfile}
-            aria-label={`Perfil — Oi, ${firstName}`}
-            title="Ver Perfil"
-            className="flex flex-col items-center gap-1 rounded-xl px-1.5 py-0.5 transition-colors hover:bg-slate-50 cursor-pointer"
-          >
-            <span className="relative block shrink-0">
+        {/* Right: foto de perfil (abre as notificações) + saudação (abre o perfil) */}
+        <div ref={notifWrapperRef} className="relative flex shrink-0 items-center">
+          <div className="flex flex-col items-center gap-1">
+            <button
+              ref={avatarButtonRef}
+              onClick={toggleNotificationMenu}
+              aria-label={`Notificações — Oi, ${firstName}`}
+              aria-haspopup="menu"
+              aria-expanded={isNotifMenuOpen}
+              title="Ver notificações"
+              className="relative block shrink-0 rounded-full transition-transform hover:scale-105 cursor-pointer"
+            >
               <span className="block h-8 w-8 overflow-hidden rounded-full">
                 <SafeImage
                   src={user.avatar}
@@ -102,11 +181,25 @@ export default function Appbar({
                   {unreadCount}
                 </span>
               )}
-            </span>
-            <span className="whitespace-nowrap text-[10px] font-semibold leading-none text-slate-900">
+            </button>
+            <button
+              onClick={onOpenProfile}
+              aria-label={`Perfil — Oi, ${firstName}`}
+              title="Ver Perfil"
+              className="whitespace-nowrap rounded-md px-1 text-[10px] font-semibold leading-none text-slate-900 transition-colors hover:text-[#0066cc] cursor-pointer"
+            >
               Oi, {firstName}
-            </span>
-          </button>
+            </button>
+          </div>
+
+          {isNotifMenuOpen && (
+            <NotificationMenu
+              notifications={notifications}
+              onSelect={handleSelectNotification}
+              onClose={() => setIsNotifMenuOpen(false)}
+              style={{ top: notifMenuPosition.top, right: notifMenuPosition.right }}
+            />
+          )}
         </div>
       </header>
     );
@@ -114,7 +207,7 @@ export default function Appbar({
 
   // Mobile & Tablet Vertical Mode Appbar
   return (
-    <header className="w-full bg-white text-slate-900 border-b border-[#E2E8F0] px-3 min-[320px]:px-4 py-2.5 flex items-center justify-between shrink-0 sticky top-0 z-30 shadow-xs transition-colors">
+    <header ref={headerRef} className="w-full bg-white text-slate-900 border-b border-[#E2E8F0] px-3 min-[320px]:px-4 py-2.5 flex items-center justify-between shrink-0 sticky top-0 z-30 shadow-xs transition-colors">
       {/* Left section: Logo on Home, or Back button + Title on other pages */}
       <div className="flex min-w-0 flex-1 items-center gap-2.5">
         {currentScreen === 'home' ? (
@@ -143,15 +236,18 @@ export default function Appbar({
         )}
       </div>
 
-      {/* Right section: foto de perfil com badge de notificações */}
-      <div className="flex shrink-0 items-center">
-        <button
-          onClick={onOpenProfile}
-          className="flex flex-col items-center gap-0.5 rounded-xl px-1 py-0.5 transition-colors hover:bg-slate-100 cursor-pointer"
-          aria-label={`Perfil — Oi, ${firstName}`}
-          title="Ver Perfil"
-        >
-          <span className="relative block shrink-0">
+      {/* Right section: foto de perfil (abre as notificações) + saudação (abre o perfil) */}
+      <div ref={notifWrapperRef} className="relative flex shrink-0 items-center">
+        <div className="flex flex-col items-center gap-0.5">
+          <button
+            ref={avatarButtonRef}
+            onClick={toggleNotificationMenu}
+            aria-label={`Notificações — Oi, ${firstName}`}
+            aria-haspopup="menu"
+            aria-expanded={isNotifMenuOpen}
+            title="Ver notificações"
+            className="relative block shrink-0 rounded-full transition-transform active:scale-95 cursor-pointer"
+          >
             <span className="block h-7 w-7 overflow-hidden rounded-full">
               <SafeImage
                 src={user.avatar}
@@ -170,11 +266,25 @@ export default function Appbar({
                 {unreadCount}
               </span>
             )}
-          </span>
-          <span className="max-w-16 truncate whitespace-nowrap text-[9px] font-semibold leading-none text-slate-900">
+          </button>
+          <button
+            onClick={onOpenProfile}
+            aria-label={`Perfil — Oi, ${firstName}`}
+            title="Ver Perfil"
+            className="max-w-16 truncate whitespace-nowrap rounded-md px-1 text-[9px] font-semibold leading-none text-slate-900 transition-colors hover:text-[#0066cc] cursor-pointer"
+          >
             Oi, {firstName}
-          </span>
-        </button>
+          </button>
+        </div>
+
+        {isNotifMenuOpen && (
+          <NotificationMenu
+            notifications={notifications}
+            onSelect={handleSelectNotification}
+            onClose={() => setIsNotifMenuOpen(false)}
+            style={{ top: notifMenuPosition.top, right: notifMenuPosition.right }}
+          />
+        )}
       </div>
     </header>
   );
