@@ -187,15 +187,16 @@ export function GalleryLightbox({ photos, index, eventTitle, onClose, onChange }
 
   return (
     <div
-      className="fixed inset-0 z-[95] flex flex-col bg-[#04070f] animate-in fade-in duration-150"
+      className="fixed inset-0 z-[95] flex flex-col bg-white animate-in fade-in duration-150"
       role="dialog"
       aria-modal="true"
       aria-label={`Galeria de ${eventTitle}`}
     >
-      <div className="flex shrink-0 items-center justify-between gap-3 px-4 py-3">
+      {/* Cabeçalho */}
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[#E2E8F0] px-4 py-2.5">
         <div className="min-w-0">
-          <p className="truncate text-xs font-bold text-white">{eventTitle}</p>
-          <p className="text-[10px] font-semibold text-slate-400">
+          <p className="truncate text-xs font-bold text-slate-900">{eventTitle}</p>
+          <p className="text-[10px] font-semibold text-slate-500">
             Foto {index + 1} de {photos.length}
             {photo.tag ? ` • ${photo.tag}` : ''}
           </p>
@@ -204,46 +205,56 @@ export function GalleryLightbox({ photos, index, eventTitle, onClose, onChange }
           ref={closeRef}
           onClick={onClose}
           aria-label="Fechar galeria"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20 cursor-pointer"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900 cursor-pointer"
         >
           <X className="h-4 w-4 stroke-[2.4]" />
         </button>
       </div>
 
-      <div className="flex min-h-0 flex-1 items-center justify-center px-2">
-        <div className="relative w-full max-w-5xl overflow-hidden rounded-2xl">
-          <img src={photo.src} alt={photo.caption} className="block max-h-[70vh] w-full object-contain" />
+      {/* Fotografia */}
+      <div className="flex min-h-0 flex-1 items-center justify-center bg-slate-50 px-3 py-3">
+        {/* A moldura acompanha a fotografia: as setas ficam sempre sobre a imagem */}
+        <div className="relative inline-flex max-w-full overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm">
+          <img
+            src={photo.src}
+            alt={photo.caption}
+            className="block h-auto max-h-[68vh] w-auto max-w-full object-contain"
+          />
 
           <button
             onClick={() => goTo(index - 1)}
             aria-label="Fotografia anterior"
-            className="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-slate-950/55 text-white transition-colors hover:bg-slate-950/80 cursor-pointer"
+            className="absolute left-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#E2E8F0] bg-white/90 text-slate-700 shadow-md backdrop-blur-sm transition-colors hover:bg-white hover:text-[#0066cc] cursor-pointer"
           >
             <ChevronLeft className="h-5 w-5 stroke-[2.4]" />
           </button>
           <button
             onClick={() => goTo(index + 1)}
             aria-label="Fotografia seguinte"
-            className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-slate-950/55 text-white transition-colors hover:bg-slate-950/80 cursor-pointer"
+            className="absolute right-2 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-[#E2E8F0] bg-white/90 text-slate-700 shadow-md backdrop-blur-sm transition-colors hover:bg-white hover:text-[#0066cc] cursor-pointer"
           >
             <ChevronRight className="h-5 w-5 stroke-[2.4]" />
           </button>
         </div>
       </div>
 
+      {/* Legenda */}
       <div className="shrink-0 px-4 pb-1 pt-3">
-        <p className="text-xs font-bold text-white">{photo.caption}</p>
-        <p className="text-[10px] font-medium text-slate-400">Galeria • {eventTitle}</p>
+        <p className="text-xs font-bold text-slate-900">{photo.caption}</p>
+        <p className="text-[10px] font-medium text-slate-500">Galeria • {eventTitle}</p>
       </div>
 
-      <div className="flex shrink-0 gap-1.5 overflow-x-auto px-4 pb-4 pt-2">
+      {/* Miniaturas */}
+      <div className="flex shrink-0 gap-1.5 overflow-x-auto border-t border-[#E2E8F0] px-4 pb-4 pt-2.5">
         {photos.map((item, itemIndex) => (
           <button
             key={item.id}
             onClick={() => onChange(itemIndex)}
             aria-label={`Ir para fotografia ${itemIndex + 1}`}
-            className={`h-12 w-12 shrink-0 overflow-hidden rounded-lg transition-opacity cursor-pointer ${
-              itemIndex === index ? 'opacity-100 ring-2 ring-[#0066cc]' : 'opacity-50 hover:opacity-80'
+            className={`h-12 w-12 shrink-0 overflow-hidden rounded-lg border transition-all cursor-pointer ${
+              itemIndex === index
+                ? 'border-[#0066cc] opacity-100 ring-2 ring-[#0066cc]/25'
+                : 'border-[#E2E8F0] opacity-60 hover:opacity-100'
             }`}
           >
             <img src={item.src} alt="" className="h-full w-full object-cover" />
