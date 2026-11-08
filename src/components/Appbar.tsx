@@ -215,7 +215,7 @@ export default function Appbar({
             <ChurchLogo size="appbar" />
             <div className="min-w-0">
               <h1 className="text-sm min-[320px]:text-base font-bold text-slate-900 tracking-tight leading-none">
-                IGREJA MEVD
+                Igreja mevd.
               </h1>
               <p className="mt-0.5 text-[11px] font-semibold leading-none text-blue-600">Juntos na fé</p>
             </div>

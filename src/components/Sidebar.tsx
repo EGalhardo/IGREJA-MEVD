@@ -55,7 +55,7 @@ export default function Sidebar({
           <ChurchLogo />
           <div>
             <h1 className="text-base font-bold text-slate-900 tracking-tight leading-tight">
-              IGREJA MEVD
+              Igreja mevd.
             </h1>
             <p className="text-xs text-blue-600 font-semibold">Juntos na fé</p>
           </div>
