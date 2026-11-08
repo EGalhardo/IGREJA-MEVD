@@ -14,6 +14,10 @@ export interface CommentAuthor {
   avatar?: string;
 }
 
+export type CommentKind = 'general' | 'question' | 'testimony';
+
+export type CommentFilter = 'all' | 'question' | 'testimony' | 'pinned';
+
 export interface PhotoComment {
   id: string;
   author: CommentAuthor;
@@ -23,6 +27,10 @@ export interface PhotoComment {
   likes: number;
   likedByMe: boolean;
   pinned?: boolean;
+  /** Mensagem escrita pela própria igreja (etiqueta "Igreja") */
+  official?: boolean;
+  /** Tipo de mensagem, usado nos filtros do mural */
+  kind?: CommentKind;
   replies: PhotoComment[];
 }
 
@@ -47,7 +55,9 @@ export function initialsOf(name: string): string {
 export function createComment(
   text: string,
   author: CommentAuthor,
-  options: { id: string; time?: string; pinned?: boolean } = { id: '' }
+  options: { id: string; time?: string; pinned?: boolean; kind?: CommentKind; official?: boolean } = {
+    id: '',
+  }
 ): PhotoComment {
   return {
     id: options.id || `comment-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -57,6 +67,8 @@ export function createComment(
     likes: 0,
     likedByMe: false,
     pinned: options.pinned,
+    kind: options.kind ?? 'general',
+    official: options.official,
     replies: [],
   };
 }
@@ -109,6 +121,42 @@ export function sortComments(list: PhotoComment[], order: CommentOrder): PhotoCo
   const rest = list.filter((comment) => !comment.pinned).slice();
   if (order === 'oldest') rest.reverse();
   return [...pinned, ...rest];
+}
+
+/** Remove acentos e baixa para minúsculas, para procurar sem exigir acentos. */
+const searchSafe = (value: string) =>
+  value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
+/**
+ * Aplica o filtro escolhido (Todos, Perguntas, Testemunhos, Fixados) e a
+ * pesquisa por texto ou autor. As mensagens fixadas aparecem sempre no
+ * separador "Fixados", independentemente do tipo.
+ */
+export function filterComments(
+  list: PhotoComment[],
+  filter: CommentFilter = 'all',
+  query = ''
+): PhotoComment[] {
+  const term = searchSafe(query.trim());
+
+  const matches = (comment: PhotoComment) => {
+    if (filter === 'pinned' && !comment.pinned) return false;
+    if (filter === 'question' && comment.kind !== 'question') return false;
+    if (filter === 'testimony' && comment.kind !== 'testimony') return false;
+    if (!term) return true;
+    return (
+      searchSafe(comment.text).includes(term) ||
+      searchSafe(comment.author.name).includes(term) ||
+      comment.replies.some(
+        (reply) => searchSafe(reply.text).includes(term) || searchSafe(reply.author.name).includes(term)
+      )
+    );
+  };
+
+  return list.filter(matches);
 }
 
 /** Formata números grandes como no YouTube (1 200 -> 1,2 mil). */

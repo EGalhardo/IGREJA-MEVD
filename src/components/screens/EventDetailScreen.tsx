@@ -373,8 +373,14 @@ export default function EventDetailScreen({
         photos={gallery}
         index={lightboxIndex}
         eventTitle={event.title}
+        eventDate={dateLabel}
+        eventLocation={event.location}
         onClose={() => setLightboxIndex(null)}
         onChange={setLightboxIndex}
+        onOpenAlbum={() => {
+          setLightboxIndex(null);
+          setActiveTab('gallery');
+        }}
       />
     </div>
   );
