@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Share2, MapPin, Clock, Users, Mic, Music, UserCheck, Check } from 'lucide-react';
+import { Share2, MapPin, Clock, Users, Mic, Music, UserCheck, Check, Images } from 'lucide-react';
 import { ChurchEvent, Screen } from '../../types';
 import { shareOrCopy } from '../../utils/shareUtils';
+import { GalleryGrid, GalleryPanel, GalleryLightbox } from '../EventGallery';
 
 
 /**
@@ -78,6 +79,24 @@ export default function EventDetailScreen({
   onShowToast,
 }: EventDetailScreenProps) {
   const [isSharing, setIsSharing] = useState(false);
+  // Separador do topo do evento: transmissão (ao vivo) ou álbum de fotografias
+  const [activeTab, setActiveTab] = useState<'live' | 'gallery'>('live');
+  // Índice da fotografia aberta em ecrã inteiro (null = fechado)
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const gallery = event.gallery ?? [];
+  const hasGallery = gallery.length > 0;
+  const dateLabel = `${event.dateDay} ${event.dateMonth}`;
+
+  const openGalleryTab = () => {
+    setActiveTab('gallery');
+    scrollToEventTop();
+  };
+
+  const scrollToEventTop = () => {
+    const container = document.getElementById('event-detail-scroll');
+    container?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const handleRegister = () => {
     onToggleRegistration(event.id);
@@ -111,36 +130,81 @@ export default function EventDetailScreen({
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-white overflow-y-auto w-full">
+    <div id="event-detail-scroll" className="flex-1 flex flex-col bg-white overflow-y-auto w-full">
       <div className="w-full max-w-5xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-6">
         {/* Main Event Card Container */}
         <div className="bg-white sm:rounded-3xl shadow-xs border-0 sm:border border-[#E2E8F0] overflow-hidden flex flex-col">
-          {/* Topo: moldura genérica da transmissão (substitui a antiga imagem de capa).
-              Conteúdo autónomo (srcdoc), por isso aparece também offline. */}
-          <div className="relative w-full shrink-0 bg-slate-900">
-            <iframe
-              title={`Transmissão do evento ${event.title}`}
-              srcDoc={LIVE_PLACEHOLDER_HTML}
-              loading="eager"
-              allow="fullscreen; picture-in-picture"
-              className="block aspect-[160/117] w-full border-0"  /* 16:9 + 30% de altura */
-            />
-
-            {/* Indicador de estado sobre a moldura */}
-            <span className="pointer-events-none absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full border border-rose-400/40 bg-slate-950/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-rose-200 backdrop-blur-sm sm:right-4 sm:top-4">
-              <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-              Em preparação
-            </span>
-
-            {/* Floating Date Badge on bottom-left */}
-            <div className="absolute left-6 -bottom-6 z-10 bg-white rounded-2xl shadow-lg p-3 min-w-[64px] text-center border border-[#E2E8F0]">
-              <span className="block text-2xl font-extrabold text-slate-900 leading-none">
-                {event.dateDay}
-              </span>
-              <span className="block text-xs font-bold text-slate-500 mt-1 uppercase tracking-wider">
-                {event.dateMonth}
-              </span>
+          {/* Separadores: transmissão ao vivo / galeria do evento */}
+          {hasGallery && (
+            <div className="flex shrink-0 gap-1.5 border-b border-[#E2E8F0] bg-slate-50 p-2">
+              <button
+                onClick={() => setActiveTab('live')}
+                aria-pressed={activeTab === 'live'}
+                className={`flex h-9 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-xl border text-xs font-bold transition-colors ${
+                  activeTab === 'live'
+                    ? 'border-[#dbe7f6] bg-white text-[#0066cc] shadow-xs'
+                    : 'border-transparent text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                <span className={`h-1.5 w-1.5 rounded-full ${activeTab === 'live' ? 'bg-rose-500' : 'bg-rose-400'}`} />
+                Ao vivo
+              </button>
+              <button
+                onClick={() => setActiveTab('gallery')}
+                aria-pressed={activeTab === 'gallery'}
+                className={`flex h-9 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-xl border text-xs font-bold transition-colors ${
+                  activeTab === 'gallery'
+                    ? 'border-[#dbe7f6] bg-white text-[#0066cc] shadow-xs'
+                    : 'border-transparent text-slate-500 hover:text-slate-700'
+                }`}
+              >
+                <Images className="h-3.5 w-3.5 stroke-[2.2]" />
+                Galeria
+                <span
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
+                    activeTab === 'gallery' ? 'bg-[#0066cc] text-white' : 'bg-slate-200 text-slate-600'
+                  }`}
+                >
+                  {gallery.length}
+                </span>
+              </button>
             </div>
+          )}
+
+          {/* Topo: moldura da transmissão ou grelha do álbum do evento */}
+          <div className="relative w-full shrink-0 bg-slate-900">
+            {activeTab === 'live' || !hasGallery ? (
+              <>
+                {/* Conteúdo autónomo (srcdoc), por isso aparece também offline. */}
+                <iframe
+                  title={`Transmissão do evento ${event.title}`}
+                  srcDoc={LIVE_PLACEHOLDER_HTML}
+                  loading="eager"
+                  allow="fullscreen; picture-in-picture"
+                  className="block aspect-[160/117] w-full border-0"  /* 16:9 + 30% de altura */
+                />
+
+                {/* Indicador de estado sobre a moldura */}
+                <span className="pointer-events-none absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full border border-rose-400/40 bg-slate-950/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-rose-200 backdrop-blur-sm sm:right-4 sm:top-4">
+                  <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
+                  Em preparação
+                </span>
+              </>
+            ) : (
+              <GalleryGrid photos={gallery} onOpen={(index) => setLightboxIndex(index)} />
+            )}
+
+            {/* Data flutuante (apenas no separador "Ao vivo": sobre a galeria tapava fotos) */}
+            {(activeTab === 'live' || !hasGallery) && (
+              <div className="absolute left-6 -bottom-6 z-10 bg-white rounded-2xl shadow-lg p-3 min-w-[64px] text-center border border-[#E2E8F0]">
+                <span className="block text-2xl font-extrabold text-slate-900 leading-none">
+                  {event.dateDay}
+                </span>
+                <span className="block text-xs font-bold text-slate-500 mt-1 uppercase tracking-wider">
+                  {event.dateMonth}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Content Body: 1 col on mobile, 2 cols on tablet landscape / desktop */}
@@ -149,7 +213,13 @@ export default function EventDetailScreen({
               {/* Left Column (or Top): Title & Metadata & Inscription */}
               <div className="lg:col-span-7 space-y-5">
                 <div>
-                  <div className="inline-block mb-2">
+                  <div className="mb-2 flex flex-wrap items-center gap-2">
+                    {hasGallery && activeTab === 'gallery' && (
+                      <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-white px-3 py-1 text-xs font-bold text-slate-700">
+                        {dateLabel}
+                      </span>
+                    )}
+                    <div className="inline-block">
                     {event.statusBadge.variant === 'green' && (
                       <span className="bg-emerald-50 text-emerald-700 text-xs font-semibold px-3 py-1 rounded-full border border-emerald-100">
                         {event.statusBadge.text}
@@ -165,6 +235,7 @@ export default function EventDetailScreen({
                         {event.statusBadge.text}
                       </span>
                     )}
+                    </div>
                   </div>
                   <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight leading-snug">
                     {event.title}
@@ -265,11 +336,47 @@ export default function EventDetailScreen({
                     })}
                   </div>
                 </div>
+
+                {/* Galeria do evento (coluna lateral no desktop) */}
+                {hasGallery && (
+                  <div className="hidden lg:block">
+                    <GalleryPanel
+                      photos={gallery}
+                      eventTitle={event.title}
+                      dateLabel={dateLabel}
+                      onOpen={(index) => setLightboxIndex(index)}
+                      onSeeAll={openGalleryTab}
+                      columns={2}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </div>
+
+        {/* Galeria do evento (telemóvel/tablet: cartão abaixo do evento) */}
+        {hasGallery && (
+          <div className="mt-4 px-3 pb-6 sm:px-0 lg:hidden">
+            <GalleryPanel
+              photos={gallery}
+              eventTitle={event.title}
+              dateLabel={dateLabel}
+              onOpen={(index) => setLightboxIndex(index)}
+              onSeeAll={openGalleryTab}
+            />
+          </div>
+        )}
       </div>
+
+      {/* Ecrã inteiro da fotografia */}
+      <GalleryLightbox
+        photos={gallery}
+        index={lightboxIndex}
+        eventTitle={event.title}
+        onClose={() => setLightboxIndex(null)}
+        onChange={setLightboxIndex}
+      />
     </div>
   );
 }

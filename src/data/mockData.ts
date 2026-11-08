@@ -1,4 +1,57 @@
-import { ChurchEvent, UserProfile } from '../types';
+import { ChurchEvent, GalleryPhoto, UserProfile } from '../types';
+
+/**
+ * Fotografias do álbum dos eventos (galeria).
+ * Os ficheiros vivem em `public/assets/events/galeria/`.
+ */
+const GALLERY_PHOTOS: Array<Omit<GalleryPhoto, 'id'>> = [
+  {
+    src: '/assets/events/galeria/culto-celebracao.jpg',
+    caption: 'Igreja reunida em adoração durante o culto',
+    tag: 'Adoração',
+  },
+  {
+    src: '/assets/events/galeria/pregacao.jpg',
+    caption: 'Mensagem ministrada no púlpito',
+    tag: 'Pregação',
+  },
+  {
+    src: '/assets/events/galeria/encontro-jovens.jpg',
+    caption: 'Jovens em comunhão depois do encontro',
+    tag: 'Comunhão',
+  },
+  {
+    src: '/assets/events/galeria/louvor.jpg',
+    caption: 'Ministério de louvor a conduzir a noite',
+    tag: 'Louvor',
+  },
+  {
+    src: '/assets/events/galeria/intercessao.jpg',
+    caption: 'Momento de intercessão pelas famílias',
+    tag: 'Intercessão',
+  },
+  {
+    src: '/assets/events/galeria/baptismo.jpg',
+    caption: 'Baptismo de novas vidas no templo',
+    tag: 'Baptismo',
+  },
+];
+
+/**
+ * Constrói o álbum de um evento: a fotografia de destaque do evento abre o
+ * álbum e as restantes completam a galeria.
+ */
+function buildGallery(eventId: string, leadPhotoSrc: string): GalleryPhoto[] {
+  const lead = GALLERY_PHOTOS.find((photo) => photo.src === leadPhotoSrc);
+  const ordered = lead
+    ? [lead, ...GALLERY_PHOTOS.filter((photo) => photo.src !== leadPhotoSrc)]
+    : GALLERY_PHOTOS;
+
+  return ordered.map((photo, index) => ({
+    id: `${eventId}-foto-${index + 1}`,
+    ...photo,
+  }));
+}
 
 export const CHURCH_EVENTS: ChurchEvent[] = [
   {
@@ -14,6 +67,7 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       variant: 'green',
     },
     image: '/assets/events/maio-intensa-oracao.jpg',
+    gallery: buildGallery('congresso-jovens-2027', '/assets/events/galeria/encontro-jovens.jpg'),
     capacity: '250 vagas',
     description:
       'Um encontro especial para jovens que desejam crescer na fé, fazer novas amizades e viver uma experiência única com Deus.',
@@ -175,6 +229,144 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       { icon: 'mic', title: 'Direção Pastoral' },
       { icon: 'users', title: 'Capacitação e Mentoria' },
       { icon: 'music', title: 'Consagração Ministerial' },
+    ],
+  },
+  {
+    id: 'culto-celebracao-adorecao',
+    title: 'Culto de Celebração e Adoração',
+    dateDay: '09',
+    dateMonth: 'Mai',
+    time: '09:00 - 12:00',
+    location: 'Sede Principal • Luanda',
+    category: 'Cultos',
+    statusBadge: {
+      text: 'Inscrições abertas',
+      variant: 'green',
+    },
+    image: '/assets/events/galeria/culto-celebracao.jpg',
+    gallery: buildGallery('culto-celebracao-adorecao', '/assets/events/galeria/culto-celebracao.jpg'),
+    capacity: '400 lugares',
+    description:
+      'Manhã de celebração com a igreja reunida em adoração, oração e ministração da Palavra. Traga a sua família e participe deste momento de gratidão a Deus.',
+    highlights: [
+      { icon: 'music', title: 'Louvor congregacional' },
+      { icon: 'mic', title: 'Mensagem pastoral' },
+      { icon: 'users', title: 'Oração pelas famílias' },
+    ],
+  },
+  {
+    id: 'culto-ensino-pregacao',
+    title: 'Culto de Ensino e Pregação',
+    dateDay: '20',
+    dateMonth: 'Mai',
+    time: '18:30 - 20:30',
+    location: 'Templo Principal MEVD',
+    category: 'Cultos',
+    statusBadge: {
+      text: 'Em breve',
+      variant: 'purple',
+    },
+    image: '/assets/events/galeria/pregacao.jpg',
+    gallery: buildGallery('culto-ensino-pregacao', '/assets/events/galeria/pregacao.jpg'),
+    capacity: '300 lugares',
+    description:
+      'Noite dedicada ao ensino da Palavra, com exposição bíblica e espaço para perguntas. Uma oportunidade para crescer em doutrina e discipulado.',
+    highlights: [
+      { icon: 'mic', title: 'Exposição bíblica' },
+      { icon: 'users', title: 'Perguntas e respostas' },
+      { icon: 'music', title: 'Louvor de abertura' },
+    ],
+  },
+  {
+    id: 'encontro-jovens-comunhao',
+    title: 'Encontro de Jovens em Comunhão',
+    dateDay: '06',
+    dateMonth: 'Jun',
+    time: '15:00 - 19:00',
+    location: 'Salão Juvenil MEVD',
+    category: 'Reuniões',
+    statusBadge: {
+      text: 'Inscrições abertas',
+      variant: 'green',
+    },
+    image: '/assets/events/galeria/encontro-jovens.jpg',
+    gallery: buildGallery('encontro-jovens-comunhao', '/assets/events/galeria/encontro-jovens.jpg'),
+    capacity: '150 vagas',
+    description:
+      'Tarde de comunhão e amizade entre os jovens da igreja, com dinâmicas, partilha de testemunhos e um tempo de oração em conjunto.',
+    highlights: [
+      { icon: 'users', title: 'Dinâmicas de grupo' },
+      { icon: 'mic', title: 'Testemunhos' },
+      { icon: 'music', title: 'Música ao vivo' },
+    ],
+  },
+  {
+    id: 'noite-louvor-adoracao',
+    title: 'Noite de Louvor e Adoração',
+    dateDay: '26',
+    dateMonth: 'Jun',
+    time: '19:00 - 22:00',
+    location: 'Templo Principal MEVD',
+    category: 'Cultos',
+    statusBadge: {
+      text: 'Inscrições abertas',
+      variant: 'green',
+    },
+    image: '/assets/events/galeria/louvor.jpg',
+    gallery: buildGallery('noite-louvor-adoracao', '/assets/events/galeria/louvor.jpg'),
+    capacity: '350 lugares',
+    description:
+      'Uma noite inteira dedicada à adoração, conduzida pelo ministério de louvor da igreja, com momentos de música, oração e entrega.',
+    highlights: [
+      { icon: 'music', title: 'Banda e coral' },
+      { icon: 'mic', title: 'Ministração' },
+      { icon: 'users', title: 'Adoração em conjunto' },
+    ],
+  },
+  {
+    id: 'reuniao-intercessao-familias',
+    title: 'Reunião de Intercessão pelas Famílias',
+    dateDay: '11',
+    dateMonth: 'Jul',
+    time: '17:00 - 19:00',
+    location: 'Sala de Oração MEVD',
+    category: 'Vigílias',
+    statusBadge: {
+      text: 'Pendente',
+      variant: 'blue',
+    },
+    image: '/assets/events/galeria/intercessao.jpg',
+    gallery: buildGallery('reuniao-intercessao-familias', '/assets/events/galeria/intercessao.jpg'),
+    capacity: '120 vagas',
+    description:
+      'Encontro de intercessão dedicado às famílias da igreja, com oração em círculos, partilha de pedidos e clamor pelos lares.',
+    highlights: [
+      { icon: 'users', title: 'Oração em círculos' },
+      { icon: 'mic', title: 'Partilha de pedidos' },
+      { icon: 'music', title: 'Adoração suave' },
+    ],
+  },
+  {
+    id: 'culto-baptismo-novas-vidas',
+    title: 'Culto de Baptismo — Novas Vidas',
+    dateDay: '01',
+    dateMonth: 'Ago',
+    time: '10:00 - 12:30',
+    location: 'Templo Principal MEVD',
+    category: 'Cultos',
+    statusBadge: {
+      text: 'Em breve',
+      variant: 'purple',
+    },
+    image: '/assets/events/galeria/baptismo.jpg',
+    gallery: buildGallery('culto-baptismo-novas-vidas', '/assets/events/galeria/baptismo.jpg'),
+    capacity: '400 lugares',
+    description:
+      'Celebração do baptismo de novos irmãos na fé, com testemunhos, oração e acolhimento pela igreja. Um dia especial para toda a família MEVD.',
+    highlights: [
+      { icon: 'users', title: 'Acolhimento dos novos membros' },
+      { icon: 'mic', title: 'Testemunhos' },
+      { icon: 'music', title: 'Coral da igreja' },
     ],
   },
 ];

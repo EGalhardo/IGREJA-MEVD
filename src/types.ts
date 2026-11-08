@@ -2,6 +2,15 @@ export type Screen = 'home' | 'events' | 'event-detail' | 'profile' | 'announcem
 
 export type EventCategory = 'Todos' | 'Cultos' | 'Congressos' | 'Vigílias' | 'Reuniões';
 
+/** Fotografia do álbum (galeria) de um evento */
+export interface GalleryPhoto {
+  id: string;
+  src: string;
+  caption: string;
+  /** Momento do evento: Louvor, Pregação, Comunhão, ... */
+  tag?: string;
+}
+
 export interface ChurchEvent {
   id: string;
   title: string;
@@ -21,6 +30,8 @@ export interface ChurchEvent {
     icon: 'mic' | 'music' | 'users';
     title: string;
   }>;
+  /** Álbum do evento (galeria de fotos) */
+  gallery?: GalleryPhoto[];
 }
 
 export interface UserProfile {
