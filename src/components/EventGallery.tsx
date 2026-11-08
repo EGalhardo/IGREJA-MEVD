@@ -51,12 +51,13 @@ interface GalleryStripProps {
   photos: GalleryPhoto[];
   onOpen: (index: number) => void;
   onSeeAll: () => void;
-  columns?: 2 | 4;
+  /** Quantidade de fotografias apresentadas numa única linha */
+  columns?: number;
 }
 
-/** Tira/miniaturas do álbum com o atalho "Ver todas". */
+/** Tira de miniaturas (sempre numa só linha) com o atalho "Ver todas". */
 export function GalleryStrip({ photos, onOpen, onSeeAll, columns = 4 }: GalleryStripProps) {
-  const visible = photos.slice(0, columns === 2 ? 6 : 4);
+  const visible = photos.slice(0, columns);
   const remaining = photos.length - visible.length;
 
   return (
@@ -96,10 +97,11 @@ interface GalleryPanelProps {
   dateLabel: string;
   onOpen: (index: number) => void;
   onSeeAll: () => void;
-  columns?: 2 | 4;
+  /** Quantidade de miniaturas na linha (4 no telemóvel, 6 no desktop) */
+  columns?: number;
 }
 
-/** Cartão "Galeria do evento" (cabeçalho + miniaturas + rodapé). */
+/** Cartão "Galeria do evento" (cabeçalho + miniaturas em linha + rodapé). */
 export function GalleryPanel({
   photos,
   eventTitle,

@@ -336,35 +336,34 @@ export default function EventDetailScreen({
                     })}
                   </div>
                 </div>
-
-                {/* Galeria do evento (coluna lateral no desktop) */}
-                {hasGallery && (
-                  <div className="hidden lg:block">
-                    <GalleryPanel
-                      photos={gallery}
-                      eventTitle={event.title}
-                      dateLabel={dateLabel}
-                      onOpen={(index) => setLightboxIndex(index)}
-                      onSeeAll={openGalleryTab}
-                      columns={2}
-                    />
-                  </div>
-                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Galeria do evento (telemóvel/tablet: cartão abaixo do evento) */}
+        {/* Galeria do evento: fotografias sempre numa linha (4 no telemóvel, 6 no desktop) */}
         {hasGallery && (
-          <div className="mt-4 px-3 pb-6 sm:px-0 lg:hidden">
-            <GalleryPanel
-              photos={gallery}
-              eventTitle={event.title}
-              dateLabel={dateLabel}
-              onOpen={(index) => setLightboxIndex(index)}
-              onSeeAll={openGalleryTab}
-            />
+          <div className="mt-4 px-3 pb-6 sm:px-0">
+            <div className="lg:hidden">
+              <GalleryPanel
+                photos={gallery}
+                eventTitle={event.title}
+                dateLabel={dateLabel}
+                onOpen={(index) => setLightboxIndex(index)}
+                onSeeAll={openGalleryTab}
+                columns={4}
+              />
+            </div>
+            <div className="hidden lg:block">
+              <GalleryPanel
+                photos={gallery}
+                eventTitle={event.title}
+                dateLabel={dateLabel}
+                onOpen={(index) => setLightboxIndex(index)}
+                onSeeAll={openGalleryTab}
+                columns={6}
+              />
+            </div>
           </div>
         )}
       </div>
