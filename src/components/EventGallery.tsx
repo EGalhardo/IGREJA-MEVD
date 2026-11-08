@@ -1,19 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  ChevronLeft,
-  ChevronRight,
-  X,
-  Images,
-  Heart,
-  MessageSquare,
-  Share2,
-  Download,
-  Maximize2,
-  Minimize2,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Images, ThumbsUp, ThumbsDown } from 'lucide-react';
 import ChurchLogo from './ChurchLogo';
 import PhotoComments from './PhotoComments';
-import { likeKeyFor, seedLikeCount } from '../data/commentsData';
+import { reactionKeyFor, seedDislikeCount, seedLikeCount } from '../data/commentsData';
 import { formatCount } from '../utils/comments';
 import type { GalleryPhoto } from '../types';
 
@@ -198,11 +187,7 @@ export function GalleryLightbox({
 }: GalleryLightboxProps) {
   const closeRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
-  const [liked, setLiked] = useState(false);
-  const [toast, setToast] = useState('');
-  const [commentTotal, setCommentTotal] = useState(0);
-  const [focusSignal, setFocusSignal] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [reaction, setReaction] = useState<'like' | 'dislike' | null>(null);
 
   const photo = index === null ? null : photos[index];
 
@@ -230,82 +215,37 @@ export function GalleryLightbox({
     };
   }, [index, photos.length, onChange, onClose]);
 
-  // Estado do "gosto" e do ecrã inteiro
+  // Reacção da fotografia (gosto / não gosto), guardada no browser
   useEffect(() => {
     if (!photo) return;
     try {
-      setLiked(window.localStorage.getItem(likeKeyFor(photo.id)) === '1');
+      const stored = window.localStorage.getItem(reactionKeyFor(photo.id));
+      setReaction(stored === 'like' || stored === 'dislike' ? stored : null);
     } catch {
-      setLiked(false);
+      setReaction(null);
     }
   }, [photo]);
 
-  useEffect(() => {
-    const handleFullscreen = () => setIsFullscreen(Boolean(document.fullscreenElement));
-    document.addEventListener('fullscreenchange', handleFullscreen);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreen);
-  }, []);
-
-  useEffect(() => {
-    if (!toast) return;
-    const timer = window.setTimeout(() => setToast(''), 2200);
-    return () => window.clearTimeout(timer);
-  }, [toast]);
-
-  const togglePhotoLike = useCallback(() => {
-    if (!photo) return;
-    const next = !liked;
-    setLiked(next);
-    try {
-      window.localStorage.setItem(likeKeyFor(photo.id), next ? '1' : '0');
-    } catch {
-      // sem armazenamento: o gosto mantém-se apenas nesta sessão
-    }
-  }, [liked, photo]);
-
-  const share = useCallback(async () => {
-    if (!photo) return;
-    const url = `${window.location.origin}${window.location.pathname}?evento=${encodeURIComponent(eventTitle)}`;
-    const payload = { title: `${eventTitle} — IGREJA MEVD`, text: photo.caption, url };
-    try {
-      if (navigator.share) {
-        await navigator.share(payload);
-        return;
+  const toggleReaction = useCallback(
+    (next: 'like' | 'dislike') => {
+      if (!photo) return;
+      const value = reaction === next ? null : next;
+      setReaction(value);
+      try {
+        if (value) window.localStorage.setItem(reactionKeyFor(photo.id), value);
+        else window.localStorage.removeItem(reactionKeyFor(photo.id));
+      } catch {
+        // sem armazenamento: a reacção mantém-se apenas nesta sessão
       }
-      await navigator.clipboard.writeText(url);
-      setToast('Ligação copiada');
-    } catch {
-      setToast('Não foi possível partilhar');
-    }
-  }, [eventTitle, photo]);
-
-  const download = useCallback(() => {
-    if (!photo) return;
-    const link = document.createElement('a');
-    link.href = photo.src;
-    link.download = `${photo.id}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setToast('A transferir a fotografia...');
-  }, [photo]);
-
-  const toggleFullscreen = useCallback(async () => {
-    try {
-      if (document.fullscreenElement) {
-        await document.exitFullscreen();
-      } else {
-        await dialogRef.current?.requestFullscreen();
-      }
-    } catch {
-      setToast('Ecrã inteiro indisponível');
-    }
-  }, []);
+    },
+    [photo, reaction]
+  );
 
   if (index === null || !photos[index]) return null;
 
   const current = photos[index];
-  const likes = seedLikeCount(current.id) + (liked ? 1 : 0);
+  const likes = seedLikeCount(current.id) + (reaction === 'like' ? 1 : 0);
+  const dislikes = seedDislikeCount(current.id) + (reaction === 'dislike' ? 1 : 0);
   const goTo = (next: number) => onChange((next + photos.length) % photos.length);
 
   return (
@@ -352,15 +292,6 @@ export function GalleryLightbox({
         </div>
       </div>
 
-      {toast && (
-        <div
-          role="status"
-          className="pointer-events-none fixed left-1/2 top-16 z-[100] -translate-x-1/2 rounded-full bg-slate-900 px-3.5 py-1.5 text-[10.5px] font-bold text-white shadow-lg"
-        >
-          {toast}
-        </div>
-      )}
-
       {/* Conteúdo: fotografia (esquerda) + mensagens (direita; em baixo no telemóvel) */}
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
         <div className="flex flex-col lg:min-h-0 lg:flex-1">
@@ -377,6 +308,43 @@ export function GalleryLightbox({
               <span className="pointer-events-none absolute bottom-2 left-2 rounded-full bg-slate-900/70 px-2 py-0.5 text-[9.5px] font-extrabold text-white backdrop-blur-sm">
                 {index + 1} / {photos.length}
               </span>
+
+              {/* Like e Dislike sobre a imagem de destaque */}
+              <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-full border border-white/60 bg-white/95 p-1 shadow-[0_6px_18px_-8px_rgba(15,23,42,0.6)] backdrop-blur-sm">
+                <button
+                  onClick={() => toggleReaction('like')}
+                  aria-pressed={reaction === 'like'}
+                  aria-label={`Gosto nesta fotografia (${likes})`}
+                  title="Gosto"
+                  className={`flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-extrabold transition-colors cursor-pointer ${
+                    reaction === 'like'
+                      ? 'bg-blue-50 text-[#0066cc]'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-[#0066cc]'
+                  }`}
+                >
+                  <ThumbsUp
+                    className={`h-3.5 w-3.5 ${reaction === 'like' ? 'fill-current stroke-[2]' : 'stroke-[2]'}`}
+                  />
+                  {formatCount(likes)}
+                </button>
+                <span className="h-4 w-px bg-slate-200" aria-hidden="true" />
+                <button
+                  onClick={() => toggleReaction('dislike')}
+                  aria-pressed={reaction === 'dislike'}
+                  aria-label={`Não gosto nesta fotografia (${dislikes})`}
+                  title="Não gosto"
+                  className={`flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-extrabold transition-colors cursor-pointer ${
+                    reaction === 'dislike'
+                      ? 'bg-rose-50 text-rose-600'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-rose-600'
+                  }`}
+                >
+                  <ThumbsDown
+                    className={`h-3.5 w-3.5 ${reaction === 'dislike' ? 'fill-current stroke-[2]' : 'stroke-[2]'}`}
+                  />
+                  {formatCount(dislikes)}
+                </button>
+              </div>
               {current.tag && (
                 <span className="pointer-events-none absolute bottom-2 right-2 rounded-full border border-[#E2E8F0] bg-white/95 px-2 py-0.5 text-[9.5px] font-extrabold text-slate-900">
                   {current.tag}
@@ -400,79 +368,9 @@ export function GalleryLightbox({
             </div>
           </div>
 
-          {/* Acções — ícones e texto soltos sobre o fundo, sem caixa */}
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2.5 px-4 pb-2 pt-3.5 sm:px-5">
-            <div className="flex min-w-0 flex-1 basis-full items-center gap-2 sm:basis-auto">
-              <ChurchLogo size="sm" className="!h-8 !w-8 !p-1" />
-              <div className="min-w-0">
-                <p className="truncate text-[11.5px] font-bold text-slate-900">{current.caption}</p>
-                <p className="truncate text-[9.5px] font-semibold text-slate-500">
-                  Fotografia de IGREJA MEVD{eventDate ? ` • ${eventDate}` : ''}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-x-5">
-              <button
-                onClick={togglePhotoLike}
-                aria-pressed={liked}
-                aria-label="Gosto nesta fotografia"
-                title="Gosto nesta fotografia"
-                className={`flex items-center gap-1.5 text-[10.5px] font-bold transition-colors cursor-pointer hover:text-[#0066cc] ${
-                  liked ? 'text-[#0066cc]' : 'text-slate-600'
-                }`}
-              >
-                <Heart className={`h-3.5 w-3.5 ${liked ? 'fill-current stroke-[2.2]' : 'stroke-[2]'}`} />
-                {formatCount(likes)}
-              </button>
-
-              <button
-                onClick={() => setFocusSignal((value) => value + 1)}
-                aria-label="Escrever um comentário"
-                title="Escrever um comentário"
-                className="flex items-center gap-1.5 text-[10.5px] font-bold text-slate-600 transition-colors hover:text-[#0066cc] cursor-pointer"
-              >
-                <MessageSquare className="h-3.5 w-3.5 stroke-[2]" />
-                {formatCount(commentTotal)}
-              </button>
-
-              <button
-                onClick={share}
-                title="Partilhar a fotografia"
-                className="flex items-center gap-1.5 text-[10.5px] font-bold text-slate-600 transition-colors hover:text-[#0066cc] cursor-pointer"
-              >
-                <Share2 className="h-3.5 w-3.5 stroke-[2]" />
-                Partilhar
-              </button>
-
-              <button
-                onClick={download}
-                title="Guardar a fotografia"
-                className="flex items-center gap-1.5 text-[10.5px] font-bold text-slate-600 transition-colors hover:text-[#0066cc] cursor-pointer"
-              >
-                <Download className="h-3.5 w-3.5 stroke-[2]" />
-                Guardar
-              </button>
-
-              <button
-                onClick={toggleFullscreen}
-                aria-pressed={isFullscreen}
-                aria-label={isFullscreen ? 'Sair do ecrã inteiro' : 'Ver em ecrã inteiro'}
-                title={isFullscreen ? 'Sair do ecrã inteiro' : 'Ver em ecrã inteiro'}
-                className="flex items-center gap-1.5 text-[10.5px] font-bold text-slate-600 transition-colors hover:text-[#0066cc] cursor-pointer"
-              >
-                {isFullscreen ? (
-                  <Minimize2 className="h-3.5 w-3.5 stroke-[2]" />
-                ) : (
-                  <Maximize2 className="h-3.5 w-3.5 stroke-[2]" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          {/* Lista de fotografias em linha — sem caixa nem moldura */}
-          <div className="flex shrink-0 items-center gap-3 px-4 pb-4 pt-1.5 sm:px-5">
-            <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto">
+          {/* Lista de fotografias em linha, centrada sob a imagem — sem caixa */}
+          <div className="shrink-0 px-4 pb-4 pt-1.5 sm:px-5">
+            <div className="flex items-center justify-center gap-2 overflow-x-auto">
               {photos.map((item, itemIndex) => (
                 <button
                   key={item.id}
@@ -488,13 +386,13 @@ export function GalleryLightbox({
                 </button>
               ))}
             </div>
+
             {onOpenAlbum && (
               <button
                 onClick={onOpenAlbum}
-                className="flex shrink-0 items-center gap-0.5 text-[10px] font-bold text-[#0066cc] hover:underline cursor-pointer"
+                className="mx-auto mt-2.5 flex items-center gap-0.5 text-[10px] font-bold text-[#0066cc] hover:underline cursor-pointer"
               >
-                <span className="hidden sm:inline">Ver álbum completo</span>
-                <span className="sm:hidden">Álbum</span>
+                Ver álbum completo
                 <ChevronRight className="h-3 w-3 stroke-[2.6]" />
               </button>
             )}
@@ -503,12 +401,7 @@ export function GalleryLightbox({
 
         {/* Mensagens da fotografia */}
         <aside className="flex min-h-0 flex-col border-t border-[#E2E8F0] lg:w-[372px] lg:shrink-0 lg:border-l lg:border-t-0">
-          <PhotoComments
-            photoId={current.id}
-            eventTitle={eventTitle}
-            focusSignal={focusSignal}
-            onTotalChange={setCommentTotal}
-          />
+          <PhotoComments photoId={current.id} eventTitle={eventTitle} />
         </aside>
       </div>
     </div>

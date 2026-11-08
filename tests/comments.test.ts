@@ -14,7 +14,7 @@ import {
   type CommentAuthor,
   type PhotoComment,
 } from '../src/utils/comments';
-import { seedComments, seedLikeCount } from '../src/data/commentsData';
+import { seedComments, seedDislikeCount, seedLikeCount } from '../src/data/commentsData';
 
 const autor: CommentAuthor = { name: 'Edlásio Galhardo', initials: 'EG', color: '#0066cc' };
 
@@ -144,5 +144,15 @@ test('gostos iniciais da fotografia são estáveis e ficam entre 18 e 40', () =>
   assert.equal(a, b, 'o mesmo identificador deve dar sempre o mesmo número');
   for (const valor of [a, ...outros]) {
     assert.ok(valor >= 18 && valor <= 40, `valor fora do intervalo: ${valor}`);
+  }
+});
+
+test('não gostos iniciais são estáveis e ficam entre 0 e 4', () => {
+  const a = seedDislikeCount('noite-louvor-adoracao-foto-1');
+  const b = seedDislikeCount('noite-louvor-adoracao-foto-1');
+
+  assert.equal(a, b, 'o mesmo identificador deve dar sempre o mesmo número');
+  for (const valor of [a, seedDislikeCount('foto-a'), seedDislikeCount('foto-b')]) {
+    assert.ok(valor >= 0 && valor <= 4, `valor fora do intervalo: ${valor}`);
   }
 });

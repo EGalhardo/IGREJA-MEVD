@@ -84,8 +84,11 @@ export function seedComments(photoId: string): PhotoComment[] {
 /** Chave do `localStorage` usada para guardar os comentários de cada foto. */
 export const storageKeyFor = (photoId: string) => `mevd:comentarios:${photoId}`;
 
-/** Chave do `localStorage` do "gosto" na fotografia. */
+/** Chave do `localStorage` do "gosto" na fotografia (versão anterior). */
 export const likeKeyFor = (photoId: string) => `mevd:gosto-foto:${photoId}`;
+
+/** Chave do `localStorage` da reacção actual: "like", "dislike" ou vazio. */
+export const reactionKeyFor = (photoId: string) => `mevd:reacao-foto:${photoId}`;
 
 /** Número de gostos inicial de cada fotografia (estável por identificador). */
 export function seedLikeCount(photoId: string): number {
@@ -94,6 +97,15 @@ export function seedLikeCount(photoId: string): number {
     hash = (hash * 31 + photoId.charCodeAt(i)) % 100000;
   }
   return 18 + (hash % 23);
+}
+
+/** Número inicial de "não gosto" de cada fotografia (estável por identificador). */
+export function seedDislikeCount(photoId: string): number {
+  let hash = 0;
+  for (let i = 0; i < photoId.length; i += 1) {
+    hash = (hash * 17 + photoId.charCodeAt(i)) % 100000;
+  }
+  return hash % 5;
 }
 
 /** Lê os comentários guardados; se não existirem, devolve a semente. */
