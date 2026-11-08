@@ -365,9 +365,9 @@ export function GalleryLightbox({
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
         <div className="flex flex-col lg:min-h-0 lg:flex-1">
           {/* Fotografia */}
-          <div className="flex items-center justify-center overflow-hidden bg-slate-50 px-3 py-3 lg:min-h-0 lg:flex-1">
+          <div className="flex items-center justify-center overflow-hidden px-4 py-4 sm:px-5 lg:min-h-0 lg:flex-1">
             {/* A moldura acompanha a fotografia: as setas ficam sempre sobre a imagem */}
-            <div className="relative inline-flex max-w-full overflow-hidden rounded-2xl border border-[#E2E8F0] bg-white shadow-sm">
+            <div className="relative inline-flex max-w-full overflow-hidden rounded-2xl bg-white shadow-[0_14px_36px_-18px_rgba(15,23,42,0.45)]">
               <img
                 src={current.src}
                 alt={current.caption}
@@ -400,86 +400,88 @@ export function GalleryLightbox({
             </div>
           </div>
 
-          {/* Barra de acções */}
-          <div className="flex flex-wrap items-center gap-2 border-t border-[#E2E8F0] px-3 py-2.5 sm:px-4">
+          {/* Acções — ícones e texto soltos sobre o fundo, sem caixa */}
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2.5 px-4 pb-2 pt-3.5 sm:px-5">
             <div className="flex min-w-0 flex-1 basis-full items-center gap-2 sm:basis-auto">
               <ChurchLogo size="sm" className="!h-8 !w-8 !p-1" />
               <div className="min-w-0">
-                <p className="truncate text-[11px] font-bold text-slate-900">{current.caption}</p>
+                <p className="truncate text-[11.5px] font-bold text-slate-900">{current.caption}</p>
                 <p className="truncate text-[9.5px] font-semibold text-slate-500">
                   Fotografia de IGREJA MEVD{eventDate ? ` • ${eventDate}` : ''}
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-x-5">
               <button
                 onClick={togglePhotoLike}
                 aria-pressed={liked}
                 aria-label="Gosto nesta fotografia"
-                className={`flex items-center gap-1 rounded-full border px-2.5 py-1.5 text-[10px] font-bold transition-colors cursor-pointer ${
-                  liked
-                    ? 'border-[#cfe0f5] bg-blue-50 text-[#0066cc]'
-                    : 'border-[#E2E8F0] bg-white text-slate-700 hover:border-[#cfe0f5] hover:text-[#0066cc]'
+                title="Gosto nesta fotografia"
+                className={`flex items-center gap-1.5 text-[10.5px] font-bold transition-colors cursor-pointer hover:text-[#0066cc] ${
+                  liked ? 'text-[#0066cc]' : 'text-slate-600'
                 }`}
               >
-                <Heart className={`h-3 w-3 ${liked ? 'fill-current stroke-[2.4]' : 'stroke-[2.2]'}`} />
+                <Heart className={`h-3.5 w-3.5 ${liked ? 'fill-current stroke-[2.2]' : 'stroke-[2]'}`} />
                 {formatCount(likes)}
               </button>
 
               <button
                 onClick={() => setFocusSignal((value) => value + 1)}
                 aria-label="Escrever um comentário"
-                className="flex items-center gap-1 rounded-full border border-[#E2E8F0] bg-white px-2.5 py-1.5 text-[10px] font-bold text-slate-700 transition-colors hover:border-[#cfe0f5] hover:text-[#0066cc] cursor-pointer"
+                title="Escrever um comentário"
+                className="flex items-center gap-1.5 text-[10.5px] font-bold text-slate-600 transition-colors hover:text-[#0066cc] cursor-pointer"
               >
-                <MessageSquare className="h-3 w-3 stroke-[2.2]" />
+                <MessageSquare className="h-3.5 w-3.5 stroke-[2]" />
                 {formatCount(commentTotal)}
               </button>
 
               <button
                 onClick={share}
-                className="flex items-center gap-1 rounded-full border border-[#E2E8F0] bg-white px-2.5 py-1.5 text-[10px] font-bold text-slate-700 transition-colors hover:border-[#cfe0f5] hover:text-[#0066cc] cursor-pointer"
+                title="Partilhar a fotografia"
+                className="flex items-center gap-1.5 text-[10.5px] font-bold text-slate-600 transition-colors hover:text-[#0066cc] cursor-pointer"
               >
-                <Share2 className="h-3 w-3 stroke-[2.2]" />
+                <Share2 className="h-3.5 w-3.5 stroke-[2]" />
                 Partilhar
               </button>
 
               <button
                 onClick={download}
-                className="flex items-center gap-1 rounded-full border border-[#E2E8F0] bg-white px-2.5 py-1.5 text-[10px] font-bold text-slate-700 transition-colors hover:border-[#cfe0f5] hover:text-[#0066cc] cursor-pointer"
+                title="Guardar a fotografia"
+                className="flex items-center gap-1.5 text-[10.5px] font-bold text-slate-600 transition-colors hover:text-[#0066cc] cursor-pointer"
               >
-                <Download className="h-3 w-3 stroke-[2.2]" />
-                <span className="hidden sm:inline">Descarregar</span>
-                <span className="sm:hidden">Guardar</span>
+                <Download className="h-3.5 w-3.5 stroke-[2]" />
+                Guardar
               </button>
 
               <button
                 onClick={toggleFullscreen}
                 aria-pressed={isFullscreen}
                 aria-label={isFullscreen ? 'Sair do ecrã inteiro' : 'Ver em ecrã inteiro'}
-                className="flex items-center justify-center rounded-full bg-[#0066cc] px-2.5 py-1.5 text-white transition-colors hover:bg-[#0055aa] cursor-pointer"
+                title={isFullscreen ? 'Sair do ecrã inteiro' : 'Ver em ecrã inteiro'}
+                className="flex items-center gap-1.5 text-[10.5px] font-bold text-slate-600 transition-colors hover:text-[#0066cc] cursor-pointer"
               >
                 {isFullscreen ? (
-                  <Minimize2 className="h-3 w-3 stroke-[2.4]" />
+                  <Minimize2 className="h-3.5 w-3.5 stroke-[2]" />
                 ) : (
-                  <Maximize2 className="h-3 w-3 stroke-[2.4]" />
+                  <Maximize2 className="h-3.5 w-3.5 stroke-[2]" />
                 )}
               </button>
             </div>
           </div>
 
-          {/* Miniaturas */}
-          <div className="flex shrink-0 items-center gap-2 border-t border-[#E2E8F0] px-3 pb-3 pt-2.5 sm:px-4">
-            <div className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto">
+          {/* Lista de fotografias em linha — sem caixa nem moldura */}
+          <div className="flex shrink-0 items-center gap-3 px-4 pb-4 pt-1.5 sm:px-5">
+            <div className="flex min-w-0 flex-1 items-center gap-2 overflow-x-auto">
               {photos.map((item, itemIndex) => (
                 <button
                   key={item.id}
                   onClick={() => onChange(itemIndex)}
                   aria-label={`Ir para fotografia ${itemIndex + 1}`}
-                  className={`h-11 w-11 shrink-0 overflow-hidden rounded-lg border transition-all cursor-pointer ${
+                  className={`h-10 w-10 shrink-0 overflow-hidden rounded-lg transition-all cursor-pointer ${
                     itemIndex === index
-                      ? 'border-[#0066cc] opacity-100 ring-2 ring-[#0066cc]/25'
-                      : 'border-[#E2E8F0] opacity-60 hover:opacity-100'
+                      ? 'opacity-100 ring-2 ring-[#0066cc] ring-offset-2'
+                      : 'opacity-55 hover:opacity-100'
                   }`}
                 >
                   <img src={item.src} alt="" className="h-full w-full object-cover" />
