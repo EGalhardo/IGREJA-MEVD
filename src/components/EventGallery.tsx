@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, X, Images } from 'lucide-react';
+import ChurchLogo from './ChurchLogo';
+import PhotoComments from './PhotoComments';
 import type { GalleryPhoto } from '../types';
 
 interface GalleryGridProps {
@@ -193,7 +195,7 @@ export function GalleryLightbox({ photos, index, eventTitle, onClose, onChange }
       aria-label={`Galeria de ${eventTitle}`}
     >
       {/* Cabeçalho */}
-      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[#E2E8F0] px-4 py-2.5">
+      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[#E2E8F0] px-4 py-2">
         <div className="min-w-0">
           <p className="truncate text-xs font-bold text-slate-900">{eventTitle}</p>
           <p className="text-[10px] font-semibold text-slate-500">
@@ -201,16 +203,25 @@ export function GalleryLightbox({ photos, index, eventTitle, onClose, onChange }
             {photo.tag ? ` • ${photo.tag}` : ''}
           </p>
         </div>
-        <button
-          ref={closeRef}
-          onClick={onClose}
-          aria-label="Fechar galeria"
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900 cursor-pointer"
-        >
-          <X className="h-4 w-4 stroke-[2.4]" />
-        </button>
+
+        {/* Canto superior direito: logomarca + "Evento" + fechar */}
+        <div className="flex shrink-0 items-center gap-2">
+          <ChurchLogo size="appbar" />
+          <span className="text-[11px] font-bold text-slate-700">Evento</span>
+          <button
+            ref={closeRef}
+            onClick={onClose}
+            aria-label="Fechar galeria"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900 cursor-pointer"
+          >
+            <X className="h-4 w-4 stroke-[2.4]" />
+          </button>
+        </div>
       </div>
 
+      {/* Conteúdo: fotografia (esquerda) + comentários (direita; em baixo no telemóvel) */}
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
+        <div className="flex min-h-0 flex-col lg:flex-1">
       {/* Fotografia */}
       <div className="flex min-h-0 flex-1 items-center justify-center bg-slate-50 px-3 py-3">
         {/* A moldura acompanha a fotografia: as setas ficam sempre sobre a imagem */}
@@ -218,7 +229,7 @@ export function GalleryLightbox({ photos, index, eventTitle, onClose, onChange }
           <img
             src={photo.src}
             alt={photo.caption}
-            className="block h-auto max-h-[68vh] w-auto max-w-full object-contain"
+            className="block h-auto max-h-[46vh] w-auto max-w-full object-contain lg:max-h-[64vh]"
           />
 
           <button
@@ -260,6 +271,13 @@ export function GalleryLightbox({ photos, index, eventTitle, onClose, onChange }
             <img src={item.src} alt="" className="h-full w-full object-cover" />
           </button>
         ))}
+      </div>
+        </div>
+
+        {/* Comentários da fotografia */}
+        <aside className="flex min-h-0 flex-col border-t border-[#E2E8F0] lg:w-[372px] lg:shrink-0 lg:border-l lg:border-t-0">
+          <PhotoComments photoId={photo.id} eventTitle={eventTitle} />
+        </aside>
       </div>
     </div>
   );
