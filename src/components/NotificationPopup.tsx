@@ -44,15 +44,15 @@ export default function NotificationPopup({ notification, onClose, onConfirm }: 
   const Icon = style.icon;
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-end justify-center bg-slate-900/50 p-3 backdrop-blur-sm sm:items-center sm:p-6 animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-900/50 p-3 backdrop-blur-sm sm:p-4 animate-in fade-in duration-150">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="notification-popup-title"
-        className="w-full max-w-md overflow-hidden rounded-3xl border border-[#E2E8F0] bg-white shadow-2xl animate-in zoom-in-95 slide-in-from-bottom-4 duration-200"
+        className="flex w-full max-w-[26rem] flex-col overflow-hidden rounded-3xl border border-[#E2E8F0] bg-white shadow-2xl sm:max-w-md max-h-[min(86vh,44rem)] animate-in zoom-in-95 duration-200"
       >
         {/* Cabeçalho */}
-        <div className="flex items-center justify-between gap-2 border-b border-[#E2E8F0] px-4 py-3">
+        <div className="flex shrink-0 items-center justify-between gap-2 border-b border-[#E2E8F0] px-5 pb-3 pt-4">
           <div className="flex items-center gap-2">
             <span className={`flex h-8 w-8 items-center justify-center rounded-xl ${style.box}`}>
               <Icon className="h-4 w-4 stroke-[2.2]" />
@@ -75,7 +75,7 @@ export default function NotificationPopup({ notification, onClose, onConfirm }: 
         </div>
 
         {/* Conteúdo da notificação */}
-        <div className="space-y-2 px-4 py-4">
+        <div className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-contain px-5 pb-4 pt-4">
           <h4 className="text-sm font-bold leading-snug text-slate-900">{notification.title}</h4>
           <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{notification.time}</p>
           <p className="text-xs leading-relaxed text-slate-600">{notification.message}</p>
@@ -87,7 +87,7 @@ export default function NotificationPopup({ notification, onClose, onConfirm }: 
         </div>
 
         {/* Botões: Cancelar e Ok */}
-        <div className="flex gap-2.5 border-t border-[#E2E8F0] px-4 py-3">
+        <div className="flex shrink-0 gap-2.5 border-t border-[#E2E8F0] px-5 py-3">
           <button
             onClick={onClose}
             className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 cursor-pointer"

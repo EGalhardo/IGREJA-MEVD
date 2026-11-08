@@ -183,16 +183,19 @@ export default function Modals({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 backdrop-blur-sm sm:p-4"
+      onClick={onClose}
+    >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl border border-[#E2E8F0] max-h-[90vh] overflow-y-auto flex flex-col p-5"
+        className="flex w-full max-w-[26rem] flex-col overflow-hidden rounded-3xl border border-[#E2E8F0] bg-white shadow-2xl sm:max-w-md max-h-[min(86vh,44rem)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+        <div className="flex shrink-0 items-center justify-between border-b border-[#E2E8F0] px-5 pb-3 pt-4">
           <h2 id="modal-title" className="text-base font-bold text-slate-900">
             {activeModal === 'meus-dados' && 'Os meus dados'}
             {activeModal === 'minha-igreja' && 'Igreja'}
@@ -215,8 +218,8 @@ export default function Modals({
           </button>
         </div>
 
-        {/* Modal Bodies */}
-        <div className="py-4 space-y-4">
+        {/* Modal Bodies (com scroll próprio, para o popup nunca esticar) */}
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-5 pb-5 pt-4">
           {/* 1. Os meus dados: Nome, Estado civil, contacto(Whatsapp), Morada e Email */}
           {activeModal === 'meus-dados' && (
             <form noValidate className="space-y-3.5" onSubmit={(event) => { event.preventDefault(); handleSaveProfile(); }}>
