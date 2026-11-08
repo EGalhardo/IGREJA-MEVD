@@ -295,8 +295,8 @@ export function GalleryLightbox({
       {/* Conteúdo: fotografia (esquerda) + mensagens (direita; em baixo no telemóvel) */}
       <div className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:flex-row lg:overflow-hidden">
         <div className="flex flex-col lg:min-h-0 lg:flex-1">
-          {/* Fotografia */}
-          <div className="flex items-center justify-center overflow-hidden px-4 py-4 sm:px-5 lg:min-h-0 lg:flex-1">
+          {/* Fotografia + lista de imagens, num só grupo centrado */}
+          <div className="flex flex-col items-center justify-center gap-3 overflow-hidden px-4 py-4 sm:px-5 lg:min-h-0 lg:flex-1">
             {/* A moldura acompanha a fotografia: as setas ficam sempre sobre a imagem */}
             <div className="relative inline-flex max-w-full overflow-hidden rounded-2xl bg-white shadow-[0_14px_36px_-18px_rgba(15,23,42,0.45)]">
               <img
@@ -309,47 +309,42 @@ export function GalleryLightbox({
                 {index + 1} / {photos.length}
               </span>
 
-              {/* Like e Dislike sobre a imagem de destaque */}
-              <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-0.5 rounded-full border border-white/60 bg-white/95 p-1 shadow-[0_6px_18px_-8px_rgba(15,23,42,0.6)] backdrop-blur-sm">
-                <button
-                  onClick={() => toggleReaction('like')}
-                  aria-pressed={reaction === 'like'}
-                  aria-label={`Gosto nesta fotografia (${likes})`}
-                  title="Gosto"
-                  className={`flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-extrabold transition-colors cursor-pointer ${
-                    reaction === 'like'
-                      ? 'bg-blue-50 text-[#0066cc]'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-[#0066cc]'
-                  }`}
-                >
-                  <ThumbsUp
-                    className={`h-3.5 w-3.5 ${reaction === 'like' ? 'fill-current stroke-[2]' : 'stroke-[2]'}`}
-                  />
-                  {formatCount(likes)}
-                </button>
-                <span className="h-4 w-px bg-slate-200" aria-hidden="true" />
-                <button
-                  onClick={() => toggleReaction('dislike')}
-                  aria-pressed={reaction === 'dislike'}
-                  aria-label={`Não gosto nesta fotografia (${dislikes})`}
-                  title="Não gosto"
-                  className={`flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-extrabold transition-colors cursor-pointer ${
-                    reaction === 'dislike'
-                      ? 'bg-rose-50 text-rose-600'
-                      : 'text-slate-600 hover:bg-slate-100 hover:text-rose-600'
-                  }`}
-                >
-                  <ThumbsDown
-                    className={`h-3.5 w-3.5 ${reaction === 'dislike' ? 'fill-current stroke-[2]' : 'stroke-[2]'}`}
-                  />
-                  {formatCount(dislikes)}
-                </button>
-              </div>
               {current.tag && (
                 <span className="pointer-events-none absolute bottom-2 right-2 rounded-full border border-[#E2E8F0] bg-white/95 px-2 py-0.5 text-[9.5px] font-extrabold text-slate-900">
                   {current.tag}
                 </span>
               )}
+
+              {/* Like e Dislike soltos sobre a imagem, sem caixa */}
+              <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 items-center gap-4">
+                <button
+                  onClick={() => toggleReaction('like')}
+                  aria-pressed={reaction === 'like'}
+                  aria-label={`Gosto nesta fotografia (${likes})`}
+                  title="Gosto"
+                  className="flex items-center gap-1 text-[11px] font-extrabold text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.75)] transition-all hover:scale-105 cursor-pointer"
+                >
+                  <ThumbsUp
+                    className={`h-4 w-4 ${reaction === 'like' ? 'fill-white stroke-white' : 'stroke-white'}`}
+                    strokeWidth={2}
+                  />
+                  {formatCount(likes)}
+                </button>
+
+                <button
+                  onClick={() => toggleReaction('dislike')}
+                  aria-pressed={reaction === 'dislike'}
+                  aria-label={`Não gosto nesta fotografia (${dislikes})`}
+                  title="Não gosto"
+                  className="flex items-center gap-1 text-[11px] font-extrabold text-white/90 drop-shadow-[0_1px_3px_rgba(0,0,0,0.75)] transition-all hover:scale-105 hover:text-white cursor-pointer"
+                >
+                  <ThumbsDown
+                    className={`h-4 w-4 ${reaction === 'dislike' ? 'fill-white stroke-white' : 'stroke-white'}`}
+                    strokeWidth={2}
+                  />
+                  {formatCount(dislikes)}
+                </button>
+              </div>
 
               <button
                 onClick={() => goTo(index - 1)}
@@ -366,11 +361,9 @@ export function GalleryLightbox({
                 <ChevronRight className="h-4 w-4 stroke-[2.4]" />
               </button>
             </div>
-          </div>
 
-          {/* Lista de fotografias em linha, centrada sob a imagem — sem caixa */}
-          <div className="shrink-0 px-4 pb-4 pt-1.5 sm:px-5">
-            <div className="flex items-center justify-center gap-2 overflow-x-auto">
+            {/* Lista de fotografias em linha, encostada à imagem — sem caixa */}
+            <div className="flex max-w-full items-center justify-center gap-2 overflow-x-auto">
               {photos.map((item, itemIndex) => (
                 <button
                   key={item.id}
@@ -390,7 +383,7 @@ export function GalleryLightbox({
             {onOpenAlbum && (
               <button
                 onClick={onOpenAlbum}
-                className="mx-auto mt-2.5 flex items-center gap-0.5 text-[10px] font-bold text-[#0066cc] hover:underline cursor-pointer"
+                className="flex items-center gap-0.5 text-[10px] font-bold text-[#0066cc] hover:underline cursor-pointer"
               >
                 Ver álbum completo
                 <ChevronRight className="h-3 w-3 stroke-[2.6]" />
