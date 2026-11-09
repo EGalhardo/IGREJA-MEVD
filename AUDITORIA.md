@@ -157,11 +157,17 @@ Todos os ecrãs ficam abaixo de 250 ms de First Contentful Paint, sem layout shi
 
 ## 8. Como reproduzir
 
+Os quatro scripts que produziram este relatório ficam no repositório, em `scripts/auditoria/` (ver o `README.md` dessa pasta).
+
 ```bash
-cd IGREJA-MEVD && npm run build && PORT=4100 node server.js &
-node audit-fluxo.mjs      # 32 verificações funcionais + persistência
-node audit-perf.mjs       # FCP/DCL/CLS/tarefas longas por ecrã
-node audit-harmonia.mjs   # 6 viewports: overflow, alvos, alt, sobreposições
-node audit-detalhe2.mjs   # contraste AA (oklch → sRGB) e alvos pequenos
-npm test                  # 22 testes de unidade
+npm run build && PORT=4100 node server.js &
+npm i -D playwright && npx playwright install chromium   # dependência das auditorias
+
+node scripts/auditoria/audit-fluxo.mjs      # 32 verificações funcionais + persistência
+node scripts/auditoria/audit-perf.mjs       # FCP/DCL/CLS/tarefas longas por ecrã
+node scripts/auditoria/audit-harmonia.mjs   # 6 viewports: overflow, alvos, alt, sobreposições
+node scripts/auditoria/audit-detalhe2.mjs   # contraste AA (oklch → sRGB) e alvos pequenos
+npm test                                    # 22 testes de unidade
 ```
+
+Opções: `AUDIT_URL` (endereço a auditar) e `AUDIT_OUT` (pasta das capturas, por omissão `./auditoria-out`).
