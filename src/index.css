@@ -258,40 +258,6 @@ html[data-theme='dark'] .text-red-700 {
 }
 
 /* ==========================================================================
-   Ícones animados da navegação (Lottie, licença MIT — useAnimations)
-   Os ficheiros têm o traço a 2 num artboard de 32px; 2.93 iguala o peso dos
-   ícones lucide do resto do app (stroke 2.2 num viewBox de 24px).
-   ========================================================================== */
-.nav-icon svg path[stroke]:not([stroke='rgb(255,255,255)']) {
-  stroke-width: 2.93;
-}
-
-/* Comunicados: não existe megafone Lottie com licença livre — micro-animação CSS
-   (0 KB), só enquanto a página está activa. */
-.megafone-activo {
-  transform-origin: 50% 60%;
-  animation: megafone-toque 2.6s ease-in-out infinite;
-}
-
-@keyframes megafone-toque {
-  0%, 74%, 100% {
-    transform: rotate(0deg) scale(1);
-  }
-  82% {
-    transform: rotate(-7deg) scale(1.06);
-  }
-  91% {
-    transform: rotate(5deg) scale(1.03);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .megafone-activo {
-    animation: none;
-  }
-}
-
-/* ==========================================================================
    Modo escuro — estados de hover/focus
    As regras .bg-* e .text-* acima não apanham as variantes hover:bg-*, que o
    Tailwind gera como .hover\:bg-x:hover — por isso um item ao hover voltava à

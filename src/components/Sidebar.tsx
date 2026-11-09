@@ -1,5 +1,4 @@
-import { Megaphone, LogOut } from 'lucide-react';
-import NavIcon, { type NavIconName } from './NavIcon';
+import { Home, Calendar, BookOpen, Megaphone, User, LogOut } from 'lucide-react';
 import ChurchLogo from './ChurchLogo';
 import { Screen } from '../types';
 import { CHURCH_EVENTS } from '../data/mockData';
@@ -21,29 +20,29 @@ export default function Sidebar({
     {
       id: 'home' as Screen,
       label: 'Início',
-      animation: 'home' as NavIconName,
+      icon: Home,
     },
     {
       id: 'events' as Screen,
       label: 'Eventos',
-      animation: 'events' as NavIconName,
+      icon: Calendar,
       badge: String(CHURCH_EVENTS.length),
     },
     {
       id: 'bible' as Screen,
       label: 'Bíblia',
-      animation: 'bible' as NavIconName,
+      icon: BookOpen,
     },
     {
       id: 'announcements' as Screen,
       label: 'Comunicados',
-      animation: 'megafone' as const,
+      icon: Megaphone,
       badge: unreadCount > 0 ? String(unreadCount) : undefined,
     },
     {
       id: 'profile' as Screen,
       label: 'Perfil',
-      animation: 'profile' as NavIconName,
+      icon: User,
     },
   ];
 
@@ -68,6 +67,7 @@ export default function Sidebar({
           </p>
           <nav className="space-y-1.5">
             {navItems.map((item) => {
+              const Icon = item.icon;
               const isActive =
                 currentScreen === item.id ||
                 (item.id === 'events' && currentScreen === 'event-detail');
@@ -83,17 +83,11 @@ export default function Sidebar({
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    {item.animation === 'megafone' ? (
-                      <Megaphone
-                        className={`w-4 h-4 stroke-[2.2] text-slate-400 ${
-                          isActive ? 'megafone-activo !text-[#0066cc]' : ''
-                        }`}
-                      />
-                    ) : (
-                      <span className={isActive ? 'text-[#0066cc]' : 'text-slate-400'}>
-                        <NavIcon name={item.animation} size={16} active={isActive} />
-                      </span>
-                    )}
+                    <Icon
+                      className={`w-4 h-4 stroke-[2.2] ${
+                        isActive ? 'text-[#0066cc]' : 'text-slate-400'
+                      }`}
+                    />
                     <span>{item.label}</span>
                   </div>
 

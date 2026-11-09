@@ -1,5 +1,4 @@
-import { Megaphone } from 'lucide-react';
-import NavIcon from './NavIcon';
+import { Home, Calendar, BookOpen, Megaphone, User } from 'lucide-react';
 import { Screen } from '../types';
 
 interface BottomNavProps {
@@ -25,7 +24,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
           currentScreen === 'home' ? 'text-[#0066cc]' : 'text-slate-500 hover:text-slate-700'
         }`}
       >
-        <NavIcon name="home" size={20} active={currentScreen === 'home'} />
+        <Home className="w-5 h-5 stroke-[2.2]" />
         <span className="text-[10px] min-[360px]:text-[11px] font-bold">Início</span>
       </button>
 
@@ -38,7 +37,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
             : 'text-slate-500 hover:text-slate-700'
         }`}
       >
-        <NavIcon name="events" size={20} active={currentScreen === 'events' || currentScreen === 'event-detail'} />
+        <Calendar className="w-5 h-5 stroke-[2.2]" />
         <span className="text-[10px] min-[360px]:text-[11px] font-bold">Eventos</span>
       </button>
 
@@ -49,7 +48,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
           currentScreen === 'bible' ? 'text-[#0066cc]' : 'text-slate-500 hover:text-slate-700'
         }`}
       >
-        <NavIcon name="bible" size={20} active={currentScreen === 'bible'} />
+        <BookOpen className="w-5 h-5 stroke-[2.2]" />
         <span className="text-[10px] min-[360px]:text-[11px] font-bold">Bíblia</span>
       </button>
 
@@ -60,11 +59,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
           currentScreen === 'announcements' ? 'text-[#0066cc]' : 'text-slate-500 hover:text-slate-700'
         }`}
       >
-        <Megaphone
-          className={`w-5 h-5 stroke-[2.2] ${
-            currentScreen === 'announcements' ? 'megafone-activo' : ''
-          }`}
-        />
+        <Megaphone className="w-5 h-5 stroke-[2.2]" />
         <span className="text-[10px] min-[360px]:text-[11px] font-bold">Comunicados</span>
       </button>
 
@@ -75,7 +70,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
           isProfileActive ? 'text-[#0066cc]' : 'text-slate-500 hover:text-slate-700'
         }`}
       >
-        <NavIcon name="profile" size={20} active={isProfileActive} />
+        <User className="w-5 h-5 stroke-[2.2]" />
         <span className="text-[10px] min-[360px]:text-[11px] font-bold">Perfil</span>
       </button>
     </nav>
