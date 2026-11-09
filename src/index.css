@@ -220,6 +220,10 @@ html[data-theme='dark'] .bg-slate-50\/40 {
 html[data-theme='dark'] .bg-slate-50\/80 {
   background-color: rgba(8, 20, 42, 0.85);
 }
+/* "Detalhes do Evento": painel de local/horário/vagas assume o fundo do app */
+html[data-theme='dark'] .bg-slate-50\/70 {
+  background-color: #050d1c;
+}
 html[data-theme='dark'] .bg-blue-50\/60 {
   background-color: rgba(10, 30, 60, 0.7);
 }
