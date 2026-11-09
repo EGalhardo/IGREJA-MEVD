@@ -110,6 +110,8 @@ O app está funcional, consistente e responsivo em todos os tamanhos testados. N
 
 **Antes / depois (Início):** 3.871 KB → **1.024 KB** de rede · 3.392 KB → **902 KB** de imagens · JS 413 KB → **109 KB** transferidos · 20 → 18 pedidos.
 
+Os 5 sermões em MP3 (2,4 MB no total, `public/assets/audio`) **não entram no carregamento inicial**: o áudio só é pedido quando o utilizador carrega em reproduzir. O mesmo vale para os 66 JSON da Bíblia (4 MB), pedidos um a um conforme o livro escolhido.
+
 Todos os ecrãs ficam abaixo de 250 ms de First Contentful Paint, sem layout shift e sem tarefas longas — o utilizador vê conteúdo no primeiro quarto de segundo.
 
 ---
