@@ -23,8 +23,11 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
         className={`flex min-w-10 flex-col items-center gap-1 py-1 px-0.5 sm:px-3 transition-all cursor-pointer ${
           currentScreen === 'home' ? 'text-[#0066cc]' : 'text-slate-500 hover:text-slate-700'
         }`}
+        aria-current={currentScreen === 'home' ? 'page' : undefined}
       >
-        <Home className="w-5 h-5 stroke-[2.2]" />
+        <span className="navico" data-ico="inicio">
+          <Home className="w-5 h-5 stroke-[2.2]" />
+        </span>
         <span className="text-[10px] min-[360px]:text-[11px] font-bold">Início</span>
       </button>
 
@@ -36,8 +39,11 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
             ? 'text-[#0066cc]'
             : 'text-slate-500 hover:text-slate-700'
         }`}
+        aria-current={currentScreen === 'events' || currentScreen === 'event-detail' ? 'page' : undefined}
       >
-        <Calendar className="w-5 h-5 stroke-[2.2]" />
+        <span className="navico" data-ico="eventos">
+          <Calendar className="w-5 h-5 stroke-[2.2]" />
+        </span>
         <span className="text-[10px] min-[360px]:text-[11px] font-bold">Eventos</span>
       </button>
 
@@ -47,8 +53,11 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
         className={`flex min-w-10 flex-col items-center gap-1 py-1 px-0.5 sm:px-3 transition-all cursor-pointer ${
           currentScreen === 'bible' ? 'text-[#0066cc]' : 'text-slate-500 hover:text-slate-700'
         }`}
+        aria-current={currentScreen === 'bible' ? 'page' : undefined}
       >
-        <BookOpen className="w-5 h-5 stroke-[2.2]" />
+        <span className="navico" data-ico="biblia">
+          <BookOpen className="w-5 h-5 stroke-[2.2]" />
+        </span>
         <span className="text-[10px] min-[360px]:text-[11px] font-bold">Bíblia</span>
       </button>
 
@@ -58,8 +67,11 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
         className={`flex min-w-10 flex-col items-center gap-1 py-1 px-0.5 sm:px-3 transition-all cursor-pointer ${
           currentScreen === 'announcements' ? 'text-[#0066cc]' : 'text-slate-500 hover:text-slate-700'
         }`}
+        aria-current={currentScreen === 'announcements' ? 'page' : undefined}
       >
-        <Megaphone className="w-5 h-5 stroke-[2.2]" />
+        <span className="navico" data-ico="comunicados">
+          <Megaphone className="w-5 h-5 stroke-[2.2]" />
+        </span>
         <span className="text-[10px] min-[360px]:text-[11px] font-bold">Comunicados</span>
       </button>
 
@@ -69,8 +81,11 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
         className={`flex min-w-10 flex-col items-center gap-1 py-1 px-0.5 sm:px-3 transition-all cursor-pointer ${
           isProfileActive ? 'text-[#0066cc]' : 'text-slate-500 hover:text-slate-700'
         }`}
+        aria-current={isProfileActive ? 'page' : undefined}
       >
-        <User className="w-5 h-5 stroke-[2.2]" />
+        <span className="navico" data-ico="perfil">
+          <User className="w-5 h-5 stroke-[2.2]" />
+        </span>
         <span className="text-[10px] min-[360px]:text-[11px] font-bold">Perfil</span>
       </button>
     </nav>

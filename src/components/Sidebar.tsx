@@ -21,28 +21,33 @@ export default function Sidebar({
       id: 'home' as Screen,
       label: 'Início',
       icon: Home,
+      dataIco: 'inicio' as const,
     },
     {
       id: 'events' as Screen,
       label: 'Eventos',
       icon: Calendar,
+      dataIco: 'eventos' as const,
       badge: String(CHURCH_EVENTS.length),
     },
     {
       id: 'bible' as Screen,
       label: 'Bíblia',
       icon: BookOpen,
+      dataIco: 'biblia' as const,
     },
     {
       id: 'announcements' as Screen,
       label: 'Comunicados',
       icon: Megaphone,
+      dataIco: 'comunicados' as const,
       badge: unreadCount > 0 ? String(unreadCount) : undefined,
     },
     {
       id: 'profile' as Screen,
       label: 'Perfil',
       icon: User,
+      dataIco: 'perfil' as const,
     },
   ];
 
@@ -76,6 +81,7 @@ export default function Sidebar({
                 <button
                   key={item.id}
                   onClick={() => onNavigate(item.id)}
+                  aria-current={isActive ? 'page' : undefined}
                   className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
                     isActive
                       ? 'bg-blue-50 text-[#0066cc] shadow-xs'
@@ -83,11 +89,13 @@ export default function Sidebar({
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Icon
-                      className={`w-4 h-4 stroke-[2.2] ${
-                        isActive ? 'text-[#0066cc]' : 'text-slate-400'
-                      }`}
-                    />
+                    <span className="navico" data-ico={item.dataIco}>
+                      <Icon
+                        className={`w-4 h-4 stroke-[2.2] ${
+                          isActive ? 'text-[#0066cc]' : 'text-slate-400'
+                        }`}
+                      />
+                    </span>
                     <span>{item.label}</span>
                   </div>
 

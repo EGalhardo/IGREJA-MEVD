@@ -343,3 +343,161 @@ html[data-theme='dark'] #root [class~="hover:border-[#0066cc]"]:hover {
 html[data-theme='dark'] #root [class~="hover:border-red-300"]:hover {
   border-color: rgba(255, 143, 143, 0.55);
 }
+
+/* ==========================================================================
+   Ícones animados da navegação — só CSS, sobre o SVG do lucide que já existe.
+   Sem Lottie, sem GIF, sem dependências, sem pedidos de rede (~2,5 kB).
+   Só o item activo anima: [aria-current="page"] (navbar e sidebar).
+   Amplitudes medidas a 16 px / 20 px: rotação 4-6 graus, escala até 1,18,
+   translate 1,5 px, stroke-dashoffset até 76 unidades.
+   ========================================================================== */
+.navico {
+  display: inline-flex;
+  line-height: 0;
+}
+.navico svg,
+.navico svg * {
+  will-change: transform;
+}
+
+/* 1 - INICIO: acolhe (a casa respira e a porta abre em perspectiva) */
+[aria-current='page'] .navico[data-ico='inicio'] svg {
+  --d: 2.4s;
+  animation: casa-respira var(--d) ease-in-out infinite;
+}
+@keyframes casa-respira {
+  0%, 100% { transform: translateY(0) scale(1); }
+  45%      { transform: translateY(-1.5px) scale(1.055); }
+}
+[aria-current='page'] .navico[data-ico='inicio'] svg path:nth-of-type(1) {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: casa-porta var(--d) ease-in-out infinite;
+}
+@keyframes casa-porta {
+  0%, 100% { transform: scaleX(1); }
+  45%      { transform: scaleX(.48); }
+}
+
+/* 2 - EVENTOS: marca o dia (assenta, os pinos saltam, a linha do dia passa) */
+[aria-current='page'] .navico[data-ico='eventos'] svg {
+  --d: 2.2s;
+  animation: cal-assenta var(--d) ease-in-out infinite;
+}
+@keyframes cal-assenta {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  38%      { transform: rotate(-4.2deg) translateY(.5px); }
+  66%      { transform: rotate(1.6deg) translateY(-.3px); }
+}
+[aria-current='page'] .navico[data-ico='eventos'] svg path:nth-of-type(1),
+[aria-current='page'] .navico[data-ico='eventos'] svg path:nth-of-type(2) {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: cal-pino var(--d) ease-in-out infinite;
+}
+[aria-current='page'] .navico[data-ico='eventos'] svg path:nth-of-type(2) {
+  animation-delay: .22s;
+}
+@keyframes cal-pino {
+  0%, 100% { transform: translateY(0); }
+  35%      { transform: translateY(-2px); }
+  60%      { transform: translateY(.4px); }
+}
+[aria-current='page'] .navico[data-ico='eventos'] svg path:nth-of-type(3) {
+  stroke-dasharray: 18;
+  animation: cal-linha var(--d) ease-in-out infinite;
+}
+@keyframes cal-linha {
+  0%, 12%   { stroke-dashoffset: 18; }
+  55%, 100% { stroke-dashoffset: 0; }
+}
+
+/* 3 - BIBLIA: escreve-se (capa e lombada desenham-se de cima para baixo) */
+[aria-current='page'] .navico[data-ico='biblia'] svg {
+  --d: 2.8s;
+  transform-origin: 50% 60%;
+  animation: biblia-abre var(--d) ease-in-out infinite;
+}
+@keyframes biblia-abre {
+  0%, 100% { transform: scaleX(.965) scaleY(1); }
+  45%      { transform: scaleX(1.035) scaleY(1.02); }
+}
+[aria-current='page'] .navico[data-ico='biblia'] svg path:nth-of-type(1) {
+  stroke-dasharray: 14;
+  animation: biblia-lombada var(--d) ease-in-out infinite;
+}
+[aria-current='page'] .navico[data-ico='biblia'] svg path:nth-of-type(2) {
+  stroke-dasharray: 76.3;
+  animation: biblia-capa var(--d) ease-in-out infinite;
+}
+@keyframes biblia-capa {
+  0%        { stroke-dashoffset: 76.3; }
+  52%       { stroke-dashoffset: 0; }
+  88%, 100% { stroke-dashoffset: 0; }
+}
+@keyframes biblia-lombada {
+  0%, 14%   { stroke-dashoffset: 14; }
+  52%       { stroke-dashoffset: 0; }
+  88%, 100% { stroke-dashoffset: 0; }
+}
+
+/* 4 - COMUNICADOS: emite (o megafone acena e o braco desenha-se) */
+[aria-current='page'] .navico[data-ico='comunicados'] svg {
+  --d: 2.6s;
+  transform-origin: 42% 72%;
+  animation: mega-acena var(--d) ease-in-out infinite;
+}
+@keyframes mega-acena {
+  0%, 100% { transform: rotate(0deg); }
+  30%      { transform: rotate(-6.2deg); }
+  60%      { transform: rotate(2.5deg); }
+}
+[aria-current='page'] .navico[data-ico='comunicados'] svg path:nth-of-type(2) {
+  stroke-dasharray: 19.2;
+  animation: mega-sinal var(--d) ease-in-out infinite;
+}
+@keyframes mega-sinal {
+  0%, 38%   { stroke-dashoffset: 19.2; }
+  72%, 100% { stroke-dashoffset: 0; }
+}
+
+/* 5 - PERFIL: acena (o conjunto inclina e a cabeca cresce) */
+[aria-current='page'] .navico[data-ico='perfil'] svg {
+  --d: 2.3s;
+  transform-origin: 50% 88%;
+  animation: perfil-acena var(--d) ease-in-out infinite;
+}
+@keyframes perfil-acena {
+  0%, 100% { transform: rotate(0deg); }
+  35%      { transform: rotate(-5.5deg); }
+  70%      { transform: rotate(1.8deg); }
+}
+[aria-current='page'] .navico[data-ico='perfil'] svg circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: perfil-cabeca var(--d) ease-in-out infinite;
+}
+@keyframes perfil-cabeca {
+  0%, 100% { transform: scale(1); }
+  38%      { transform: scale(1.18); }
+}
+
+/* Reset: ao sair do item activo o icone volta ao repouso (nunca a meio do ciclo,
+   e sem ficar com o traco tracejado). */
+[data-ico]:not([aria-current='page']) .navico svg,
+[data-ico]:not([aria-current='page']) .navico svg * {
+  animation: none !important;
+  transform: none;
+  stroke-dasharray: none;
+}
+[aria-current='page'] .navico svg,
+[aria-current='page'] .navico svg * {
+  animation-play-state: running;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navico svg,
+  .navico svg * {
+    animation: none !important;
+  }
+}
