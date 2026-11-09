@@ -3,7 +3,7 @@
  * Trata casos de iframes, restrições de permissões do navegador e dispositivos móveis.
  */
 
-export interface SharePayload {
+interface SharePayload {
   title: string;
   text: string;
   url?: string;

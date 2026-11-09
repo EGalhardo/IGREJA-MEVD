@@ -54,13 +54,12 @@ export function GalleryGrid({ photos, onOpen }: GalleryGridProps) {
 interface GalleryStripProps {
   photos: GalleryPhoto[];
   onOpen: (index: number) => void;
-  onSeeAll: () => void;
   /** Quantidade de fotografias apresentadas numa única linha */
   columns?: number;
 }
 
 /** Tira de miniaturas (sempre numa só linha) com o atalho "Ver todas". */
-export function GalleryStrip({ photos, onOpen, onSeeAll, columns = 4 }: GalleryStripProps) {
+function GalleryStrip({ photos, onOpen, columns = 4 }: GalleryStripProps) {
   const visible = photos.slice(0, columns);
   const remaining = photos.length - visible.length;
 
@@ -131,7 +130,7 @@ export function GalleryPanel({
         </button>
       </div>
 
-      <GalleryStrip photos={photos} onOpen={onOpen} onSeeAll={onSeeAll} columns={columns} />
+      <GalleryStrip photos={photos} onOpen={onOpen} columns={columns} />
 
       <button
         onClick={onSeeAll}
@@ -394,7 +393,7 @@ export function GalleryLightbox({
 
         {/* Mensagens da fotografia */}
         <aside className="flex min-h-0 flex-col border-t border-[#E2E8F0] lg:w-[372px] lg:shrink-0 lg:border-l lg:border-t-0">
-          <PhotoComments photoId={current.id} eventTitle={eventTitle} />
+          <PhotoComments photoId={current.id} />
         </aside>
       </div>
     </div>

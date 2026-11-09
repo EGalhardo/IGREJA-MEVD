@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Share2, MapPin, Clock, Users, Mic, Music, UserCheck, Check, Images } from 'lucide-react';
-import { ChurchEvent, Screen } from '../../types';
+import { ChurchEvent } from '../../types';
 import { shareOrCopy } from '../../utils/shareUtils';
 import { GalleryGrid, GalleryPanel, GalleryLightbox } from '../EventGallery';
 
@@ -67,9 +67,7 @@ interface EventDetailScreenProps {
   event: ChurchEvent;
   isRegistered: boolean;
   onToggleRegistration: (eventId: string) => void;
-  onNavigate: (screen: Screen) => void;
   onShowToast: (message: string) => void;
-  isDesktopLayout?: boolean;
 }
 
 export default function EventDetailScreen({

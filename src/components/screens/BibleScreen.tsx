@@ -16,7 +16,6 @@ import {
   ArrowUp,
   Tag,
 } from 'lucide-react';
-import { Screen } from '../../types';
 import {
   ALL_BIBLE_BOOKS,
   BibleBook,
@@ -32,7 +31,6 @@ import { copyToClipboard } from '../../utils/shareUtils';
 import { normalizeSearch } from '../../utils/search';
 
 interface BibleScreenProps {
-  onNavigate: (screen: Screen) => void;
   isDesktopLayout?: boolean;
   onShowToast?: (message: string) => void;
 }

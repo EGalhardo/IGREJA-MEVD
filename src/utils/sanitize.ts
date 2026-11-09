@@ -69,14 +69,14 @@ export function sanitizePhone(input: string): { isValid: boolean; value: string;
 }
 
 /** Valida o estado civil perante os valores permitidos. */
-export const ALLOWED_CIVIL_STATUSES = [
+const ALLOWED_CIVIL_STATUSES = [
   'Solteiro(a)',
   'Casado(a)',
   'Divorciado(a)',
   'Viúvo(a)',
 ] as const;
 
-export type CivilStatus = (typeof ALLOWED_CIVIL_STATUSES)[number];
+type CivilStatus = (typeof ALLOWED_CIVIL_STATUSES)[number];
 
 export function sanitizeCivilStatus(input: string): CivilStatus {
   const trimmed = input.trim();

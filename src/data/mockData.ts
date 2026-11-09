@@ -402,4 +402,3 @@ export const CURRENT_USER: UserProfile = {
   notificationsActive: true,
 };
 
-export const CHURCH_HERO_IMAGE = 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?auto=format&fit=crop&w=1200&q=80';

@@ -1,14 +1,12 @@
 import { User, Church, Calendar, Bell, Shield, Headphones, ChevronRight, LogOut, CheckCircle2, UserRoundPen } from 'lucide-react';
 import { CURRENT_USER } from '../../data/mockData';
-import { Screen, UserProfile } from '../../types';
+import { UserProfile } from '../../types';
 import SafeImage from '../SafeImage';
 
 interface ProfileScreenProps {
   user?: UserProfile;
-  onNavigate: (screen: Screen) => void;
   onOpenOption: (optionId: string) => void;
   onLogout: () => void;
-  isDesktopLayout?: boolean;
 }
 
 export default function ProfileScreen({

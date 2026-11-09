@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Heart, MessageSquare, Search, Send, Smile, ImagePlus, BadgeCheck } from 'lucide-react';
 import { CURRENT_USER } from '../data/mockData';
-import { loadComments, seedComments, storageKeyFor } from '../data/commentsData';
+import { loadComments, storageKeyFor } from '../data/commentsData';
 import {
   addComment,
   addReply,
@@ -22,12 +22,6 @@ import {
 interface PhotoCommentsProps {
   /** Identificador da fotografia (cada foto tem o seu mural) */
   photoId: string;
-  /** Nome do evento, mostrado no subtítulo */
-  eventTitle: string;
-  /** Muda de valor quando o utilizador toca no botão "comentários" da barra de acções */
-  focusSignal?: number;
-  /** Informa o painel principal do total de mensagens (para o contador da barra) */
-  onTotalChange?: (total: number) => void;
 }
 
 const FILTERS: { id: CommentFilter; label: string }[] = [
@@ -65,12 +59,7 @@ function Avatar({ author, size = 30 }: { author: CommentAuthor; size?: number })
   );
 }
 
-export default function PhotoComments({
-  photoId,
-  eventTitle,
-  focusSignal = 0,
-  onTotalChange,
-}: PhotoCommentsProps) {
+export default function PhotoComments({ photoId }: PhotoCommentsProps) {
   const [comments, setComments] = useState<PhotoComment[]>(() => loadComments(photoId));
   const [draft, setDraft] = useState('');
   const [order, setOrder] = useState<CommentOrder>('recent');
@@ -104,17 +93,6 @@ export default function PhotoComments({
   }, [comments, photoId]);
 
   const total = useMemo(() => countComments(comments), [comments]);
-
-  useEffect(() => {
-    onTotalChange?.(total);
-  }, [total, onTotalChange]);
-
-  // O botão "comentários" da barra de acções traz o cursor para o campo
-  useEffect(() => {
-    if (focusSignal === 0) return;
-    draftRef.current?.focus();
-    draftRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-  }, [focusSignal]);
 
   const filtered = useMemo(() => sortComments(filterComments(comments, filter, query), order), [
     comments,

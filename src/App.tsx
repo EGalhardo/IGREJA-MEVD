@@ -156,7 +156,6 @@ export default function App() {
             <Sidebar
               currentScreen={currentScreen}
               onNavigate={navigateTo}
-              user={user}
               onLogout={handleLogout}
               unreadCount={unreadNotifications}
             />
@@ -167,9 +166,7 @@ export default function App() {
             <Appbar
               currentScreen={currentScreen}
               isDesktopLayout={isDesktopLayout}
-              onNavigate={navigateTo}
               onBack={handleBack}
-              onOpenNotifications={() => setActiveModal('notificacoes')}
               onOpenProfile={() => navigateTo('profile')}
               user={user}
               unreadCount={unreadNotifications}
@@ -198,7 +195,6 @@ export default function App() {
                   onSelectCategory={setEventCategory}
                   searchQuery={eventSearchQuery}
                   onSearchQueryChange={setEventSearchQuery}
-                  isDesktopLayout={isDesktopLayout}
                 />
               )}
 
@@ -207,15 +203,12 @@ export default function App() {
                   event={selectedEvent}
                   isRegistered={registeredEventIds.includes(selectedEvent.id)}
                   onToggleRegistration={handleToggleRegistration}
-                  onNavigate={navigateTo}
                   onShowToast={showToast}
-                  isDesktopLayout={isDesktopLayout}
                 />
               )}
 
               {currentScreen === 'bible' && (
                 <BibleScreen
-                  onNavigate={navigateTo}
                   onShowToast={showToast}
                   isDesktopLayout={isDesktopLayout}
                 />
@@ -224,18 +217,13 @@ export default function App() {
               {currentScreen === 'profile' && (
                 <ProfileScreen
                   user={user}
-                  onNavigate={navigateTo}
                   onOpenOption={(opt) => setActiveModal(opt)}
                   onLogout={handleLogout}
-                  isDesktopLayout={isDesktopLayout}
                 />
               )}
 
               {currentScreen === 'announcements' && (
-                <ComunicadosScreen
-                  onNavigate={navigateTo}
-                  isDesktopLayout={isDesktopLayout}
-                />
+                <ComunicadosScreen />
               )}
             </main>
 

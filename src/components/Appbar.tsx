@@ -9,9 +9,7 @@ import { Screen, UserProfile } from '../types';
 interface AppbarProps {
   currentScreen: Screen;
   isDesktopLayout: boolean;
-  onNavigate: (screen: Screen) => void;
   onBack: () => void;
-  onOpenNotifications: () => void;
   onOpenProfile: () => void;
   user: UserProfile;
   unreadCount?: number;
@@ -22,9 +20,7 @@ interface AppbarProps {
 export default function Appbar({
   currentScreen,
   isDesktopLayout,
-  onNavigate,
   onBack,
-  onOpenNotifications,
   onOpenProfile,
   user,
   unreadCount = 3,

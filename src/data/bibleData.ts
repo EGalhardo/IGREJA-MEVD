@@ -12,7 +12,7 @@ export interface BibleVerse {
   text: string;
 }
 
-export interface BibleTopicSearch {
+interface BibleTopicSearch {
   topic: string;
   ref: string;
   bookId: string;

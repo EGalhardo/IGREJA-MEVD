@@ -1,12 +1,11 @@
 import { Home, Calendar, BookOpen, Megaphone, User, LogOut } from 'lucide-react';
 import ChurchLogo from './ChurchLogo';
-import { Screen, UserProfile } from '../types';
+import { Screen } from '../types';
 import { CHURCH_EVENTS } from '../data/mockData';
 
 interface SidebarProps {
   currentScreen: Screen;
   onNavigate: (screen: Screen) => void;
-  user?: UserProfile;
   onLogout: () => void;
   unreadCount?: number;
 }

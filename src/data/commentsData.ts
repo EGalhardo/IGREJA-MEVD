@@ -84,9 +84,6 @@ export function seedComments(photoId: string): PhotoComment[] {
 /** Chave do `localStorage` usada para guardar os comentários de cada foto. */
 export const storageKeyFor = (photoId: string) => `mevd:comentarios:${photoId}`;
 
-/** Chave do `localStorage` do "gosto" na fotografia (versão anterior). */
-export const likeKeyFor = (photoId: string) => `mevd:gosto-foto:${photoId}`;
-
 /** Chave do `localStorage` da reacção actual: "like", "dislike" ou vazio. */
 export const reactionKeyFor = (photoId: string) => `mevd:reacao-foto:${photoId}`;
 

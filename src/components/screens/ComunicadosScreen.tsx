@@ -1,10 +1,5 @@
 import { Bell, Calendar, Pin } from 'lucide-react';
-import { Screen } from '../../types';
 
-interface ComunicadosScreenProps {
-  onNavigate: (screen: Screen) => void;
-  isDesktopLayout?: boolean;
-}
 
 const ANNOUNCEMENTS = [
   {
@@ -33,7 +28,7 @@ const ANNOUNCEMENTS = [
   },
 ];
 
-export default function ComunicadosScreen(_props: ComunicadosScreenProps) {
+export default function ComunicadosScreen() {
   return (
     <div className="flex-1 flex flex-col bg-white overflow-y-auto w-full">
       <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4">

@@ -11,7 +11,6 @@ interface EventsScreenProps {
   onSelectCategory: (category: EventCategory) => void;
   searchQuery: string;
   onSearchQueryChange: (query: string) => void;
-  isDesktopLayout?: boolean;
 }
 
 const CATEGORIES: EventCategory[] = ['Todos', 'Cultos', 'Congressos', 'Vigílias', 'Reuniões'];

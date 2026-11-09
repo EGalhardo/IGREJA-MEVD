@@ -12,7 +12,7 @@ import { BibleBook } from './bibleData';
  * aparecem também sem ligação à Internet.
  */
 
-export interface ChapterImage {
+interface ChapterImage {
   /** Caminho final da imagem. */
   src: string;
   /** Legenda curta mostrada sobre a imagem. */
