@@ -122,31 +122,18 @@ export default function EventDetailScreen({
             {activeTab === 'live' || !hasGallery ? (
               <>
                 {/* A imagem é exactamente a do cartão clicado na página Início (event.image) */}
-                <div className="relative w-full overflow-hidden bg-slate-950">
-                  {/* Preenche o cartão com a própria imagem desfocada, para não ficarem faixas vazias */}
-                  <span className="pointer-events-none absolute inset-0 overflow-hidden">
-                    <SafeImage
-                      src={event.image}
-                      alt=""
-                      fallbackSrc="/assets/aistudio/2_b0dbb042.webp"
-                      fallbackType="event"
-                      loading="eager"
-                      className="h-full w-full scale-110 object-cover opacity-35 blur-xl"
-                    />
-                  </span>
-
-                  {/* Imagem completa, sem cortes: fica inteira dentro do cartão */}
+                <div className="relative aspect-[160/117] max-h-[26rem] w-full overflow-hidden bg-slate-900">
                   <SafeImage
                     src={event.image}
                     alt={event.title}
                     fallbackSrc="/assets/aistudio/2_b0dbb042.webp"
                     fallbackType="event"
                     loading="eager"
-                    className="relative z-[1] mx-auto block h-auto max-h-[75vh] w-full object-contain sm:max-h-[32rem]"
+                    className="absolute inset-0 h-full w-full object-cover"
                   />
 
                   {/* Véu escuro: garante o contraste do Play e dos textos sobre a fotografia */}
-                  <span className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-t from-slate-950/92 via-slate-950/55 to-slate-950/25" />
+                  <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/92 via-slate-950/65 to-slate-950/35" />
 
                   {/* Estado da transmissão */}
                   <span className="absolute left-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full border border-rose-400/50 bg-rose-500/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-rose-50 backdrop-blur-sm sm:left-4 sm:top-4">
