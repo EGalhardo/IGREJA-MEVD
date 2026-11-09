@@ -55,3 +55,199 @@ body,
   }
 }
 
+
+/* ==========================================================================
+   Tema escuro (alternado pelo ícone Escuro/Claro no appbar)
+   Fundo do app: #050D1C · linhas/bordas: #163B70
+   ========================================================================== */
+html[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+html[data-theme='dark'],
+html[data-theme='dark'] body,
+html[data-theme='dark'] #root {
+  background-color: #050d1c;
+}
+
+/* Todas as linhas do app (bordas, divisores, molduras) passam a #163B70 */
+html[data-theme='dark'] #root,
+html[data-theme='dark'] #root *,
+html[data-theme='dark'] #root::before,
+html[data-theme='dark'] #root::after,
+html[data-theme='dark'] #root *::before,
+html[data-theme='dark'] #root *::after {
+  border-color: #163b70;
+}
+
+/* Superfícies: cartões, appbar, sidebar, modais e listas */
+html[data-theme='dark'] .bg-white {
+  background-color: #050d1c;
+}
+html[data-theme='dark'] .bg-slate-50 {
+  background-color: #08142a;
+}
+html[data-theme='dark'] .bg-slate-100 {
+  background-color: #0b1c36;
+}
+html[data-theme='dark'] .bg-slate-200 {
+  background-color: #102746;
+}
+html[data-theme='dark'] .bg-slate-300 {
+  background-color: #163b70;
+}
+html[data-theme='dark'] .bg-blue-50 {
+  background-color: #0a1e3c;
+}
+html[data-theme='dark'] .bg-blue-100 {
+  background-color: #0e2a52;
+}
+
+/* Texto legível sobre #050D1C (contraste ≥ 4,5:1) */
+html[data-theme='dark'] .text-slate-900,
+html[data-theme='dark'] .text-slate-800 {
+  color: #eef4fc;
+}
+html[data-theme='dark'] .text-slate-700 {
+  color: #dbe6f6;
+}
+html[data-theme='dark'] .text-slate-600 {
+  color: #c6d4ea;
+}
+html[data-theme='dark'] .text-slate-500 {
+  color: #aec0dd;
+}
+html[data-theme='dark'] .text-slate-400 {
+  color: #97abc9;
+}
+
+/* Azuis de destaque: mais claros para manter o contraste no fundo escuro */
+html[data-theme='dark'] .text-\[\#0066cc\] {
+  color: #6fb1ff;
+}
+html[data-theme='dark'] .text-blue-600,
+html[data-theme='dark'] .text-blue-700 {
+  color: #86baff;
+}
+html[data-theme='dark'] ::placeholder {
+  color: #8fa3c2;
+}
+
+/* O <body> tem a classe bg-slate-100 (superfície clara): no escuro assume o fundo do app */
+html[data-theme='dark'] body.bg-slate-100 {
+  background-color: #050d1c;
+}
+
+/* Pastilhas de estado (avisos, categorias, ícones) em tons escuros harmónicos */
+html[data-theme='dark'] .bg-emerald-50 {
+  background-color: rgba(16, 185, 129, 0.14);
+}
+html[data-theme='dark'] .bg-emerald-100 {
+  background-color: rgba(16, 185, 129, 0.22);
+}
+html[data-theme='dark'] .bg-amber-50 {
+  background-color: rgba(245, 158, 11, 0.14);
+}
+html[data-theme='dark'] .bg-amber-100 {
+  background-color: rgba(245, 158, 11, 0.22);
+}
+html[data-theme='dark'] .bg-red-50 {
+  background-color: rgba(239, 68, 68, 0.14);
+}
+html[data-theme='dark'] .bg-red-100 {
+  background-color: rgba(239, 68, 68, 0.22);
+}
+html[data-theme='dark'] .bg-rose-50 {
+  background-color: rgba(244, 63, 94, 0.14);
+}
+html[data-theme='dark'] .bg-purple-50 {
+  background-color: rgba(168, 85, 247, 0.14);
+}
+html[data-theme='dark'] .bg-purple-100 {
+  background-color: rgba(168, 85, 247, 0.22);
+}
+html[data-theme='dark'] .bg-sky-50 {
+  background-color: rgba(14, 165, 233, 0.14);
+}
+
+/* Texto dessas pastilhas */
+html[data-theme='dark'] .text-purple-800,
+html[data-theme='dark'] .text-purple-600 {
+  color: #d2b4ff;
+}
+html[data-theme='dark'] .text-emerald-800,
+html[data-theme='dark'] .text-emerald-700,
+html[data-theme='dark'] .text-emerald-600 {
+  color: #6fe0ae;
+}
+html[data-theme='dark'] .text-amber-900,
+html[data-theme='dark'] .text-amber-600 {
+  color: #f3c877;
+}
+html[data-theme='dark'] .text-rose-600,
+html[data-theme='dark'] .text-red-600,
+html[data-theme='dark'] .text-red-500 {
+  color: #ff8f8f;
+}
+
+html[data-theme='dark'] .bg-\[\#f1f5f9\] {
+  background-color: #050d1c;
+}
+
+/* Elementos sobre a fotografia (setas e etiquetas da galeria) ficam escuros no tema escuro,
+   para o texto claro continuar legível. */
+html[data-theme='dark'] .bg-white\/90 {
+  background-color: rgba(5, 13, 28, 0.92);
+}
+html[data-theme='dark'] .bg-white\/95 {
+  background-color: rgba(5, 13, 28, 0.95);
+}
+
+/* Branco que não muda com o tema (indicadores do carrossel sobre imagem) */
+.branco-fixo {
+  background-color: #ffffff;
+}
+
+/* O anel branco do contador de notificações acompanha o fundo escuro */
+html[data-theme='dark'] .ring-white {
+  --tw-ring-color: #050d1c;
+}
+
+/* Variantes com transparência (pastilhas de rodapé, cabeçalhos de lista, filtros) */
+html[data-theme='dark'] .bg-slate-50\/40 {
+  background-color: rgba(8, 20, 42, 0.6);
+}
+html[data-theme='dark'] .bg-slate-50\/80 {
+  background-color: rgba(8, 20, 42, 0.85);
+}
+html[data-theme='dark'] .bg-blue-50\/60 {
+  background-color: rgba(10, 30, 60, 0.7);
+}
+html[data-theme='dark'] .bg-blue-50\/40 {
+  background-color: rgba(10, 30, 60, 0.5);
+}
+html[data-theme='dark'] .bg-blue-50\/30 {
+  background-color: rgba(10, 30, 60, 0.4);
+}
+html[data-theme='dark'] .bg-amber-50\/70 {
+  background-color: rgba(245, 158, 11, 0.16);
+}
+
+html[data-theme='dark'] .text-sky-800,
+html[data-theme='dark'] .text-sky-700,
+html[data-theme='dark'] .text-sky-600 {
+  color: #7cc7ff;
+}
+html[data-theme='dark'] .text-amber-800,
+html[data-theme='dark'] .text-amber-700 {
+  color: #f3c877;
+}
+html[data-theme='dark'] .text-purple-700 {
+  color: #d2b4ff;
+}
+html[data-theme='dark'] .text-emerald-400 {
+  color: #6fe0ae;
+}
+html[data-theme='dark'] .text-red-700 {
+  color: #ff8f8f;
+}

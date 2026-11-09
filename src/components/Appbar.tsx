@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Moon, Sun } from 'lucide-react';
 import ChurchLogo from './ChurchLogo';
 import SafeImage from './SafeImage';
 import NotificationMenu from './NotificationMenu';
 import type { AppNotification } from '../data/notificationsData';
 import { Screen, UserProfile } from '../types';
+import { useTheme } from '../theme';
 
 interface AppbarProps {
   currentScreen: Screen;
@@ -98,6 +99,7 @@ export default function Appbar({
   };
   // Saudação curta: primeiro nome do utilizador (ex.: "Oi, Edlásio")
   const firstName = user.name.trim().split(/\s+/)[0] || user.name;
+  const { theme, toggleTheme } = useTheme();
 
   const getScreenTitle = () => {
     switch (currentScreen) {
@@ -147,8 +149,22 @@ export default function Appbar({
           </div>
         </div>
 
-        {/* Right: foto de perfil (abre as notificações) + saudação (abre o perfil) */}
+        {/* Right: alternador Escuro/Claro + foto de perfil (abre as notificações) + saudação (abre o perfil) */}
         <div ref={notifWrapperRef} className="relative flex shrink-0 items-center">
+          <button
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
+            aria-pressed={theme === 'dark'}
+            title="Escuro/Claro"
+            className="mr-3.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900 cursor-pointer"
+          >
+            {theme === 'dark' ? (
+              <Sun className="h-4 w-4 stroke-[2.2]" />
+            ) : (
+              <Moon className="h-4 w-4 stroke-[2.2]" />
+            )}
+          </button>
+
           <div className="flex flex-col items-center gap-1">
             <button
               ref={avatarButtonRef}
@@ -232,8 +248,22 @@ export default function Appbar({
         )}
       </div>
 
-      {/* Right section: foto de perfil (abre as notificações) + saudação (abre o perfil) */}
+      {/* Right section: alternador Escuro/Claro + foto de perfil (abre as notificações) + saudação (abre o perfil) */}
       <div ref={notifWrapperRef} className="relative flex shrink-0 items-center">
+        <button
+          onClick={toggleTheme}
+          aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
+          aria-pressed={theme === 'dark'}
+          title="Escuro/Claro"
+          className="mr-2.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900 cursor-pointer"
+        >
+          {theme === 'dark' ? (
+            <Sun className="h-4 w-4 stroke-[2.2]" />
+          ) : (
+            <Moon className="h-4 w-4 stroke-[2.2]" />
+          )}
+        </button>
+
         <div className="flex flex-col items-center gap-0.5">
           <button
             ref={avatarButtonRef}

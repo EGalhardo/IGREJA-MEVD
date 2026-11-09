@@ -16,6 +16,7 @@ import { CHURCH_EVENTS, eventSearchValues } from '../../data/mockData';
 import { ChurchEvent, Screen } from '../../types';
 import SafeImage from '../SafeImage';
 import { matchesSearchTerms } from '../../utils/search';
+import { useTheme } from '../../theme';
 
 interface HomeScreenProps {
   onNavigate: (screen: Screen) => void;
@@ -29,17 +30,31 @@ interface HomeScreenProps {
   onSearchEvents?: (query: string) => void;
 }
 
+interface HeroSlide {
+  id: number;
+  image: string;
+  /** Variante para o modo escuro (traço claro em vez do azul). */
+  imageDark?: string;
+  alt: string;
+  title: string;
+  subtitle: string;
+  category: string;
+  /** 'contain' para artes de marca (não podem ser cortadas). */
+  fit?: 'cover' | 'contain';
+}
+
 // Imagens em destaque do carrossel oficial da IGREJA MEVD
-const HERO_CAROUSEL_SLIDES = [
+const HERO_CAROUSEL_SLIDES: HeroSlide[] = [
   {
     id: 1,
     image: '/assets/aistudio/MEVD_LOCKUP_02.webp',
+    imageDark: '/assets/aistudio/MEVD_LOCKUP_DARK.webp',
     alt: 'Igreja mevd. — Logomarca e identidade oficial',
     title: 'Bem-vindo à Igreja mevd.',
     subtitle: 'Uma igreja viva, unida e em missão.',
     category: 'MEVD Oficial',
-    // O destaque da marca é uma arte com fundo branco: mostra-se inteira (sem cortes).
-    fit: 'contain' as const,
+    // O destaque da marca é uma arte de identidade: mostra-se inteira (sem cortes).
+    fit: 'contain',
   },
   {
     id: 2,
@@ -68,6 +83,7 @@ export default function HomeScreen({
   onSearchQueryChange,
   onSearchEvents,
 }: HomeScreenProps) {
+  const { theme } = useTheme();
   const upcomingEvents = CHURCH_EVENTS;
 
   // Resultados em directo para o campo de procura da página inicial.
@@ -162,7 +178,7 @@ export default function HomeScreen({
                 onClick={() => onNavigate('events')}
               >
                 <SafeImage
-                  src={slide.image}
+                  src={slide.imageDark && theme === 'dark' ? slide.imageDark : slide.image}
                   alt={slide.alt}
                   fallbackSrc="/assets/aistudio/MEVD_LOCKUP_02.webp"
                   fallbackType="church"
@@ -217,14 +233,14 @@ export default function HomeScreen({
                     {isActive && (
                       <span
                         key={`pill-${currentSlide}`}
-                        className="absolute inset-y-0 left-0 rounded-full bg-white"
+                        className="absolute inset-y-0 left-0 rounded-full branco-fixo"
                         style={{
                           animation: 'carouselProgress 5s linear forwards',
                           animationPlayState: isPaused ? 'paused' : 'running',
                         }}
                       />
                     )}
-                    {idx < currentSlide && <span className="absolute inset-0 rounded-full bg-white/90" />}
+                    {idx < currentSlide && <span className="absolute inset-0 rounded-full branco-fixo" />}
                   </span>
                 </button>
               );

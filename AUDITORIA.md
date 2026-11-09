@@ -175,3 +175,21 @@ npm test                                    # 22 testes de unidade
 ```
 
 Opções: `AUDIT_URL` (endereço a auditar) e `AUDIT_OUT` (pasta das capturas, por omissão `./auditoria-out`).
+
+---
+
+## 9. Tema escuro (ícone Escuro/Claro no appbar)
+
+O alternador fica no appbar (desktop e telemóvel), guarda a escolha em `localStorage` (`mevd:tema`) e aplica `data-theme="dark"` no `<html>` — com um pequeno script no `index.html` que evita o flash claro ao recarregar.
+
+| Elemento | Claro | Escuro |
+|---|---|---|
+| Fundo do app, cartões, appbar, sidebar e modais | `#ffffff` / `#f1f5f9` | **`#050D1C`** |
+| Linhas, bordas e divisores (toda a app) | `#e2e8f0` | **`#163B70`** |
+| Texto principal | `slate-900` | `#eef4fc` |
+| Texto secundário | `slate-500/400` | `#aec0dd` / `#97abc9` |
+| Azuis de destaque | `#0066cc` | `#6fb1ff` |
+| Logomarca | `MEVD_LOGO_02.webp` (traço azul) | **`MEVD_LOGO_DARK.webp`** (traço claro, imagem fornecida) |
+| 1.º destaque do carrossel | `MEVD_LOCKUP_02.webp` | **`MEVD_LOCKUP_DARK.webp`** |
+
+Verificação em Playwright: **0 falhas de contraste** nos 5 ecrãs principais (Início, Eventos, Bíblia, Comunicados, Perfil) e no popup do comunicado; 320→1920 px sem overflow; logomarca e destaque trocam e voltam ao claro; preferência mantém-se após recarregar; 0 erros de consola.

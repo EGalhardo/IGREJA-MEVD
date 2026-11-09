@@ -1,9 +1,15 @@
+import { useTheme } from '../theme';
+
 interface ChurchLogoProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg' | 'appbar';
 }
 
 export default function ChurchLogo({ className = '', size = 'md' }: ChurchLogoProps) {
+  const { theme } = useTheme();
+  // No modo escuro a chama usa o traço claro (ficheiro próprio); no claro volta a versão azul.
+  const logomarca =
+    theme === 'dark' ? '/assets/aistudio/MEVD_LOGO_DARK.webp' : '/assets/aistudio/MEVD_LOGO_02.webp';
   const sizeClasses = {
     sm: 'w-8 h-8 p-1',
     md: 'w-10 h-10 p-1.5',
@@ -19,7 +25,7 @@ export default function ChurchLogo({ className = '', size = 'md' }: ChurchLogoPr
       className={`rounded-2xl bg-white flex items-center justify-center shrink-0 overflow-hidden ${sizeClasses} ${className}`}
     >
       <img
-        src="/assets/aistudio/MEVD_LOGO_02.webp"
+        src={logomarca}
         alt="Logomarca Igreja mevd."
         className="w-full h-full object-contain select-none"
       />
