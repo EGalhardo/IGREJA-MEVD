@@ -64,7 +64,7 @@ function GalleryStrip({ photos, onOpen, columns = 4 }: GalleryStripProps) {
   const remaining = photos.length - visible.length;
 
   return (
-    <div className="grid gap-1.5 p-4 pt-0" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
+    <div className="grid gap-1.5 p-4 pt-0 xl:gap-2 xl:px-5" style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}>
       {visible.map((photo, index) => {
         const isLast = index === visible.length - 1 && remaining > 0;
 
@@ -115,16 +115,16 @@ export function GalleryPanel({
 }: GalleryPanelProps) {
   return (
     <section className="overflow-hidden rounded-3xl border border-[#E2E8F0] bg-white shadow-xs">
-      <div className="flex items-center justify-between gap-2 px-4 pb-2.5 pt-3.5">
+      <div className="flex items-center justify-between gap-2 px-4 pb-2.5 pt-3.5 xl:px-5 xl:pb-3 xl:pt-4">
         <div>
-          <h2 className="text-xs font-bold text-slate-900 sm:text-sm">Galeria do evento</h2>
-          <p className="mt-0.5 text-[10px] font-semibold text-slate-500">
+          <h2 className="text-xs font-bold text-slate-900 sm:text-sm xl:text-base">Galeria do evento</h2>
+          <p className="mt-0.5 text-[10px] font-semibold text-slate-500 xl:text-xs">
             {photos.length} foto{photos.length === 1 ? '' : 's'} • {dateLabel}
           </p>
         </div>
         <button
           onClick={onSeeAll}
-          className="shrink-0 text-[11px] font-bold text-[#0066cc] hover:underline cursor-pointer"
+          className="shrink-0 text-[11px] font-bold text-[#0066cc] hover:underline cursor-pointer xl:text-xs"
         >
           Ver todas →
         </button>
@@ -134,20 +134,20 @@ export function GalleryPanel({
 
       <button
         onClick={onSeeAll}
-        className="flex w-full items-center gap-3 border-t border-[#E2E8F0] bg-slate-50 px-4 py-3 text-left transition-colors hover:bg-slate-100 cursor-pointer"
+        className="flex w-full items-center gap-3 border-t border-[#E2E8F0] bg-slate-50 px-4 py-3 xl:px-5 xl:py-4 text-left transition-colors hover:bg-slate-100 cursor-pointer"
       >
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#0066cc]">
-          <Images className="h-4 w-4 stroke-[2.2]" />
+        <span className="flex h-9 w-9 xl:h-10 xl:w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-[#0066cc]">
+          <Images className="h-4 w-4 xl:h-[18px] xl:w-[18px] stroke-[2.2]" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate text-[11px] font-bold text-slate-900">
+          <span className="block truncate text-[11px] font-bold text-slate-900 xl:text-xs">
             Álbum completo • {eventTitle}
           </span>
-          <span className="block text-[10px] font-medium text-slate-500">
+          <span className="block text-[10px] font-medium text-slate-500 xl:text-[11px]">
             Toque numa foto para ver em ecrã inteiro
           </span>
         </span>
-        <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
+        <ChevronRight className="h-4 w-4 xl:h-[18px] xl:w-[18px] shrink-0 text-slate-400" />
       </button>
     </section>
   );

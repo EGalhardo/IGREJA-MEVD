@@ -77,7 +77,7 @@ export default function EventDetailScreen({
 
   return (
     <div id="event-detail-scroll" className="flex-1 flex flex-col bg-white overflow-y-auto w-full">
-      <div className="w-full max-w-5xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-6">
+      <div className="w-full max-w-5xl xl:max-w-6xl mx-auto px-0 sm:px-6 lg:px-8 sm:py-6">
         {/* Main Event Card Container */}
         <div className="bg-white sm:rounded-3xl shadow-xs border-0 sm:border border-[#E2E8F0] overflow-hidden flex flex-col">
           {/* Separadores: transmissão ao vivo / galeria do evento */}
@@ -285,10 +285,10 @@ export default function EventDetailScreen({
 
                 {/* 3 Pillars / Feature Highlights Box */}
                 <div>
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">
+                  <p className="text-xs xl:text-[13px] font-bold text-slate-400 uppercase tracking-wider mb-2.5 xl:mb-3">
                     Destaques do programa
                   </p>
-                  <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
+                  <div className="grid grid-cols-3 gap-2.5 sm:gap-3 xl:gap-4">
                     {(event.highlights ?? [
                       { icon: 'mic' as const, title: 'Palestrantes convidados' },
                       { icon: 'music' as const, title: 'Louvor e adoração' },
@@ -296,9 +296,9 @@ export default function EventDetailScreen({
                     ]).map((highlight, index) => {
                       const Icon = { mic: Mic, music: Music, users: Users }[highlight.icon];
                       return (
-                        <div key={`${highlight.icon}-${index}`} className="bg-white border border-[#E2E8F0] rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center text-center min-h-[96px] sm:min-h-[110px] shadow-2xs">
-                          <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-[#0066cc] stroke-[2.2] mb-1.5" />
-                          <span className="text-[10px] sm:text-xs font-bold text-slate-800 leading-tight">
+                        <div key={`${highlight.icon}-${index}`} className="bg-white border border-[#E2E8F0] rounded-2xl p-3 sm:p-4 xl:p-[18px] flex flex-col items-center justify-center text-center min-h-[96px] sm:min-h-[110px] xl:min-h-[118px] shadow-2xs">
+                          <Icon className="w-5 h-5 sm:w-6 sm:h-6 xl:w-7 xl:h-7 text-[#0066cc] stroke-[2.2] mb-1.5 xl:mb-2" />
+                          <span className="text-[10px] sm:text-xs xl:text-[13px] font-bold text-slate-800 leading-tight">
                             {highlight.title}
                           </span>
                         </div>
