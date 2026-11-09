@@ -123,7 +123,7 @@ export default function Appbar({
   // If in desktop/tablet-landscape mode:
   if (isDesktopLayout) {
     return (
-      <header ref={headerRef} className="h-[var(--desktop-header-height)] w-full bg-white border-b border-[#E2E8F0] px-6 py-3.5 flex items-center justify-between shrink-0 sticky top-0 z-20 shadow-xs">
+      <header ref={headerRef} className="h-[var(--desktop-header-height)] w-full bg-white border-b border-[#E2E8F0] px-6 py-2.5 flex items-center justify-between shrink-0 sticky top-0 z-20 shadow-xs">
         {/* Left: Breadcrumbs & Current Page Title */}
         <div className="flex items-center gap-3">
           {currentScreen !== 'home' && (
