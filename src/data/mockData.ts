@@ -53,7 +53,7 @@ function buildGallery(eventId: string, leadPhotoSrc: string): GalleryPhoto[] {
   }));
 }
 
-export const CHURCH_EVENTS: ChurchEvent[] = [
+const EVENTOS_BASE: ChurchEvent[] = [
   {
     id: 'congresso-jovens-2027',
     title: 'Congresso de Jovens 2027',
@@ -370,6 +370,19 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
     ],
   },
 ];
+
+/**
+ * Todo o evento tem album. Os 7 eventos que ja trazem um album curado ficam
+ * como estao; aos restantes e montado o album padrao (as mesmas 6 fotografias
+ * de `GALLERY_PHOTOS`), com a fotografia de destaque do evento a abrir a lista.
+ * Assim a pagina "Detalhes do Evento" mostra sempre o separador "Galeria",
+ * venha o evento da Home, da agenda ou de uma ligacao directa.
+ */
+export const CHURCH_EVENTS: ChurchEvent[] = EVENTOS_BASE.map((event) =>
+  event.gallery && event.gallery.length > 0
+    ? event
+    : { ...event, gallery: buildGallery(event.id, event.image) }
+);
 
 /** Campos de um evento considerados pela pesquisa (título, local, descrição, etc.). */
 export function eventSearchValues(event: ChurchEvent): Array<string | undefined> {
