@@ -33,11 +33,13 @@ interface HomeScreenProps {
 const HERO_CAROUSEL_SLIDES = [
   {
     id: 1,
-    image: '/assets/aistudio/1_6270ba45.webp',
-    alt: 'IGREJA MEVD - Logomarca e Identidade Oficial',
-    title: 'Bem-vindo à IGREJA MEVD',
+    image: '/assets/aistudio/MEVD_LOCKUP_02.webp',
+    alt: 'Igreja mevd. — Logomarca e identidade oficial',
+    title: 'Bem-vindo à Igreja mevd.',
     subtitle: 'Uma igreja viva, unida e em missão.',
     category: 'MEVD Oficial',
+    // O destaque da marca é uma arte com fundo branco: mostra-se inteira (sem cortes).
+    fit: 'contain' as const,
   },
   {
     id: 2,
@@ -138,7 +140,7 @@ export default function HomeScreen({
       <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6">
         {/* Carrossel de Destaque Animado com Duração de 5 segundos e Loop Infinito */}
         <div
-          className={`relative w-full rounded-3xl overflow-hidden border border-[#E2E8F0] select-none group bg-slate-900 ${isDesktopLayout ? 'aspect-[16/9]' : 'aspect-[256/225]'}`}
+          className={`relative w-full rounded-3xl overflow-hidden border border-[#E2E8F0] select-none group bg-white ${isDesktopLayout ? 'aspect-[16/9]' : 'aspect-[256/225]'}`}
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
           onTouchStart={handleTouchStart}
@@ -162,9 +164,9 @@ export default function HomeScreen({
                 <SafeImage
                   src={slide.image}
                   alt={slide.alt}
-                  fallbackSrc="/assets/aistudio/1_6270ba45.webp"
+                  fallbackSrc="/assets/aistudio/MEVD_LOCKUP_02.webp"
                   fallbackType="church"
-                  className="w-full h-full object-cover object-center block"
+                  className={`w-full h-full object-center block ${slide.fit === 'contain' ? 'object-contain px-3 pt-3 pb-10 sm:px-6 sm:pt-6 sm:pb-14' : 'object-cover'}`}
                   loading={index === 0 ? 'eager' : 'lazy'}
                 />
               </button>

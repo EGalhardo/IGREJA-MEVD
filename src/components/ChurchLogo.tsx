@@ -9,7 +9,7 @@ export default function ChurchLogo({ className = '', size = 'md' }: ChurchLogoPr
     md: 'w-10 h-10 p-1.5',
     lg: 'w-12 h-12 p-2',
     // Appbar mobile: caixa 40px com 4px de margem -> imagem 32px
-    // (o PNG tem ~5% de margem transparente, logo a chama visivel fica ~28px,
+    // (a arte tem 6% de respiro, logo a chama visivel fica ~28px,
     // igual ao diametro da foto de perfil no appbar mobile)
     appbar: 'w-10 h-10 p-1',
   }[size];
@@ -19,8 +19,8 @@ export default function ChurchLogo({ className = '', size = 'md' }: ChurchLogoPr
       className={`rounded-2xl bg-white flex items-center justify-center shrink-0 overflow-hidden ${sizeClasses} ${className}`}
     >
       <img
-        src="/assets/aistudio/MEVD_LOGO_01.webp"
-        alt="Logomarca IGREJA MEVD"
+        src="/assets/aistudio/MEVD_LOGO_02.webp"
+        alt="Logomarca Igreja mevd."
         className="w-full h-full object-contain select-none"
       />
     </div>

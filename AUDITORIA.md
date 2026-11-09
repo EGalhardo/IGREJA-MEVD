@@ -48,8 +48,8 @@ O app está funcional, consistente e responsivo em todos os tamanhos testados. N
 | `Foto_de_Perfil__1__…` (exibida a 32 px) | 760 KB | **8 KB** | −99 % |
 | `2_b0dbb042` (cartaz) | 617 KB | **116 KB** | −81 % |
 | `3_f31b15f7` (cartaz) | 431 KB | **72 KB** | −83 % |
-| `1_6270ba45` (destaque) | 286 KB | **15 KB** | −95 % |
-| `MEVD_LOGO_01` (exibido a 28 px) | 159 KB | **16 KB** | −90 % |
+| Destaque do carrossel (agora `MEVD_LOCKUP_02`) | 286 KB | **35 KB** | −88 % |
+| Logomarca (agora `MEVD_LOGO_02`, exibida a 28 px) | 159 KB | **14 KB** | −91 % |
 | 6 fotografias da galeria | 933 KB | **567 KB** | −39 % |
 | 10 imagens bíblicas | 1.285 KB | **841 KB** | −35 % |
 | 4 cartazes de eventos | 167 KB | **108 KB** | −35 % |

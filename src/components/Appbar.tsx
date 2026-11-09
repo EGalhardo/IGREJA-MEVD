@@ -114,7 +114,7 @@ export default function Appbar({
       case 'announcements':
         return 'Comunicados';
       default:
-        return 'IGREJA MEVD';
+        return 'Igreja mevd.';
     }
   };
 
@@ -137,7 +137,7 @@ export default function Appbar({
 
           <div>
             <div className="flex items-center gap-2 text-xs text-slate-400">
-              <span>IGREJA MEVD</span>
+              <span>Igreja mevd.</span>
               <span>/</span>
               <span className="text-slate-700 font-semibold">{getScreenTitle()}</span>
             </div>
