@@ -181,6 +181,20 @@ ok('Comunicados abre', await p.getByText(/Comunicados/i).first().isVisible());
 const avisos = await p.locator('h3, h4').filter({ hasText:/Congresso|Culto|Inscri|Oração/i }).count();
 ok('Comunicados listam avisos', avisos > 0, `${avisos} títulos`);
 
+// Popup do comunicado: abre com o conteúdo do cartão, fecha com ESC e devolve o foco
+const cartoesComunicado = p.locator('button[aria-haspopup="dialog"]');
+const totalCartoes = await cartoesComunicado.count();
+await cartoesComunicado.first().click();
+await p.waitForTimeout(500);
+const dlgComunicado = p.getByRole('dialog');
+const textoComunicado = await dlgComunicado.innerText().catch(() => '');
+ok('Popup do comunicado abre', (await dlgComunicado.count()) === 1, `${totalCartoes} comunicados`);
+ok('Popup mostra o comunicado certo', /Congresso de Jovens 2027/.test(textoComunicado) && /Jovens/.test(textoComunicado));
+await p.keyboard.press('Escape');
+await p.waitForTimeout(400);
+ok('ESC fecha o popup do comunicado', (await p.getByRole('dialog').count()) === 0);
+ok('Foco volta ao cartão do comunicado', /Abrir comunicado/.test(await p.evaluate(() => document.activeElement?.getAttribute('aria-label') || '')));
+
 // ---------- 8. Perfil + modais ----------
 await p.locator('button:has-text("Perfil")').first().click();
 await p.waitForTimeout(700);

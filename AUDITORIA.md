@@ -11,7 +11,7 @@
 
 | Área | Resultado |
 |---|---|
-| Fluxo funcional | **32/32 verificações verdes** (0 erros de consola, 0 pedidos falhados) |
+| Fluxo funcional | **36/36 verificações verdes** (0 erros de consola, 0 pedidos falhados) |
 | Harmonia / responsivo | **6/6 viewports** sem overflow horizontal, 0 elementos fora do ecrã, 0 sobreposições |
 | Contraste (WCAG AA) | **99/99** textos conformes |
 | Imagens sem `alt` | **0** |
@@ -38,7 +38,8 @@ O app está funcional, consistente e responsivo em todos os tamanhos testados. N
 | 7 | Dois eventos carregavam fotos de `images.unsplash.com` (app dependia de terceiros) | Substituídas por fotografias locais em WebP | `mockData.ts` |
 | 8 | Pesquisa bíblica por "amor" devolvia também Apocalipse 21:4 (o texto diz "nem pranto, nem cl**amor**") | Comparação por **palavra inteira** no texto do versículo | `BibleScreen.tsx` |
 | 9 | "Mostrando **0 de 66** livros / Nenhum livro encontrado" com versículos encontrados | Estado vazio coerente: "Mas há 1 versículo sobre 'amor' na lista acima." | `BibleScreen.tsx` |
-| 10 | Teste da galeria apontava para `.jpg` e apanhava um evento sem álbum | Passou a validar `.webp` e a exigir evento **com álbum** | `tests/gallery.test.ts` |
+| 10 | Comunicados não tinham detalhe: o cartão não abria nada | **Popup do comunicado** com o padrão dos restantes modais (mesmo overlay, `rounded-3xl`, header com X, ESC, foco devolvido, `max-h-[min(86vh,44rem)]`), responsivo de 320 a 1920 px | `ComunicadosScreen.tsx` |
+| 11 | Teste da galeria apontava para `.jpg` e apanhava um evento sem álbum | Passou a validar `.webp` e a exigir evento **com álbum** | `tests/gallery.test.ts` |
 
 ### 2.1 Peso dos assets
 
@@ -56,7 +57,7 @@ O app está funcional, consistente e responsivo em todos os tamanhos testados. N
 
 ---
 
-## 3. Fluxo funcional — 32 verificações
+## 3. Fluxo funcional — 36 verificações
 
 | Ecrã | Verificação | Resultado |
 |---|---|---|
@@ -86,6 +87,9 @@ O app está funcional, consistente e responsivo em todos os tamanhos testados. N
 | Bíblia | Capítulo com 40 versículos numerados | ✅ |
 | Bíblia | Pesquisa por tema devolve versículos | ✅ |
 | Comunicados | Ecrã abre com 2 avisos | ✅ |
+| Comunicados | Popup do comunicado abre (3 cartões) | ✅ |
+| Comunicados | Popup mostra o comunicado certo (título + categoria) | ✅ |
+| Comunicados | ESC fecha e o foco volta ao cartão | ✅ |
 | Perfil | Ecrã abre | ✅ |
 | Perfil | Modal "Os meus dados" abre e fecha ao guardar | ✅ |
 | Perfil | Modal "Notificações" | ✅ |
@@ -163,7 +167,7 @@ Os quatro scripts que produziram este relatório ficam no repositório, em `scri
 npm run build && PORT=4100 node server.js &
 npm i -D playwright && npx playwright install chromium   # dependência das auditorias
 
-node scripts/auditoria/audit-fluxo.mjs      # 32 verificações funcionais + persistência
+node scripts/auditoria/audit-fluxo.mjs      # 36 verificações funcionais + persistência
 node scripts/auditoria/audit-perf.mjs       # FCP/DCL/CLS/tarefas longas por ecrã
 node scripts/auditoria/audit-harmonia.mjs   # 6 viewports: overflow, alvos, alt, sobreposições
 node scripts/auditoria/audit-detalhe2.mjs   # contraste AA (oklch → sRGB) e alvos pequenos
