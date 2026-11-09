@@ -19,7 +19,7 @@ export default function ChurchLogo({ className = '', size = 'md' }: ChurchLogoPr
       className={`rounded-2xl bg-white flex items-center justify-center shrink-0 overflow-hidden ${sizeClasses} ${className}`}
     >
       <img
-        src="/assets/aistudio/MEVD_LOGO_01.png"
+        src="/assets/aistudio/MEVD_LOGO_01.webp"
         alt="Logomarca IGREJA MEVD"
         className="w-full h-full object-contain select-none"
       />

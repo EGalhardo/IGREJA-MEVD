@@ -227,7 +227,7 @@ export default function Modals({
                 <SafeImage
                   src={user.avatar}
                   alt={user.name}
-                  fallbackSrc="/assets/aistudio/Foto_de_Perfil__1__bd7124df.png"
+                  fallbackSrc="/assets/aistudio/Foto_de_Perfil__1__bd7124df.webp"
                   fallbackType="avatar"
                   className="w-12 h-12 rounded-full object-cover ring-2 ring-blue-100"
                 />

@@ -6,32 +6,32 @@ import { ChurchEvent, GalleryPhoto, UserProfile } from '../types';
  */
 const GALLERY_PHOTOS: Array<Omit<GalleryPhoto, 'id'>> = [
   {
-    src: '/assets/events/galeria/culto-celebracao.jpg',
+    src: '/assets/events/galeria/culto-celebracao.webp',
     caption: 'Igreja reunida em adoração durante o culto',
     tag: 'Adoração',
   },
   {
-    src: '/assets/events/galeria/pregacao.jpg',
+    src: '/assets/events/galeria/pregacao.webp',
     caption: 'Mensagem ministrada no púlpito',
     tag: 'Pregação',
   },
   {
-    src: '/assets/events/galeria/encontro-jovens.jpg',
+    src: '/assets/events/galeria/encontro-jovens.webp',
     caption: 'Jovens em comunhão depois do encontro',
     tag: 'Comunhão',
   },
   {
-    src: '/assets/events/galeria/louvor.jpg',
+    src: '/assets/events/galeria/louvor.webp',
     caption: 'Ministério de louvor a conduzir a noite',
     tag: 'Louvor',
   },
   {
-    src: '/assets/events/galeria/intercessao.jpg',
+    src: '/assets/events/galeria/intercessao.webp',
     caption: 'Momento de intercessão pelas famílias',
     tag: 'Intercessão',
   },
   {
-    src: '/assets/events/galeria/baptismo.jpg',
+    src: '/assets/events/galeria/baptismo.webp',
     caption: 'Baptismo de novas vidas no templo',
     tag: 'Baptismo',
   },
@@ -66,8 +66,8 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Inscrições abertas',
       variant: 'green',
     },
-    image: '/assets/events/maio-intensa-oracao.jpg',
-    gallery: buildGallery('congresso-jovens-2027', '/assets/events/galeria/encontro-jovens.jpg'),
+    image: '/assets/events/maio-intensa-oracao.webp',
+    gallery: buildGallery('congresso-jovens-2027', '/assets/events/galeria/encontro-jovens.webp'),
     capacity: '250 vagas',
     description:
       'Um encontro especial para jovens que desejam crescer na fé, fazer novas amizades e viver uma experiência única com Deus.',
@@ -89,7 +89,7 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Pendente',
       variant: 'blue',
     },
-    image: '/assets/events/cristo-pascoa.jpg',
+    image: '/assets/events/cristo-pascoa.webp',
     capacity: '300 vagas',
     description:
       'Uma noite consagrada à busca espiritual profunda, intercessão pelas famílias, nação e fortalecimento através da palavra e oração conjunta.',
@@ -111,7 +111,7 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Em breve',
       variant: 'purple',
     },
-    image: 'https://images.unsplash.com/photo-1509021436665-8f07dbf76c61?auto=format&fit=crop&w=800&q=80',
+    image: '/assets/events/galeria/encontro-jovens.webp',
     capacity: '120 vagas',
     description:
       'Um tempo de renovação em contacto com a natureza, oficinas temáticas de discipulado e fortalecimento dos laços com o Senhor.',
@@ -133,7 +133,7 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Em breve',
       variant: 'purple',
     },
-    image: '/assets/events/vasos-disponiveis.jpg',
+    image: '/assets/events/vasos-disponiveis.webp',
     capacity: '500 vagas',
     description:
       'Cruzada de evangelização e acção social comunitária para levar a mensagem de esperança e fé aos moradores da nossa comunidade.',
@@ -155,7 +155,7 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Inscrições abertas',
       variant: 'green',
     },
-    image: '/assets/aistudio/2_b0dbb042.png',
+    image: '/assets/aistudio/2_b0dbb042.webp',
     capacity: '600 vagas',
     description:
       'Série especial "Edificando uma Família Excelente" ministrada pelo Pr. Feliz & Pra. Manuela Paulo. Um culto focado nos valores bíblicos do lar, harmonia conjugal e bênção para pais e filhos.',
@@ -177,7 +177,7 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Inscrições abertas',
       variant: 'green',
     },
-    image: '/assets/aistudio/3_f31b15f7.png',
+    image: '/assets/aistudio/3_f31b15f7.webp',
     capacity: '1000 vagas',
     description:
       'Grande Congresso de Jovens e Vigília de Oração com preletores e pastores convidados. Momentos intensos de clamor profético, adoração transformadora e renovo do Espírito Santo.',
@@ -199,7 +199,7 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Em breve',
       variant: 'purple',
     },
-    image: '/assets/events/tarde-de-louvor.jpg',
+    image: '/assets/events/tarde-de-louvor.webp',
     capacity: '450 vagas',
     description:
       'Uma noite inteira consagrada à oração fervorosa, intercessão pelas famílias de Angola, libertação de vidas e manifestação do poder de Deus no altar.',
@@ -221,7 +221,7 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Pendente',
       variant: 'blue',
     },
-    image: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800&q=80',
+    image: '/assets/events/galeria/pregacao.webp',
     capacity: '200 vagas',
     description:
       'Treinamento e alinhamento ministerial de líderes de departamentos, diáconos e obreiros da igreja para fortalecimento dos ministérios locais e cuidado das ovelhas.',
@@ -243,8 +243,8 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Inscrições abertas',
       variant: 'green',
     },
-    image: '/assets/events/galeria/culto-celebracao.jpg',
-    gallery: buildGallery('culto-celebracao-adorecao', '/assets/events/galeria/culto-celebracao.jpg'),
+    image: '/assets/events/galeria/culto-celebracao.webp',
+    gallery: buildGallery('culto-celebracao-adorecao', '/assets/events/galeria/culto-celebracao.webp'),
     capacity: '400 lugares',
     description:
       'Manhã de celebração com a igreja reunida em adoração, oração e ministração da Palavra. Traga a sua família e participe deste momento de gratidão a Deus.',
@@ -266,8 +266,8 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Em breve',
       variant: 'purple',
     },
-    image: '/assets/events/galeria/pregacao.jpg',
-    gallery: buildGallery('culto-ensino-pregacao', '/assets/events/galeria/pregacao.jpg'),
+    image: '/assets/events/galeria/pregacao.webp',
+    gallery: buildGallery('culto-ensino-pregacao', '/assets/events/galeria/pregacao.webp'),
     capacity: '300 lugares',
     description:
       'Noite dedicada ao ensino da Palavra, com exposição bíblica e espaço para perguntas. Uma oportunidade para crescer em doutrina e discipulado.',
@@ -289,8 +289,8 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Inscrições abertas',
       variant: 'green',
     },
-    image: '/assets/events/galeria/encontro-jovens.jpg',
-    gallery: buildGallery('encontro-jovens-comunhao', '/assets/events/galeria/encontro-jovens.jpg'),
+    image: '/assets/events/galeria/encontro-jovens.webp',
+    gallery: buildGallery('encontro-jovens-comunhao', '/assets/events/galeria/encontro-jovens.webp'),
     capacity: '150 vagas',
     description:
       'Tarde de comunhão e amizade entre os jovens da igreja, com dinâmicas, partilha de testemunhos e um tempo de oração em conjunto.',
@@ -312,8 +312,8 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Inscrições abertas',
       variant: 'green',
     },
-    image: '/assets/events/galeria/louvor.jpg',
-    gallery: buildGallery('noite-louvor-adoracao', '/assets/events/galeria/louvor.jpg'),
+    image: '/assets/events/galeria/louvor.webp',
+    gallery: buildGallery('noite-louvor-adoracao', '/assets/events/galeria/louvor.webp'),
     capacity: '350 lugares',
     description:
       'Uma noite inteira dedicada à adoração, conduzida pelo ministério de louvor da igreja, com momentos de música, oração e entrega.',
@@ -335,8 +335,8 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Pendente',
       variant: 'blue',
     },
-    image: '/assets/events/galeria/intercessao.jpg',
-    gallery: buildGallery('reuniao-intercessao-familias', '/assets/events/galeria/intercessao.jpg'),
+    image: '/assets/events/galeria/intercessao.webp',
+    gallery: buildGallery('reuniao-intercessao-familias', '/assets/events/galeria/intercessao.webp'),
     capacity: '120 vagas',
     description:
       'Encontro de intercessão dedicado às famílias da igreja, com oração em círculos, partilha de pedidos e clamor pelos lares.',
@@ -358,8 +358,8 @@ export const CHURCH_EVENTS: ChurchEvent[] = [
       text: 'Em breve',
       variant: 'purple',
     },
-    image: '/assets/events/galeria/baptismo.jpg',
-    gallery: buildGallery('culto-baptismo-novas-vidas', '/assets/events/galeria/baptismo.jpg'),
+    image: '/assets/events/galeria/baptismo.webp',
+    gallery: buildGallery('culto-baptismo-novas-vidas', '/assets/events/galeria/baptismo.webp'),
     capacity: '400 lugares',
     description:
       'Celebração do baptismo de novos irmãos na fé, com testemunhos, oração e acolhimento pela igreja. Um dia especial para toda a família MEVD.',
@@ -389,7 +389,7 @@ export function eventSearchValues(event: ChurchEvent): Array<string | undefined>
 export const CURRENT_USER: UserProfile = {
   name: 'Edlásio Galhardo',
   status: 'Membro activo',
-  avatar: '/assets/aistudio/Foto_de_Perfil__1__bd7124df.png',
+  avatar: '/assets/aistudio/Foto_de_Perfil__1__bd7124df.webp',
   civilStatus: 'Casado(a)',
   phone: '+244 923 456 789',
   address: 'Rua do Sanatório, Morro Bento, Luanda',

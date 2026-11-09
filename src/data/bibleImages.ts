@@ -8,7 +8,7 @@ import { BibleBook } from './bibleData';
  *   2. livro     (ex.: Salmos → o bom pastor)
  *   3. grupo/categoria do livro (ex.: Evangelhos → Jesus a ensinar)
  *
- * As imagens estão em `public/assets/biblia` (1280×560, JPEG), por isso
+ * As imagens estão em `public/assets/biblia` (1280×560, WebP), por isso
  * aparecem também sem ligação à Internet.
  */
 
@@ -172,7 +172,7 @@ export function getChapterImage(book: BibleBook, chapter: number): ChapterImage 
   const base = import.meta.env.BASE_URL || '/';
 
   return {
-    src: `${base}assets/biblia/${art.file}.jpg`,
+    src: `${base}assets/biblia/${art.file}.webp`,
     caption: art.caption,
     alt: art.alt,
   };

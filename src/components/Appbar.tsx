@@ -157,13 +157,13 @@ export default function Appbar({
               aria-haspopup="menu"
               aria-expanded={isNotifMenuOpen}
               title="Ver notificações"
-              className="relative block shrink-0 rounded-full transition-transform hover:scale-105 cursor-pointer"
+              className="relative block shrink-0 rounded-full transition-transform hover:scale-105 cursor-pointer before:absolute before:-inset-1.5 before:content-['']"
             >
               <span className="block h-8 w-8 overflow-hidden rounded-full">
                 <SafeImage
                   src={user.avatar}
                   alt={user.name}
-                  fallbackSrc="/assets/aistudio/Foto_de_Perfil__1__bd7124df.png"
+                  fallbackSrc="/assets/aistudio/Foto_de_Perfil__1__bd7124df.webp"
                   fallbackType="avatar"
                   className="w-full h-full object-cover"
                 />
@@ -242,13 +242,13 @@ export default function Appbar({
             aria-haspopup="menu"
             aria-expanded={isNotifMenuOpen}
             title="Ver notificações"
-            className="relative block shrink-0 rounded-full transition-transform active:scale-95 cursor-pointer"
+            className="relative block shrink-0 rounded-full transition-transform active:scale-95 cursor-pointer before:absolute before:-inset-2 before:content-['']"
           >
             <span className="block h-7 w-7 overflow-hidden rounded-full">
               <SafeImage
                 src={user.avatar}
                 alt={user.name}
-                fallbackSrc="/assets/aistudio/Foto_de_Perfil__1__bd7124df.png"
+                fallbackSrc="/assets/aistudio/Foto_de_Perfil__1__bd7124df.webp"
                 fallbackType="avatar"
                 className="w-full h-full object-cover"
               />
@@ -267,7 +267,7 @@ export default function Appbar({
             onClick={onOpenProfile}
             aria-label={`Perfil — Oi, ${firstName}`}
             title="Ver Perfil"
-            className="max-w-16 truncate whitespace-nowrap rounded-md px-1 text-[9px] font-semibold leading-none text-slate-900 transition-colors hover:text-[#0066cc] cursor-pointer"
+            className="relative max-w-16 truncate whitespace-nowrap rounded-md px-1 py-2 -my-2 text-[9px] font-semibold leading-none text-slate-900 transition-colors hover:text-[#0066cc] cursor-pointer before:absolute before:-inset-x-2 before:inset-y-0 before:content-['']"
           >
             Oi, {firstName}
           </button>

@@ -21,7 +21,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
       <button
         onClick={() => onNavigate('home')}
         className={`flex min-w-10 flex-col items-center gap-1 py-1 px-0.5 sm:px-3 transition-all cursor-pointer ${
-          currentScreen === 'home' ? 'text-[#0066cc]' : 'text-slate-400 hover:text-slate-700'
+          currentScreen === 'home' ? 'text-[#0066cc]' : 'text-slate-500 hover:text-slate-700'
         }`}
       >
         <Home className="w-5 h-5 stroke-[2.2]" />
@@ -34,7 +34,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
         className={`flex min-w-10 flex-col items-center gap-1 py-1 px-0.5 sm:px-3 transition-all cursor-pointer ${
           currentScreen === 'events' || currentScreen === 'event-detail'
             ? 'text-[#0066cc]'
-            : 'text-slate-400 hover:text-slate-700'
+            : 'text-slate-500 hover:text-slate-700'
         }`}
       >
         <Calendar className="w-5 h-5 stroke-[2.2]" />
@@ -45,7 +45,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
       <button
         onClick={() => onNavigate('bible')}
         className={`flex min-w-10 flex-col items-center gap-1 py-1 px-0.5 sm:px-3 transition-all cursor-pointer ${
-          currentScreen === 'bible' ? 'text-[#0066cc]' : 'text-slate-400 hover:text-slate-700'
+          currentScreen === 'bible' ? 'text-[#0066cc]' : 'text-slate-500 hover:text-slate-700'
         }`}
       >
         <BookOpen className="w-5 h-5 stroke-[2.2]" />
@@ -56,7 +56,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
       <button
         onClick={() => onNavigate('announcements')}
         className={`flex min-w-10 flex-col items-center gap-1 py-1 px-0.5 sm:px-3 transition-all cursor-pointer ${
-          currentScreen === 'announcements' ? 'text-[#0066cc]' : 'text-slate-400 hover:text-slate-700'
+          currentScreen === 'announcements' ? 'text-[#0066cc]' : 'text-slate-500 hover:text-slate-700'
         }`}
       >
         <Megaphone className="w-5 h-5 stroke-[2.2]" />
@@ -67,7 +67,7 @@ export default function BottomNav({ currentScreen, onNavigate, isDesktopLayout =
       <button
         onClick={() => onNavigate('profile')}
         className={`flex min-w-10 flex-col items-center gap-1 py-1 px-0.5 sm:px-3 transition-all cursor-pointer ${
-          isProfileActive ? 'text-[#0066cc]' : 'text-slate-400 hover:text-slate-700'
+          isProfileActive ? 'text-[#0066cc]' : 'text-slate-500 hover:text-slate-700'
         }`}
       >
         <User className="w-5 h-5 stroke-[2.2]" />

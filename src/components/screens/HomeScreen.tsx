@@ -33,7 +33,7 @@ interface HomeScreenProps {
 const HERO_CAROUSEL_SLIDES = [
   {
     id: 1,
-    image: '/assets/aistudio/1_6270ba45.png',
+    image: '/assets/aistudio/1_6270ba45.webp',
     alt: 'IGREJA MEVD - Logomarca e Identidade Oficial',
     title: 'Bem-vindo à IGREJA MEVD',
     subtitle: 'Uma igreja viva, unida e em missão.',
@@ -41,7 +41,7 @@ const HERO_CAROUSEL_SLIDES = [
   },
   {
     id: 2,
-    image: '/assets/aistudio/2_b0dbb042.png',
+    image: '/assets/aistudio/2_b0dbb042.webp',
     alt: 'Nova Série: Edificando uma Família Excelente com Pr. Feliz & Pra. Manuela Paulo',
     title: 'Nova Série: Família Excelente',
     subtitle: 'Todos os domingos de Junho às 09h • Pr. Feliz & Pra. Manuela',
@@ -49,7 +49,7 @@ const HERO_CAROUSEL_SLIDES = [
   },
   {
     id: 3,
-    image: '/assets/aistudio/3_f31b15f7.png',
+    image: '/assets/aistudio/3_f31b15f7.webp',
     alt: 'Save the Date: 9º CVD Congresso de Jovens e Vigília de Oração',
     title: '9º CVD • Congresso de Jovens',
     subtitle: '17 e 18 de Outubro • Vigília de Oração e Louvor',
@@ -162,7 +162,7 @@ export default function HomeScreen({
                 <SafeImage
                   src={slide.image}
                   alt={slide.alt}
-                  fallbackSrc="/assets/aistudio/1_6270ba45.png"
+                  fallbackSrc="/assets/aistudio/1_6270ba45.webp"
                   fallbackType="church"
                   className="w-full h-full object-cover object-center block"
                   loading={index === 0 ? 'eager' : 'lazy'}
@@ -206,21 +206,24 @@ export default function HomeScreen({
                     e.stopPropagation();
                     setCurrentSlide(idx);
                   }}
-                  className="relative rounded-full cursor-pointer h-2 overflow-hidden transition-all duration-300 w-7 sm:w-9 bg-white/30"
+                  className="flex h-6 cursor-pointer items-center"
                   aria-label={`Ir para imagem ${idx + 1}`}
                 >
-                  {/* Fill progress inside the active indicator */}
-                  {isActive && (
-                    <div
-                      key={`pill-${currentSlide}`}
-                      className="absolute inset-y-0 left-0 bg-white rounded-full"
-                      style={{
-                        animation: 'carouselProgress 5s linear forwards',
-                        animationPlayState: isPaused ? 'paused' : 'running',
-                      }}
-                    />
-                  )}
-                  {idx < currentSlide && <div className="absolute inset-0 bg-white/90 rounded-full" />}
+                  {/* Área táctil de 24 px com a pílula visível de 8 px */}
+                  <span className="relative block h-2 w-7 overflow-hidden rounded-full bg-white/30 transition-all duration-300 sm:w-9">
+                    {/* Fill progress inside the active indicator */}
+                    {isActive && (
+                      <span
+                        key={`pill-${currentSlide}`}
+                        className="absolute inset-y-0 left-0 rounded-full bg-white"
+                        style={{
+                          animation: 'carouselProgress 5s linear forwards',
+                          animationPlayState: isPaused ? 'paused' : 'running',
+                        }}
+                      />
+                    )}
+                    {idx < currentSlide && <span className="absolute inset-0 rounded-full bg-white/90" />}
+                  </span>
                 </button>
               );
             })}
@@ -257,7 +260,10 @@ export default function HomeScreen({
               <Search className="h-5 w-5 stroke-[2.2]" />
             </div>
 
-            <div className="min-w-0 flex-1">
+            <div
+              className="min-w-0 flex-1 cursor-text"
+              onClick={(e) => e.currentTarget.querySelector('input')?.focus()}
+            >
               <label htmlFor="home-event-search" className="sr-only">
                 Pesquisar eventos
               </label>
@@ -269,9 +275,10 @@ export default function HomeScreen({
                 value={searchQuery}
                 onChange={(e) => onSearchQueryChange?.(e.target.value)}
                 placeholder="Pesquisar eventos..."
+                aria-label="Pesquisar eventos"
                 className="w-full bg-transparent text-xs font-bold text-slate-800 placeholder:font-bold placeholder:text-slate-400 focus:outline-none sm:text-sm"
               />
-              <p className="truncate text-[11px] text-slate-400" aria-live="polite">
+              <p className="truncate text-[11px] text-slate-500" aria-live="polite">
                 {hasQuery
                   ? searchResults.length > 0
                     ? `${searchResults.length} evento(s) encontrado(s)`
@@ -355,7 +362,7 @@ export default function HomeScreen({
             </div>
             <button
               onClick={() => onNavigate('events')}
-              className="text-xs sm:text-sm font-semibold text-[#0066cc] flex items-center gap-1 hover:underline cursor-pointer"
+              className="relative text-xs sm:text-sm font-semibold text-[#0066cc] flex items-center gap-1 hover:underline cursor-pointer before:absolute before:-inset-2 before:content-['']"
             >
               <span>Ver todos</span>
               <ArrowRight className="w-3.5 h-3.5 stroke-[2.2]" />
@@ -379,7 +386,7 @@ export default function HomeScreen({
                   <SafeImage
                     src={event.image}
                     alt={event.title}
-                    fallbackSrc="/assets/aistudio/2_b0dbb042.png"
+                    fallbackSrc="/assets/aistudio/2_b0dbb042.webp"
                     fallbackType="event"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />

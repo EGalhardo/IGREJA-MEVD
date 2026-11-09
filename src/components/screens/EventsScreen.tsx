@@ -117,7 +117,7 @@ export default function EventsScreen({
                   <SafeImage
                     src={event.image}
                     alt={event.title}
-                    fallbackSrc="/assets/aistudio/2_b0dbb042.png"
+                    fallbackSrc="/assets/aistudio/2_b0dbb042.webp"
                     fallbackType="event"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />

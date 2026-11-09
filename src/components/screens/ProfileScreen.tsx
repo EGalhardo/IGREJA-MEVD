@@ -24,7 +24,7 @@ export default function ProfileScreen({
               <SafeImage
                 src={user.avatar}
                 alt={user.name}
-                fallbackSrc="/assets/aistudio/Foto_de_Perfil__1__bd7124df.png"
+                fallbackSrc="/assets/aistudio/Foto_de_Perfil__1__bd7124df.webp"
                 fallbackType="avatar"
                 className="w-full h-full object-cover"
                 loading="eager"

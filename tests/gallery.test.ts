@@ -36,10 +36,12 @@ test('cada fotografia criada deu origem a um evento próprio', () => {
   ];
 
   for (const name of photoSources) {
-    const src = `/assets/events/galeria/${name}.jpg`;
-    const event = CHURCH_EVENTS.find((item) => item.image === src);
+    const src = `/assets/events/galeria/${name}.webp`;
+    // Outros eventos podem reutilizar a imagem como cartaz; o que importa é que
+    // exista um evento cujo álbum abra precisamente por esta fotografia.
+    const event = CHURCH_EVENTS.find((item) => item.image === src && (item.gallery?.length ?? 0) > 0);
 
-    assert.ok(event, `nenhum evento usa a fotografia ${name}`);
+    assert.ok(event, `nenhum evento com álbum usa a fotografia ${name}`);
     assert.ok((event?.gallery?.length ?? 0) > 0, `${event?.id}: evento sem galeria`);
     assert.equal(event?.gallery?.[0]?.src, src, `${event?.id}: a galeria deve abrir com a foto do evento`);
   }

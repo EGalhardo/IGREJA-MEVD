@@ -226,11 +226,13 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
   const topicalResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const query = normalizeSearch(searchQuery);
+    // O texto é comparado por palavra inteira: "amor" não deve casar com "clamor".
+    const palavraInteira = new RegExp(`\\b${query.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&')}\\b`);
     return TOPICAL_SEARCH_VERSES.filter(
       (item) =>
         normalizeSearch(item.topic).includes(query) ||
-        normalizeSearch(item.text).includes(query) ||
-        normalizeSearch(item.ref).includes(query)
+        normalizeSearch(item.ref).includes(query) ||
+        palavraInteira.test(normalizeSearch(item.text))
     );
   }, [searchQuery]);
 
@@ -698,8 +700,14 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
                 {filteredBooks.length === 0 ? (
                   <div className="text-center py-12 border border-dashed border-[#E2E8F0] rounded-2xl">
                     <BookOpen className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                    <p className="text-sm font-bold text-slate-700">Nenhum livro encontrado</p>
-                    <p className="text-xs text-slate-500 mt-1">Tente pesquisar com outro termo ou limpe o filtro.</p>
+                    <p className="text-sm font-bold text-slate-700">
+                      {topicalResults.length > 0 ? 'Nenhum livro com esse nome' : 'Nenhum livro encontrado'}
+                    </p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      {topicalResults.length > 0
+                        ? `Mas há ${topicalResults.length} ${topicalResults.length === 1 ? 'versículo' : 'versículos'} sobre “${searchQuery.trim()}” na lista acima.`
+                        : 'Tente pesquisar com outro termo ou limpe o filtro.'}
+                    </p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 @min-[30rem]:grid-cols-3 @min-[40rem]:grid-cols-4 @min-[48rem]:grid-cols-5 gap-3">
