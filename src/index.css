@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 #root {
-  --desktop-header-height: 5.5625rem;
+  /* Appbar do desktop: 89px -> 80px, mais baixa sem apertar o conteudo */
+  --desktop-header-height: 5rem;
 }
 
 /* Uniformiza as bordas existentes e remove sombras em todo o aplicativo. */
