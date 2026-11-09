@@ -469,7 +469,7 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
         {viewMode === 'books' && (
           <>
             {/* Banner Inspirador do Versículo do Dia com Áudio e Navegação Direta */}
-            <div className="relative rounded-3xl overflow-hidden shadow-sm border border-amber-200/60 bg-gradient-to-br from-amber-600 via-amber-700 to-amber-900 p-6 sm:p-8 text-white">
+            <div className="bible-verse-banner relative rounded-3xl overflow-hidden shadow-sm border border-amber-200/60 p-6 sm:p-8 text-white">
               <div className="relative z-10 flex flex-col justify-between min-h-[170px] sm:min-h-[190px]">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-md text-amber-100 border border-white/20">
@@ -636,8 +636,8 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
                   onClick={() => setActiveCategory('todos')}
                   className={`px-3 py-1.5 rounded-xl font-medium shrink-0 transition-all cursor-pointer ${
                     activeCategory === 'todos'
-                      ? 'bg-[#0066cc] text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      ? 'bg-[#0066cc] text-white border border-[#0066cc]'
+                      : 'bg-white text-slate-600 border border-[#E2E8F0] hover:bg-slate-50'
                   }`}
                 >
                   Todas as Seções
@@ -648,8 +648,8 @@ export default function BibleScreen({ onShowToast, isDesktopLayout = false }: Bi
                     onClick={() => setActiveCategory(category)}
                     className={`px-3 py-1.5 rounded-xl font-medium shrink-0 transition-all cursor-pointer ${
                       activeCategory === category
-                        ? 'bg-[#0066cc] text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                        ? 'bg-[#0066cc] text-white border border-[#0066cc]'
+                        : 'bg-white text-slate-600 border border-[#E2E8F0] hover:bg-slate-50'
                     }`}
                   >
                     {category}

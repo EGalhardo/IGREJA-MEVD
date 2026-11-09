@@ -501,3 +501,16 @@ html[data-theme='dark'] #root [class~="hover:border-red-300"]:hover {
     animation: none !important;
   }
 }
+
+/* ==========================================================================
+   Banner do "Versículo do Dia" (Bíblia)
+   O gradiente do Tailwind usa interpolação "in oklab", que invalida toda a
+   declaração em navegadores mais antigos (Chrome < 111, Safari < 16.2),
+   muito comuns em tablets. Sem imagem de fundo o cartão ficava transparente
+   e o texto branco desaparecia sobre o fundo branco da página.
+   Aqui o fundo sólido garante o cartão visível em qualquer navegador.
+   ========================================================================== */
+.bible-verse-banner {
+  background-color: #92400e; /* âmbar-800 sólido: visível e legível sem o gradiente */
+  background-image: linear-gradient(135deg, #d97706 0%, #b45309 55%, #78350f 100%);
+}

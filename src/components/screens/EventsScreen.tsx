@@ -82,8 +82,8 @@ export default function EventsScreen({
                   onClick={() => onSelectCategory(category)}
                   className={`px-4 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                     isActive
-                      ? 'bg-[#0066cc] text-white shadow-xs'
-                      : 'bg-[#f1f5f9] text-slate-600 hover:bg-slate-200/80'
+                      ? 'bg-[#0066cc] text-white border border-[#0066cc] shadow-xs'
+                      : 'bg-white text-slate-600 border border-[#E2E8F0] hover:bg-slate-50'
                   }`}
                 >
                   {category}

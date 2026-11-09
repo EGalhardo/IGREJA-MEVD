@@ -118,7 +118,7 @@ export default function Sidebar({
       </div>
 
       {/* Harmonious Bottom Section with Sign Out Button */}
-      <div className="p-4 border-t border-[#E2E8F0] bg-slate-50/40 space-y-2">
+      <div className="p-4 border-t border-[#E2E8F0] bg-white space-y-2">
         <button
           onClick={onLogout}
           className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl border border-red-200 bg-white text-red-600 hover:bg-red-50 hover:border-red-300 text-xs font-semibold shadow-xs transition-all cursor-pointer"
