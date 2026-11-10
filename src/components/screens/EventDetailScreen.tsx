@@ -6,64 +6,6 @@ import { GalleryGrid, GalleryPanel, GalleryLightbox } from '../EventGallery';
 import SafeImage from '../SafeImage';
 
 
-/**
- * Moldura genérica da transmissão ao vivo.
- *
- * É um iframe real, mas com conteúdo autónomo (srcdoc), sem qualquer pedido à rede:
- * por isso aparece igual com internet ou offline. Quando a transmissão for
- * implementada, basta substituir `srcDoc={LIVE_PLACEHOLDER_HTML}` por
- * `src="https://www.youtube.com/embed/ID_DO_VIDEO"`.
- */
-const LIVE_PLACEHOLDER_HTML = `<!doctype html>
-<html lang="pt">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-      * { box-sizing: border-box; }
-      html, body { margin: 0; height: 100%; overflow: hidden; }
-      body {
-        display: flex; align-items: center; justify-content: center;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-        background: radial-gradient(circle at 50% 40%, #1e293b 0%, #0f172a 55%, #020617 100%);
-        color: #e2e8f0; text-align: center; padding: 4% 6%;
-      }
-      .wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5vmin; max-width: 92%; }
-      .live {
-        display: inline-flex; align-items: center; gap: .6vmin;
-        font-size: clamp(7px, 1.9vmin, 10px); font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
-        color: #fecdd3; background: rgba(244, 63, 94, .16);
-        border: 1px solid rgba(244, 63, 94, .45); border-radius: 999px; padding: .5vmin 1.6vmin;
-      }
-      .dot { width: 1.2vmin; height: 1.2vmin; min-width: 5px; min-height: 5px; border-radius: 999px; background: #f43f5e; }
-      .play {
-        width: clamp(30px, 9vmin, 58px); height: clamp(30px, 9vmin, 58px);
-        border-radius: 999px; flex: 0 0 auto;
-        display: flex; align-items: center; justify-content: center;
-        background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.35);
-      }
-      .play span {
-        width: 0; height: 0; margin-left: 12%;
-        border-left: clamp(9px, 2.9vmin, 18px) solid #ffffff;
-        border-top: clamp(6px, 1.8vmin, 11px) solid transparent;
-        border-bottom: clamp(6px, 1.8vmin, 11px) solid transparent;
-      }
-      h1 { font-size: clamp(10px, 2.9vmin, 15px); margin: 0; letter-spacing: -.01em; }
-      p { font-size: clamp(8px, 2.3vmin, 12px); line-height: 1.4; margin: 0; color: #94a3b8; }
-      .brand { font-size: clamp(7px, 1.7vmin, 10px); letter-spacing: .18em; text-transform: uppercase; color: #64748b; }
-    </style>
-  </head>
-  <body>
-    <div class="wrap">
-      <div class="live"><span class="dot"></span> Ao vivo</div>
-      <div class="play"><span></span></div>
-      <h1>Transmissão do evento</h1>
-      <p>Este espaço vai apresentar a transmissão em directo.</p>
-      <div class="brand">IGREJA MEVD</div>
-    </div>
-  </body>
-</html>`;
-
 interface EventDetailScreenProps {
   event: ChurchEvent;
   isRegistered: boolean;
@@ -179,57 +121,55 @@ export default function EventDetailScreen({
           <div className="relative w-full shrink-0 bg-slate-900">
             {activeTab === 'live' || !hasGallery ? (
               <>
-                {/* Telemóvel e tablet: moldura de transmissão, exactamente como estava */}
-                <div className="lg:hidden">
-                  {/* Conteúdo autónomo (srcdoc), por isso aparece também offline. */}
-                  <iframe
-                    title={`Transmissão do evento ${event.title}`}
-                    srcDoc={LIVE_PLACEHOLDER_HTML}
-                    loading="eager"
-                    allow="fullscreen; picture-in-picture"
-                    className="block aspect-[160/117] w-full border-0"  /* 16:9 + 30% de altura */
-                  />
-                </div>
+                {/* Painel da transmissão: imagem do evento como fundo do vídeo.
+                    - Telemóvel/tablet: a imagem tal como está (inteira, sem cortes).
+                    - Desktop: a mesma imagem recortada na zona de destaque do cartaz. */}
+                <div className="relative aspect-[160/117] w-full overflow-hidden bg-slate-950 lg:aspect-[16/9] lg:max-h-[24rem]">
+                  {/* Fundo preenchido com a própria imagem desfocada (aparece onde a imagem inteira
+                      não chega, para o cartão não ficar com faixas vazias). */}
+                  <span className="pointer-events-none absolute inset-0 overflow-hidden lg:hidden">
+                    <SafeImage
+                      src={event.image}
+                      alt=""
+                      fallbackSrc="/assets/aistudio/2_b0dbb042.webp"
+                      fallbackType="event"
+                      loading="eager"
+                      className="h-full w-full scale-110 object-cover opacity-35 blur-xl"
+                    />
+                  </span>
 
-                {/* Indicador de estado sobre a moldura (só onde a moldura aparece) */}
-                <span className="pointer-events-none absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full border border-rose-400/40 bg-slate-950/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-rose-200 backdrop-blur-sm sm:right-4 sm:top-4 lg:hidden">
-                  <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
-                  Em preparação
-                </span>
-
-                {/* Desktop: a imagem do cartão clicado é o fundo do vídeo, recortada na zona de
-                    destaque do cartaz (rosto/logomarca), com o Play e os textos por cima. */}
-                <div className="relative hidden aspect-[16/9] max-h-[24rem] w-full overflow-hidden bg-slate-950 lg:block">
                   <SafeImage
                     src={event.image}
                     alt={event.title}
                     fallbackSrc="/assets/aistudio/2_b0dbb042.webp"
                     fallbackType="event"
                     loading="eager"
-                    className="absolute inset-0 h-full w-full object-cover object-[50%_20%]"
+                    className="relative z-[1] mx-auto block h-full w-full object-contain lg:object-cover lg:object-[50%_20%]"
                   />
 
                   {/* Véu escuro: mantém o Play e os textos legíveis sobre a fotografia */}
-                  <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/55 to-slate-950/30" />
+                  <span className="pointer-events-none absolute inset-0 z-[2] bg-gradient-to-t from-slate-950/90 via-slate-950/55 to-slate-950/30" />
 
                   {/* Estado da transmissão */}
-                  <span className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full border border-rose-400/50 bg-rose-500/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-rose-50 backdrop-blur-sm">
+                  <span className="absolute left-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full border border-rose-400/50 bg-rose-500/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-rose-50 backdrop-blur-sm sm:left-4 sm:top-4">
                     <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
                     Ao vivo
                   </span>
 
                   {/* Play + textos da transmissão */}
-                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1.5 px-6 text-center">
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1.5 px-5 text-center">
                     <button
                       type="button"
                       onClick={handlePlayLive}
                       aria-label={`Reproduzir a transmissão do evento ${event.title}`}
-                      className="flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-white/95 text-[#0066cc] transition-transform duration-200 hover:scale-105 hover:bg-white active:scale-95"
+                      className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full bg-white/95 text-[#0066cc] transition-transform duration-200 hover:scale-105 hover:bg-white active:scale-95 sm:h-14 sm:w-14"
                     >
-                      <Play className="ml-0.5 h-6 w-6 fill-current stroke-[0]" aria-hidden="true" />
+                      <Play className="ml-0.5 h-5 w-5 fill-current stroke-[0] sm:h-6 sm:w-6" aria-hidden="true" />
                     </button>
-                    <h2 className="mt-1 text-base font-extrabold text-white">Transmissão do evento</h2>
-                    <p className="max-w-[24rem] text-xs font-medium leading-snug text-slate-200">
+                    <h2 className="mt-1 text-sm font-extrabold text-white sm:text-base">
+                      Transmissão do evento
+                    </h2>
+                    <p className="max-w-[22rem] text-[11px] font-medium leading-snug text-slate-200 sm:text-xs sm:max-w-[24rem]">
                       Este espaço vai apresentar a transmissão em directo.
                     </p>
                   </div>
