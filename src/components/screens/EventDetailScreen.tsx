@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Share2, MapPin, Clock, Users, Mic, Music, UserCheck, Check, Images } from 'lucide-react';
+import { Share2, MapPin, Clock, Users, Mic, Music, UserCheck, Check, Images, Play } from 'lucide-react';
 import { ChurchEvent } from '../../types';
 import { shareOrCopy } from '../../utils/shareUtils';
 import { GalleryGrid, GalleryPanel, GalleryLightbox } from '../EventGallery';
+import SafeImage from '../SafeImage';
 
 
 /**
@@ -105,6 +106,11 @@ export default function EventDetailScreen({
     );
   };
 
+  // O Play não tem uma emissão real nesta versão: confirma o estado com uma mensagem.
+  const handlePlayLive = () => {
+    onShowToast('A transmissão em directo vai começar em breve.');
+  };
+
   const handleShare = async () => {
     if (isSharing) return;
     setIsSharing(true);
@@ -173,20 +179,61 @@ export default function EventDetailScreen({
           <div className="relative w-full shrink-0 bg-slate-900">
             {activeTab === 'live' || !hasGallery ? (
               <>
-                {/* Conteúdo autónomo (srcdoc), por isso aparece também offline. */}
-                <iframe
-                  title={`Transmissão do evento ${event.title}`}
-                  srcDoc={LIVE_PLACEHOLDER_HTML}
-                  loading="eager"
-                  allow="fullscreen; picture-in-picture"
-                  className="block aspect-[160/117] w-full border-0"  /* 16:9 + 30% de altura */
-                />
+                {/* Telemóvel e tablet: moldura de transmissão, exactamente como estava */}
+                <div className="lg:hidden">
+                  {/* Conteúdo autónomo (srcdoc), por isso aparece também offline. */}
+                  <iframe
+                    title={`Transmissão do evento ${event.title}`}
+                    srcDoc={LIVE_PLACEHOLDER_HTML}
+                    loading="eager"
+                    allow="fullscreen; picture-in-picture"
+                    className="block aspect-[160/117] w-full border-0"  /* 16:9 + 30% de altura */
+                  />
+                </div>
 
-                {/* Indicador de estado sobre a moldura */}
-                <span className="pointer-events-none absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full border border-rose-400/40 bg-slate-950/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-rose-200 backdrop-blur-sm sm:right-4 sm:top-4">
+                {/* Indicador de estado sobre a moldura (só onde a moldura aparece) */}
+                <span className="pointer-events-none absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full border border-rose-400/40 bg-slate-950/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-rose-200 backdrop-blur-sm sm:right-4 sm:top-4 lg:hidden">
                   <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
                   Em preparação
                 </span>
+
+                {/* Desktop: a imagem do cartão clicado é o fundo do vídeo, recortada na zona de
+                    destaque do cartaz (rosto/logomarca), com o Play e os textos por cima. */}
+                <div className="relative hidden aspect-[16/9] max-h-[24rem] w-full overflow-hidden bg-slate-950 lg:block">
+                  <SafeImage
+                    src={event.image}
+                    alt={event.title}
+                    fallbackSrc="/assets/aistudio/2_b0dbb042.webp"
+                    fallbackType="event"
+                    loading="eager"
+                    className="absolute inset-0 h-full w-full object-cover object-[50%_20%]"
+                  />
+
+                  {/* Véu escuro: mantém o Play e os textos legíveis sobre a fotografia */}
+                  <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/55 to-slate-950/30" />
+
+                  {/* Estado da transmissão */}
+                  <span className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full border border-rose-400/50 bg-rose-500/25 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.14em] text-rose-50 backdrop-blur-sm">
+                    <span className="h-1.5 w-1.5 rounded-full bg-rose-400" />
+                    Ao vivo
+                  </span>
+
+                  {/* Play + textos da transmissão */}
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1.5 px-6 text-center">
+                    <button
+                      type="button"
+                      onClick={handlePlayLive}
+                      aria-label={`Reproduzir a transmissão do evento ${event.title}`}
+                      className="flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-white/95 text-[#0066cc] transition-transform duration-200 hover:scale-105 hover:bg-white active:scale-95"
+                    >
+                      <Play className="ml-0.5 h-6 w-6 fill-current stroke-[0]" aria-hidden="true" />
+                    </button>
+                    <h2 className="mt-1 text-base font-extrabold text-white">Transmissão do evento</h2>
+                    <p className="max-w-[24rem] text-xs font-medium leading-snug text-slate-200">
+                      Este espaço vai apresentar a transmissão em directo.
+                    </p>
+                  </div>
+                </div>
               </>
             ) : (
               <GalleryGrid photos={gallery} onOpen={(index) => setLightboxIndex(index)} />
