@@ -58,7 +58,7 @@ const HERO_CAROUSEL_SLIDES: HeroSlide[] = [
   },
   {
     id: 2,
-    image: '/assets/aistudio/2_b0dbb042.webp',
+    image: '/assets/aistudio/2_edificando_familia_excelente.webp',
     alt: 'Nova Série: Edificando uma Família Excelente com Pr. Feliz & Pra. Manuela Paulo',
     title: 'Nova Série: Família Excelente',
     subtitle: 'Todos os domingos de Junho às 09h • Pr. Feliz & Pra. Manuela',
