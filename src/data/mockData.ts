@@ -155,7 +155,7 @@ const EVENTOS_BASE: ChurchEvent[] = [
       text: 'Inscrições abertas',
       variant: 'green',
     },
-    image: '/assets/aistudio/2_b0dbb042.webp',
+    image: '/assets/aistudio/2_edificando_familia_excelente.webp',
     capacity: '600 vagas',
     description:
       'Série especial "Edificando uma Família Excelente" ministrada pelo Pr. Feliz & Pra. Manuela Paulo. Um culto focado nos valores bíblicos do lar, harmonia conjugal e bênção para pais e filhos.',
