@@ -1,11 +1,58 @@
 import { useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Moon, Sun } from 'lucide-react';
+import { ArrowLeft, Globe, Moon, Sun } from 'lucide-react';
 import ChurchLogo from './ChurchLogo';
 import SafeImage from './SafeImage';
 import NotificationMenu from './NotificationMenu';
 import type { AppNotification } from '../data/notificationsData';
 import { Screen, UserProfile } from '../types';
 import { useTheme } from '../theme';
+
+/**
+ * "Globe Off" no traço do lucide: o lucide-react 0.546 não traz este ícone,
+ * por isso desenha-se o globo com a barra diagonal do padrão `*-off`.
+ */
+function GlobeOffIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+      <path d="M2 12h20" />
+      <path d="m2 2 20 20" />
+    </svg>
+  );
+}
+
+/**
+ * Indicador da ligação à internet, à esquerda do alternador Escuro/Claro.
+ * Verde (Globe) quando há ligação; vermelho (Globe Off) quando está offline.
+ */
+function ConnectionStatus({ online }: { online: boolean }) {
+  const rotulo = online ? 'Ligado à internet' : 'Sem ligação à internet';
+  return (
+    <span
+      role="status"
+      aria-live="polite"
+      aria-label={rotulo}
+      title={rotulo}
+      className="mr-1 flex h-8 w-8 shrink-0 items-center justify-center"
+    >
+      {online ? (
+        <Globe className="h-4 w-4 text-emerald-600 stroke-[2.2]" aria-hidden="true" />
+      ) : (
+        <GlobeOffIcon className="h-4 w-4 text-red-500" />
+      )}
+    </span>
+  );
+}
 
 interface AppbarProps {
   currentScreen: Screen;
@@ -101,6 +148,22 @@ export default function Appbar({
   const firstName = user.name.trim().split(/\s+/)[0] || user.name;
   const { theme, toggleTheme } = useTheme();
 
+  // Estado da ligação: acompanha os eventos online/offline do browser.
+  const [isOnline, setIsOnline] = useState(() =>
+    typeof navigator === 'undefined' ? true : navigator.onLine
+  );
+
+  useEffect(() => {
+    const ficouOnline = () => setIsOnline(true);
+    const ficouOffline = () => setIsOnline(false);
+    window.addEventListener('online', ficouOnline);
+    window.addEventListener('offline', ficouOffline);
+    return () => {
+      window.removeEventListener('online', ficouOnline);
+      window.removeEventListener('offline', ficouOffline);
+    };
+  }, []);
+
   const getScreenTitle = () => {
     switch (currentScreen) {
       case 'home':
@@ -151,6 +214,8 @@ export default function Appbar({
 
         {/* Right: alternador Escuro/Claro + foto de perfil (abre as notificações) + saudação (abre o perfil) */}
         <div ref={notifWrapperRef} className="relative flex shrink-0 items-center">
+          <ConnectionStatus online={isOnline} />
+
           <button
             onClick={toggleTheme}
             aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
@@ -250,6 +315,8 @@ export default function Appbar({
 
       {/* Right section: alternador Escuro/Claro + foto de perfil (abre as notificações) + saudação (abre o perfil) */}
       <div ref={notifWrapperRef} className="relative flex shrink-0 items-center">
+        <ConnectionStatus online={isOnline} />
+
         <button
           onClick={toggleTheme}
           aria-label={theme === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'}
